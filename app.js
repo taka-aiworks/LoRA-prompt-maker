@@ -59,7 +59,7 @@ function resetSettings() {
 }
 
 /* ========= 内蔵辞書（空で開始） ========= */
-const EMBED_SFW  = { hair_style:[], eyes:[], outfit:[], face:[], skin_body:[], art_style:[], background:[], pose_composition:[], expressions:[], accessories:[], lighting:[] };
+const EMBED_SFW  = { hair_style:[], eyes:[], outfit:[], face:[], skin_body:[], art_style:[], background:[], pose_composition:[], expressions:[], accessories:[], lighting:[], age:[], gender:[], body_type:[], height:[], personality:[], relationship:[], worldview:[], speech_tone:[]};
 const EMBED_NSFW = { categories:{ expression:[], exposure:[], situation:[], lighting:[] } };
 
 let SFW  = JSON.parse(JSON.stringify(EMBED_SFW));
@@ -80,7 +80,13 @@ function normList(arr){ return (arr || []).map(normItem).filter(Boolean); }
 const KEYMAP = {
   "髪型":"hair_style","目の形":"eyes","服":"outfit","顔の特徴":"face","体型":"skin_body",
   "画風":"art_style","背景":"background","ポーズ":"pose_composition","ポーズ・構図":"pose_composition",
-  "表情":"expressions","アクセサリー":"accessories","ライティング":"lighting"
+  "表情":"expressions","アクセサリー":"accessories","ライティング":"lighting","年齢":"age","性別":"gender",
+  "体型(基本)":"body_type",   // 好きな日本語キーに合わせて
+  "身長":"height",
+  "性格":"personality",
+  "関係性":"relationship",
+  "世界観":"worldview",
+  "口調":"speech_tone"
 };
 function normNSFW(ns) {
   // --- 新: nsfw_tags 形式を吸収 ---
@@ -469,7 +475,7 @@ function renderSFW(){
   radioList($("#bf_person"),   SFW.personality,     "bf_person");
   radioList($("#bf_relation"), SFW.relationship,    "bf_relation");
   radioList($("#bf_world"),    SFW.worldview,       "bf_world");
-  radioList($("#bf_tone"),     SFW.speech_tone, 
+  radioList($("#bf_tone"),     SFW.speech_tone,     "bf_tone");
 }
 
 /* ========= タブ切替 ========= */
