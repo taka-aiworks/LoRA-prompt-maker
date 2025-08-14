@@ -334,6 +334,8 @@ details[open] summary .caret{transform:rotate(90deg)}
           <div><b class="mini">表情</b><div id="nsfwP_expr" class="scroller"></div></div>
           <div><b class="mini">露出</b><div id="nsfwP_expo" class="scroller"></div></div>
           <div><b class="mini">シチュ</b><div id="nsfwP_situ" class="scroller"></div></div>
+          <!-- 追加: NSFWライティング -->
+          <div><b class="mini">ライティング</b><div id="nsfwP_light" class="scroller"></div></div>
         </div>
       </div>
     </div>
@@ -436,6 +438,7 @@ details[open] summary .caret{transform:rotate(90deg)}
 - 辞書インポートも追記モード（上書きしない・重複はタグで排除）
 - 出力フォーマット表示名は Web UI（汎用）で統一（valueは a1111）
 - 量産/学習の「クラウド保存（CSV）」は同一CSVフォーマット
+- NSFW: lighting（ライティング）を検出/統合/UI/量産出力に対応
 ================================ */
 
 /* ========= ユーティリティ & 状態 ========= */
@@ -467,13 +470,23 @@ function resetSettings(){
 
 /* ========= 内蔵辞書（空で開始） ========= */
 const EMBED_SFW = { hair_style:[], eyes:[], outfit:[], face:[], skin_body:[], art_style:[], background:[], pose_composition:[], expressions:[], accessories:[], lighting:[] };
-const EMBED_NSFW = { categories:{ expression:[], exposure:[], situation:[] } };
+const EMBED_NSFW = { categories:{ expression:[], exposure:[], situation:[], lighting:[] } };
 
 /* ========= 正規化 ========= */
 function normItem(x){ if (typeof x === "string") return { tag: x, label: x, level: "L1" }; if (!x || typeof x !== "object") return null; const tag = x.tag || x.en || x.keyword || x.value || x.name || ""; const ja = x.ja || x.jp || x['name_ja'] || x['label_ja'] || x.desc || x.label; const label = (ja && String(ja).trim()) ? String(ja).trim() : (tag || ""); const level = (x.level || "L1").toUpperCase(); return tag ? { tag, label, level } : null; }
 function normList(arr){ return (arr || []).map(normItem).filter(Boolean); }
 const KEYMAP = {"髪型":"hair_style","目の形":"eyes","服":"outfit","顔の特徴":"face","体型":"skin_body","画風":"art_style","背景":"background","ポーズ":"pose_composition","ポーズ・構図":"pose_composition","表情":"expressions","アクセサリー":"accessories","ライティング":"lighting"};
-function normNSFW(ns){ const out={expression:[],exposure:[],situation:[]}; const src=(ns && ns.categories)? ns.categories : ns || {}; out.expression=normList(src.expression); out.exposure=normList(src.exposure); out.situation=normList(src.situation); return out; }
+function normNSFW(ns){
+  const src = (ns && ns.categories) ? ns.categories : (ns || {});
+  const JP2EN = { "表情":"expression", "露出":"exposure", "シチュ":"situation", "ライティング":"lighting" };
+  const keys = ["expression","exposure","situation","lighting"];
+  const out = {};
+  keys.forEach(k=>{
+    const jpKey = Object.keys(JP2EN).find(j=>JP2EN[j]===k);
+    out[k] = normList(src[k] || (jpKey ? src[jpKey] : []) || []);
+  });
+  return out;
+}
 
 /* ========= マージ（追記）ユーティリティ ========= */
 function dedupeByTag(list){ const seen=new Set(); const out=[]; for(const it of normList(list)){ if(seen.has(it.tag)) continue; seen.add(it.tag); out.push(it); } return out; }
@@ -492,7 +505,8 @@ function mergeIntoNSFW(json){
   NSFW = {
     expression: dedupeByTag([...(NSFW.expression||[]), ...src.expression]),
     exposure:   dedupeByTag([...(NSFW.exposure||[]),   ...src.exposure]),
-    situation:  dedupeByTag([...(NSFW.situation||[]),  ...src.situation])
+    situation:  dedupeByTag([...(NSFW.situation||[]),  ...src.situation]),
+    lighting:   dedupeByTag([...(NSFW.lighting||[]),   ...src.lighting]),
   };
 }
 
@@ -598,7 +612,11 @@ document.getElementById('importDict').addEventListener('change', async (e)=>{
   const f = e.target.files[0]; if (!f) return;
   try {
     const json = JSON.parse(await f.text());
-    const isNSFW = !!(json.categories || json.expression || json.exposure || json.situation);
+    const isNSFW = !!(
+      json.categories ||
+      json.expression || json.exposure || json.situation || json.lighting ||
+      json["表情"] || json["露出"] || json["シチュ"] || json["ライティング"]
+    );
     if (isNSFW) {
       mergeIntoNSFW(json);
       renderNSFWProduction(); renderNSFWLearning();
@@ -711,6 +729,7 @@ function renderNSFWProduction(){
   $("#nsfwP_expr").innerHTML = filt(NSFW.expression).map(o=>`<label class="chip"><input type="checkbox" name="nsfwP_expr" value="${o.tag}">${o.label}<span class="mini"> ${lvl(o.level)}</span></label>`).join("");
   $("#nsfwP_expo").innerHTML = filt(NSFW.exposure).map(o=>`<label class="chip"><input type="checkbox" name="nsfwP_expo" value="${o.tag}">${o.label}<span class="mini"> ${lvl(o.level)}</span></label>`).join("");
   $("#nsfwP_situ").innerHTML = filt(NSFW.situation).map(o=>`<label class="chip"><input type="checkbox" name="nsfwP_situ" value="${o.tag}">${o.label}<span class="mini"> ${lvl(o.level)}</span></label>`).join("");
+  $("#nsfwP_light").innerHTML = filt(NSFW.lighting).map(o=>`<label class="chip"><input type="checkbox" name="nsfwP_light" value="${o.tag}">${o.label}<span class="mini"> ${lvl(o.level)}</span></label>`).join("");
 }
 $("#nsfwLearn").addEventListener("change", e=>{
   $("#nsfwLearnPanel").style.display = e.target.checked ? "" : "none";
@@ -883,7 +902,12 @@ function buildBatchProduction(n){
   const nsfwOn = $("#nsfwProd").checked;
   let nsfwAdd = [];
   if (nsfwOn){
-    nsfwAdd = uniq([...getMany("nsfwP_expr"), ...getMany("nsfwP_expo"), ...getMany("nsfwP_situ")]);
+    nsfwAdd = uniq([
+      ...getMany("nsfwP_expr"),
+      ...getMany("nsfwP_expo"),
+      ...getMany("nsfwP_situ"),
+      ...getMany("nsfwP_light")
+    ]);
   }
 
   const baseSeed = seedFromName($("#charName").value||"", 0);
