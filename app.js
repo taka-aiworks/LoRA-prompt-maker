@@ -830,6 +830,10 @@ function ensurePromptOrder(parts) {
     nsfw_light:      asSet(NSFW.lighting),
   };
 
+  // ▼服色（top/bottom/dress/gown/kimono/shoes）を検出
+  const isWearColor = (t)=> /\b(top|bottom|dress|gown|kimono|shoes)\b/i.test(t)
+                         && !S.outfit.has(t);
+
   // 便宜上の判定（色タグは " hair" / " eyes" で終わる）
   const isHairColor = (t)=> /\bhair$/.test(t)   && !S.hair_style.has(t);
   const isEyeColor  = (t)=> /\beyes$/.test(t)   && !S.eyes_shape.has(t);
@@ -839,6 +843,7 @@ function ensurePromptOrder(parts) {
   const B = {
     lora: [], name: [], hairColor: [], eyeColor: [], skin: [],
     hairStyle: [], eyeShape: [], face: [], body: [], art: [], outfit: [],
+    wearColor: [],
     acc: [], bg: [], pose: [], expr: [], light: [],
     nsfw_expr: [], nsfw_expo: [], nsfw_situ: [], nsfw_light: [],
     other: []
@@ -858,6 +863,7 @@ function ensurePromptOrder(parts) {
     if (S.skin_body.has(t))    { B.body.push(t);      continue; }
     if (S.art_style.has(t))    { B.art.push(t);       continue; }
     if (S.outfit.has(t))       { B.outfit.push(t);    continue; }
+    if (isWearColor(t))        { B.wearColor.push(t); continue; }
     if (S.acc.has(t))          { B.acc.push(t);       continue; }
     if (S.background.has(t))   { B.bg.push(t);        continue; }
     if (S.pose.has(t))         { B.pose.push(t);      continue; }
@@ -877,6 +883,7 @@ function ensurePromptOrder(parts) {
     ...B.lora, ...B.name,
     ...B.hairColor, ...B.eyeColor, ...B.skin,
     ...B.hairStyle, ...B.eyeShape, ...B.face, ...B.body, ...B.art, ...B.outfit,
+    ...B.wearColor,
     ...B.acc,
     ...B.bg, ...B.pose, ...B.expr, ...B.light,
     // NSFW は最後にまとめる（R-18/R-18Gを分けたいなら順序調整）
@@ -1120,6 +1127,20 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   // デフォルト辞書を追記ロード
   await loadDefaultDicts();
 
+  /* === ワンピース時に見た目でボトム色を無効化 === */
+   function bindOutfitDisableBottomUI(){
+      const panel = document.getElementById("bottomWearPanel");
+      if (!panel) return;
+      const update = ()=>{
+         const tag = getOne("outfit");
+         panel.classList.toggle('is-disabled', isOnePieceOutfit(tag));
+      };
+      document.addEventListener("change", (e)=>{
+         if (e.target && e.target.name === "outfit") update();
+      });
+      update();
+   }
+   
   // ステータス
   $("#nsfwState").textContent = "OFF";
   $("#nsfwLearn")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（学習）" : "OFF");
@@ -1140,17 +1161,4 @@ function setupColorPickers(){
   initColorWheel("top",    35, 80, 55);
   initColorWheel("bottom",210, 70, 50);
   initColorWheel("shoes",   0,  0, 30); // 初期は無彩（dark/black 寄り）でもOK
-}
-/* === ワンピース時に見た目でボトム色を無効化 === */
-function bindOutfitDisableBottomUI(){
-  const panel = document.getElementById("bottomWearPanel");
-  if (!panel) return;
-  const update = ()=>{
-    const tag = getOne("outfit");
-    panel.classList.toggle('is-disabled', isOnePieceOutfit(tag));
-  };
-  document.addEventListener("change", (e)=>{
-    if (e.target && e.target.name === "outfit") update();
-  });
-  update();
 }
