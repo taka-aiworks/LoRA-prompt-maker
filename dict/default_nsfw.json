@@ -1,63 +1,115 @@
 {
   "NSFW": {
+    "basic_info": {
+      "age": [
+        { "tag": "18-21", "ja": "18〜21歳", "level": "L1" },
+        { "tag": "22-25", "ja": "22〜25歳", "level": "L1" },
+        { "tag": "26-29", "ja": "26〜29歳", "level": "L1" },
+        { "tag": "30-39", "ja": "30代",     "level": "L1" },
+        { "tag": "40-49", "ja": "40代",     "level": "L1" },
+        { "tag": "50+",   "ja": "50歳以上", "level": "L1" }
+      ],
+      "gender": [
+        { "tag": "female",      "ja": "女性",           "level": "L1" },
+        { "tag": "male",        "ja": "男性",           "level": "L1" },
+        { "tag": "non-binary",  "ja": "ノンバイナリー", "level": "L1" },
+        { "tag": "androgynous", "ja": "中性的",         "level": "L1" }
+      ],
+      "body_type": [
+        { "tag": "slim",     "ja": "スリム",      "level": "L1" },
+        { "tag": "average",  "ja": "標準体型",    "level": "L1" },
+        { "tag": "curvy",    "ja": "グラマラス",  "level": "L1" },
+        { "tag": "athletic", "ja": "アスリート",  "level": "L1" },
+        { "tag": "muscular", "ja": "筋肉質",      "level": "L1" },
+        { "tag": "chubby",   "ja": "ぽっちゃり",  "level": "L1" }
+      ],
+      "height": [
+        { "tag": "petite",     "ja": "小柄",            "level": "L1" },
+        { "tag": "average_ht", "ja": "平均的な身長",    "level": "L1" },
+        { "tag": "tall",       "ja": "高身長",          "level": "L1" },
+        { "tag": "very_tall",  "ja": "かなりの高身長",  "level": "L1" }
+      ],
+      "personality": [
+        { "tag": "cheerful",   "ja": "明るい",        "level": "L1" },
+        { "tag": "shy",        "ja": "恥ずかしがり",  "level": "L1" },
+        { "tag": "cool",       "ja": "クール",        "level": "L1" },
+        { "tag": "gentle",     "ja": "穏やか",        "level": "L1" },
+        { "tag": "seductive",  "ja": "誘惑的",        "level": "L1" },
+        { "tag": "playful",    "ja": "お茶目",        "level": "L1" },
+        { "tag": "tsundere",   "ja": "ツンデレ",      "level": "L1" },
+        { "tag": "dominant",   "ja": "主導的",        "level": "L2" },
+        { "tag": "submissive", "ja": "従順",          "level": "L2" }
+      ],
+      "relationship": [
+        { "tag": "stranger",    "ja": "初対面",     "level": "L1" },
+        { "tag": "friend",      "ja": "友人",       "level": "L1" },
+        { "tag": "coworker",    "ja": "同僚",       "level": "L1" },
+        { "tag": "boss",        "ja": "上司",       "level": "L1" },
+        { "tag": "subordinate", "ja": "部下",       "level": "L1" },
+        { "tag": "neighbor",    "ja": "近所の人",   "level": "L1" },
+        { "tag": "spouse",      "ja": "配偶者",     "level": "L1" },
+        { "tag": "fiance",      "ja": "婚約者",     "level": "L1" },
+        { "tag": "lover",       "ja": "恋人",       "level": "L1" },
+        { "tag": "ex",          "ja": "元恋人",     "level": "L1" }
+      ],
+      "world": [
+        { "tag": "modern",     "ja": "現代",           "level": "L1" },
+        { "tag": "fantasy",    "ja": "ファンタジー",   "level": "L1" },
+        { "tag": "sci-fi",     "ja": "SF",             "level": "L1" },
+        { "tag": "cyberpunk",  "ja": "サイバーパンク", "level": "L1" },
+        { "tag": "historical", "ja": "歴史風",         "level": "L1" }
+      ],
+      "speech_style": [
+        { "tag": "polite",            "ja": "丁寧口調",         "level": "L1" },
+        { "tag": "casual",            "ja": "砕けた口調",       "level": "L1" },
+        { "tag": "refined",           "ja": "上品",             "level": "L1" },
+        { "tag": "rough",             "ja": "ぶっきらぼう",     "level": "L1" },
+        { "tag": "shy_stammering",    "ja": "どもり気味",       "level": "L1" },
+        { "tag": "seductive_whisper", "ja": "囁き・誘う口調",   "level": "L2" }
+      ]
+    },
+
     "categories": {
       "expression": [
-        { "tag": "blushing",            "ja": "赤面",                  "level": "L1" },
-        { "tag": "bedroom eyes",        "ja": "とろんとした目",        "level": "L1" },
-        { "tag": "sensual smile",       "ja": "色っぽい微笑み",        "level": "L1" },
-        { "tag": "biting lip",          "ja": "唇を噛む",              "level": "L1" },
-
-        { "tag": "ecstatic",            "ja": "恍惚",                  "level": "L2" },
-        { "tag": "panting",             "ja": "荒い吐息",              "level": "L2" },
-        { "tag": "half-lidded eyes",    "ja": "半開きの目",            "level": "L2" },
-        { "tag": "drooling",            "ja": "よだれ",                "level": "L2" },
-        { "tag": "ahegao",              "ja": "アヘ顔",                "level": "L2" },
-
-        { "tag": "painful expression",  "ja": "痛がる表情",            "level": "L3" },
-        { "tag": "fearful expression",  "ja": "怯えた表情",            "level": "L3" }
+        { "tag": "aroused",         "ja": "上気した表情", "level": "L1" },
+        { "tag": "flushed",         "ja": "頬を赤らめる", "level": "L1" },
+        { "tag": "embarrassed",     "ja": "照れ",         "level": "L1" },
+        { "tag": "seductive_smile", "ja": "誘惑の微笑み", "level": "L1" },
+        { "tag": "bedroom_eyes",    "ja": "潤んだ目",     "level": "L1" },
+        { "tag": "lip_bite",        "ja": "唇を噛む",     "level": "L1" },
+        { "tag": "tongue_out",      "ja": "舌を出す",     "level": "L2" },
+        { "tag": "ecstasy",         "ja": "恍惚",         "level": "L2" },
+        { "tag": "terror",          "ja": "恐怖",         "level": "L3" },
+        { "tag": "agony",           "ja": "苦悶",         "level": "L3" }
       ],
       "exposure": [
-        { "tag": "cleavage",            "ja": "胸の谷間",              "level": "L1" },
-        { "tag": "sideboob",            "ja": "横乳",                  "level": "L1" },
-        { "tag": "underboob",           "ja": "下乳",                  "level": "L1" },
-        { "tag": "thighs focus",        "ja": "太もも強調",            "level": "L1" },
-        { "tag": "see-through fabric",  "ja": "シースルー生地",        "level": "L1" },
-
-        { "tag": "nude",                "ja": "全裸",                  "level": "L2" },
-        { "tag": "topless",             "ja": "上半身裸",              "level": "L2" },
-        { "tag": "bottomless",          "ja": "下半身裸",              "level": "L2" },
-        { "tag": "nipples",             "ja": "乳首",                  "level": "L2" },
-        { "tag": "areolae",             "ja": "乳輪",                  "level": "L2" },
-        { "tag": "pubic hair",          "ja": "陰毛",                  "level": "L2" },
-
-        { "tag": "guro exposure",       "ja": "残酷な露出",            "level": "L3" }
+        { "tag": "mild_cleavage", "ja": "控えめな胸元", "level": "L1" },
+        { "tag": "lingerie",      "ja": "ランジェリー", "level": "L2" },
+        { "tag": "bikini",        "ja": "ビキニ",       "level": "L2" },
+        { "tag": "see_through",   "ja": "シースルー",   "level": "L2" },
+        { "tag": "topless",       "ja": "上半身裸",     "level": "L2" },
+        { "tag": "bottomless",    "ja": "下半身裸",     "level": "L2" },
+        { "tag": "nude",          "ja": "全裸",         "level": "L2" }
       ],
       "situation": [
-        { "tag": "suggestive pose",     "ja": "挑発的なポーズ",        "level": "L1" },
-        { "tag": "after bath",          "ja": "入浴後",                "level": "L1" },
-        { "tag": "changing clothes",    "ja": "着替え中",              "level": "L1" },
-        { "tag": "bedroom scene",       "ja": "ベッドルーム",          "level": "L1" },
+        { "tag": "suggestive_pose", "ja": "含みのあるポーズ", "level": "L1" },
+        { "tag": "after_shower",    "ja": "入浴後・濡れ髪",   "level": "L1" },
+        { "tag": "in_bed_sheets",   "ja": "シーツに包まれて", "level": "L2" },
+        { "tag": "undressing",      "ja": "脱ぎかけ",         "level": "L2" },
+        { "tag": "covered_nudity",  "ja": "隠しヌード",       "level": "L2" },
 
-        { "tag": "intimate scene",      "ja": "親密なシーン",          "level": "L2" },
-        { "tag": "straddling",          "ja": "跨るポーズ",            "level": "L2" },
-        { "tag": "spread legs",         "ja": "脚を開く",              "level": "L2" },
-        { "tag": "hand-bra",            "ja": "手ブラ",                "level": "L2" },
-        { "tag": "shower nude",         "ja": "シャワー中の裸",        "level": "L2" },
-
-        { "tag": "non-consensual",      "ja": "非合意的",              "level": "L3" },
-        { "tag": "gore scene",          "ja": "流血・残酷描写",        "level": "L3" }
+        { "tag": "blood_splatter",  "ja": "血しぶき",         "level": "L3" },
+        { "tag": "injury_detail",   "ja": "負傷描写",         "level": "L3" },
+        { "tag": "gore",            "ja": "グロテスク表現",   "level": "L3" }
       ],
       "lighting": [
-        { "tag": "sensual lighting",    "ja": "官能的ライティング",    "level": "L1" },
-        { "tag": "warm bedroom light",  "ja": "暖色系ベッドルーム光",  "level": "L1" },
-        { "tag": "moody low light",     "ja": "ムーディな暗めの光",    "level": "L1" },
-        { "tag": "backlit silhouette",  "ja": "逆光シルエット",        "level": "L1" },
-
-        { "tag": "red room lighting",   "ja": "赤色照明",              "level": "L2" },
-        { "tag": "pink neon lighting",  "ja": "ピンクのネオン光",      "level": "L2" },
-        { "tag": "spotlight on body",   "ja": "ボディにスポットライト","level": "L2" },
-
-        { "tag": "harsh clinical light","ja": "無機質で強い光",        "level": "L3" }
+        { "tag": "softbox",     "ja": "ソフトライト",     "level": "L1" },
+        { "tag": "rim_light",   "ja": "リムライト",       "level": "L1" },
+        { "tag": "golden_hour", "ja": "ゴールデンアワー", "level": "L1" },
+        { "tag": "neon",        "ja": "ネオン光",         "level": "L1" },
+        { "tag": "candlelight", "ja": "キャンドル",       "level": "L1" },
+        { "tag": "low_key",     "ja": "ローキー",         "level": "L1" },
+        { "tag": "moody",       "ja": "ムーディ",         "level": "L1" }
       ]
     }
   }
