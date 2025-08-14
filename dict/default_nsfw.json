@@ -1,190 +1,826 @@
 {
-  "nsfw_tags": {
-    "R15": [
-      "nsfw",
-      "bikini",
-      "micro bikini",
-      "school swimsuit",
-      "lingerie",
-      "see-through clothing",
-      "cleavage",
-      "sideboob",
-      "underboob",
-      "midriff",
-      "miniskirt",
-      "garter belt",
-      "stockings",
-      "thighhighs",
-      "kneehighs",
-      "open shirt",
-      "shirt lift",
-      "wet clothes",
-      "leotard",
-      "bloomers",
-      "torn clothes",
-      "backless outfit",
-      "camisole",
-      "pantyhose",
-      "tight shorts",
-      "one-piece swimsuit",
-      "strap slip",
-      "lace bra",
-      "short kimono",
-      "sailor swimsuit",
-      "hot pants",
-      "crop top",
-      "high-cut swimsuit",
-      "monokini",
-      "transparent bra",
-      "transparent panties",
-      "off-shoulder",
-      "low-cut dress",
-      "deep cleavage",
-      "pasties"
+  "categories": {
+    "expression": [
+      {
+        "tag": "tongue out",
+        "label": "tongue out",
+        "level": "L2"
+      }
     ],
-    "R18": [
-      "nsfw",
-      "nude",
-      "completely nude",
-      "topless",
-      "bottomless",
-      "open clothes",
-      "nipple slip",
-      "nipples",
-      "large breasts",
-      "small breasts",
-      "areolae",
-      "puffy nipples",
-      "hard nipples",
-      "spread legs",
-      "arched back",
-      "doggystyle",
-      "cowgirl position",
-      "reverse cowgirl",
-      "missionary position",
-      "riding",
-      "oral sex",
-      "fellatio",
-      "cunnilingus",
-      "handjob",
-      "footjob",
-      "paizuri",
-      "cum",
-      "cum on face",
-      "cum on body",
-      "cum in mouth",
-      "cum in pussy",
-      "cum in ass",
-      "pussy juice",
-      "pussy",
-      "clitoris",
-      "vaginal",
-      "anal",
-      "buttjob",
-      "gaping pussy",
-      "panty aside",
-      "sex",
-      "intercourse",
-      "double penetration",
-      "threesome",
-      "group sex",
-      "public sex",
-      "shower sex",
-      "bed sex",
-      "sex toys",
-      "dildo",
-      "vibrator",
-      "butt plug",
-      "bondage",
-      "handcuffs",
-      "blindfold",
-      "rope bondage",
-      "spreader bar",
-      "gag",
-      "ball gag",
-      "collar",
-      "leash",
-      "whip",
-      "body writing",
-      "body painting",
-      "oil on body",
-      "leg lock",
-      "facesitting",
-      "breast sucking",
-      "tongue out",
-      "saliva",
-      "wet skin",
-      "after sex",
-      "condom",
-      "ripped panties",
-      "pulled bra",
-      "grabbing breasts",
-      "fingering",
-      "solo",
-      "masturbation",
-      "mirror sex",
-      "mirror view",
-      "foot fetish",
-      "ass focus",
-      "crotch focus",
-      "panties aside",
-      "pov sex",
-      "sex in public",
-      "sex standing",
-      "sex on desk"
+    "exposure": [
+      {
+        "tag": "cleavage",
+        "label": "cleavage",
+        "level": "L1"
+      },
+      {
+        "tag": "sideboob",
+        "label": "sideboob",
+        "level": "L1"
+      },
+      {
+        "tag": "underboob",
+        "label": "underboob",
+        "level": "L1"
+      },
+      {
+        "tag": "deep cleavage",
+        "label": "deep cleavage",
+        "level": "L1"
+      },
+      {
+        "tag": "nude",
+        "label": "nude",
+        "level": "L2"
+      },
+      {
+        "tag": "completely nude",
+        "label": "completely nude",
+        "level": "L2"
+      },
+      {
+        "tag": "topless",
+        "label": "topless",
+        "level": "L2"
+      },
+      {
+        "tag": "nipple slip",
+        "label": "nipple slip",
+        "level": "L2"
+      },
+      {
+        "tag": "cum",
+        "label": "cum",
+        "level": "L2"
+      },
+      {
+        "tag": "cum on face",
+        "label": "cum on face",
+        "level": "L2"
+      },
+      {
+        "tag": "cum on body",
+        "label": "cum on body",
+        "level": "L2"
+      },
+      {
+        "tag": "cum in mouth",
+        "label": "cum in mouth",
+        "level": "L2"
+      },
+      {
+        "tag": "cum in pussy",
+        "label": "cum in pussy",
+        "level": "L2"
+      },
+      {
+        "tag": "cum in ass",
+        "label": "cum in ass",
+        "level": "L2"
+      },
+      {
+        "tag": "pussy juice",
+        "label": "pussy juice",
+        "level": "L2"
+      },
+      {
+        "tag": "pussy",
+        "label": "pussy",
+        "level": "L2"
+      },
+      {
+        "tag": "clitoris",
+        "label": "clitoris",
+        "level": "L2"
+      },
+      {
+        "tag": "anal",
+        "label": "anal",
+        "level": "L2"
+      },
+      {
+        "tag": "gaping pussy",
+        "label": "gaping pussy",
+        "level": "L2"
+      },
+      {
+        "tag": "butt plug",
+        "label": "butt plug",
+        "level": "L2"
+      },
+      {
+        "tag": "breast sucking",
+        "label": "breast sucking",
+        "level": "L2"
+      },
+      {
+        "tag": "ass focus",
+        "label": "ass focus",
+        "level": "L2"
+      },
+      {
+        "tag": "crotch focus",
+        "label": "crotch focus",
+        "level": "L2"
+      }
     ],
-    "R18G": [
-      "nsfw",
-      "guro",
-      "blood",
-      "realistic blood",
-      "bleeding",
-      "cut",
-      "stab wound",
-      "decapitation",
-      "amputation",
-      "mutilation",
-      "disembowelment",
-      "open wound",
-      "organ exposure",
-      "skull exposure",
-      "eye gouging",
-      "bruises",
-      "scar",
-      "gore",
-      "violence",
-      "torture",
-      "death",
-      "corpse",
-      "rotting flesh",
-      "skeleton",
-      "zombie",
-      "monster rape",
-      "tentacle rape",
-      "non-consensual",
-      "blood splatter",
-      "crushed body",
-      "impalement",
-      "dismemberment",
-      "hanging",
-      "strangulation"
-    ]
-  },
-  "negatives": {
-    "common": [
-      "blurry",
-      "lowres",
-      "bad anatomy",
-      "extra fingers",
-      "deformed",
-      "jpeg artifacts",
-      "text",
-      "logo"
+    "situation": [
+      {
+        "tag": "nsfw",
+        "label": "nsfw",
+        "level": "L1"
+      },
+      {
+        "tag": "bikini",
+        "label": "bikini",
+        "level": "L1"
+      },
+      {
+        "tag": "micro bikini",
+        "label": "micro bikini",
+        "level": "L1"
+      },
+      {
+        "tag": "school swimsuit",
+        "label": "school swimsuit",
+        "level": "L1"
+      },
+      {
+        "tag": "lingerie",
+        "label": "lingerie",
+        "level": "L1"
+      },
+      {
+        "tag": "see-through clothing",
+        "label": "see-through clothing",
+        "level": "L1"
+      },
+      {
+        "tag": "midriff",
+        "label": "midriff",
+        "level": "L1"
+      },
+      {
+        "tag": "miniskirt",
+        "label": "miniskirt",
+        "level": "L1"
+      },
+      {
+        "tag": "garter belt",
+        "label": "garter belt",
+        "level": "L1"
+      },
+      {
+        "tag": "stockings",
+        "label": "stockings",
+        "level": "L1"
+      },
+      {
+        "tag": "thighhighs",
+        "label": "thighhighs",
+        "level": "L1"
+      },
+      {
+        "tag": "kneehighs",
+        "label": "kneehighs",
+        "level": "L1"
+      },
+      {
+        "tag": "open shirt",
+        "label": "open shirt",
+        "level": "L1"
+      },
+      {
+        "tag": "shirt lift",
+        "label": "shirt lift",
+        "level": "L1"
+      },
+      {
+        "tag": "wet clothes",
+        "label": "wet clothes",
+        "level": "L1"
+      },
+      {
+        "tag": "leotard",
+        "label": "leotard",
+        "level": "L1"
+      },
+      {
+        "tag": "bloomers",
+        "label": "bloomers",
+        "level": "L1"
+      },
+      {
+        "tag": "torn clothes",
+        "label": "torn clothes",
+        "level": "L1"
+      },
+      {
+        "tag": "backless outfit",
+        "label": "backless outfit",
+        "level": "L1"
+      },
+      {
+        "tag": "camisole",
+        "label": "camisole",
+        "level": "L1"
+      },
+      {
+        "tag": "pantyhose",
+        "label": "pantyhose",
+        "level": "L1"
+      },
+      {
+        "tag": "tight shorts",
+        "label": "tight shorts",
+        "level": "L1"
+      },
+      {
+        "tag": "one-piece swimsuit",
+        "label": "one-piece swimsuit",
+        "level": "L1"
+      },
+      {
+        "tag": "strap slip",
+        "label": "strap slip",
+        "level": "L1"
+      },
+      {
+        "tag": "lace bra",
+        "label": "lace bra",
+        "level": "L1"
+      },
+      {
+        "tag": "short kimono",
+        "label": "short kimono",
+        "level": "L1"
+      },
+      {
+        "tag": "sailor swimsuit",
+        "label": "sailor swimsuit",
+        "level": "L1"
+      },
+      {
+        "tag": "hot pants",
+        "label": "hot pants",
+        "level": "L1"
+      },
+      {
+        "tag": "crop top",
+        "label": "crop top",
+        "level": "L1"
+      },
+      {
+        "tag": "high-cut swimsuit",
+        "label": "high-cut swimsuit",
+        "level": "L1"
+      },
+      {
+        "tag": "monokini",
+        "label": "monokini",
+        "level": "L1"
+      },
+      {
+        "tag": "transparent bra",
+        "label": "transparent bra",
+        "level": "L1"
+      },
+      {
+        "tag": "transparent panties",
+        "label": "transparent panties",
+        "level": "L1"
+      },
+      {
+        "tag": "off-shoulder",
+        "label": "off-shoulder",
+        "level": "L1"
+      },
+      {
+        "tag": "low-cut dress",
+        "label": "low-cut dress",
+        "level": "L1"
+      },
+      {
+        "tag": "pasties",
+        "label": "pasties",
+        "level": "L1"
+      },
+      {
+        "tag": "nsfw",
+        "label": "nsfw",
+        "level": "L2"
+      },
+      {
+        "tag": "bottomless",
+        "label": "bottomless",
+        "level": "L2"
+      },
+      {
+        "tag": "open clothes",
+        "label": "open clothes",
+        "level": "L2"
+      },
+      {
+        "tag": "nipples",
+        "label": "nipples",
+        "level": "L2"
+      },
+      {
+        "tag": "large breasts",
+        "label": "large breasts",
+        "level": "L2"
+      },
+      {
+        "tag": "small breasts",
+        "label": "small breasts",
+        "level": "L2"
+      },
+      {
+        "tag": "areolae",
+        "label": "areolae",
+        "level": "L2"
+      },
+      {
+        "tag": "puffy nipples",
+        "label": "puffy nipples",
+        "level": "L2"
+      },
+      {
+        "tag": "hard nipples",
+        "label": "hard nipples",
+        "level": "L2"
+      },
+      {
+        "tag": "spread legs",
+        "label": "spread legs",
+        "level": "L2"
+      },
+      {
+        "tag": "arched back",
+        "label": "arched back",
+        "level": "L2"
+      },
+      {
+        "tag": "doggystyle",
+        "label": "doggystyle",
+        "level": "L2"
+      },
+      {
+        "tag": "cowgirl position",
+        "label": "cowgirl position",
+        "level": "L2"
+      },
+      {
+        "tag": "reverse cowgirl",
+        "label": "reverse cowgirl",
+        "level": "L2"
+      },
+      {
+        "tag": "missionary position",
+        "label": "missionary position",
+        "level": "L2"
+      },
+      {
+        "tag": "riding",
+        "label": "riding",
+        "level": "L2"
+      },
+      {
+        "tag": "oral sex",
+        "label": "oral sex",
+        "level": "L2"
+      },
+      {
+        "tag": "fellatio",
+        "label": "fellatio",
+        "level": "L2"
+      },
+      {
+        "tag": "cunnilingus",
+        "label": "cunnilingus",
+        "level": "L2"
+      },
+      {
+        "tag": "handjob",
+        "label": "handjob",
+        "level": "L2"
+      },
+      {
+        "tag": "footjob",
+        "label": "footjob",
+        "level": "L2"
+      },
+      {
+        "tag": "paizuri",
+        "label": "paizuri",
+        "level": "L2"
+      },
+      {
+        "tag": "vaginal",
+        "label": "vaginal",
+        "level": "L2"
+      },
+      {
+        "tag": "buttjob",
+        "label": "buttjob",
+        "level": "L2"
+      },
+      {
+        "tag": "panty aside",
+        "label": "panty aside",
+        "level": "L2"
+      },
+      {
+        "tag": "sex",
+        "label": "sex",
+        "level": "L2"
+      },
+      {
+        "tag": "intercourse",
+        "label": "intercourse",
+        "level": "L2"
+      },
+      {
+        "tag": "double penetration",
+        "label": "double penetration",
+        "level": "L2"
+      },
+      {
+        "tag": "threesome",
+        "label": "threesome",
+        "level": "L2"
+      },
+      {
+        "tag": "group sex",
+        "label": "group sex",
+        "level": "L2"
+      },
+      {
+        "tag": "public sex",
+        "label": "public sex",
+        "level": "L2"
+      },
+      {
+        "tag": "shower sex",
+        "label": "shower sex",
+        "level": "L2"
+      },
+      {
+        "tag": "bed sex",
+        "label": "bed sex",
+        "level": "L2"
+      },
+      {
+        "tag": "sex toys",
+        "label": "sex toys",
+        "level": "L2"
+      },
+      {
+        "tag": "dildo",
+        "label": "dildo",
+        "level": "L2"
+      },
+      {
+        "tag": "vibrator",
+        "label": "vibrator",
+        "level": "L2"
+      },
+      {
+        "tag": "bondage",
+        "label": "bondage",
+        "level": "L2"
+      },
+      {
+        "tag": "handcuffs",
+        "label": "handcuffs",
+        "level": "L2"
+      },
+      {
+        "tag": "blindfold",
+        "label": "blindfold",
+        "level": "L2"
+      },
+      {
+        "tag": "rope bondage",
+        "label": "rope bondage",
+        "level": "L2"
+      },
+      {
+        "tag": "spreader bar",
+        "label": "spreader bar",
+        "level": "L2"
+      },
+      {
+        "tag": "gag",
+        "label": "gag",
+        "level": "L2"
+      },
+      {
+        "tag": "ball gag",
+        "label": "ball gag",
+        "level": "L2"
+      },
+      {
+        "tag": "collar",
+        "label": "collar",
+        "level": "L2"
+      },
+      {
+        "tag": "leash",
+        "label": "leash",
+        "level": "L2"
+      },
+      {
+        "tag": "whip",
+        "label": "whip",
+        "level": "L2"
+      },
+      {
+        "tag": "body writing",
+        "label": "body writing",
+        "level": "L2"
+      },
+      {
+        "tag": "body painting",
+        "label": "body painting",
+        "level": "L2"
+      },
+      {
+        "tag": "oil on body",
+        "label": "oil on body",
+        "level": "L2"
+      },
+      {
+        "tag": "leg lock",
+        "label": "leg lock",
+        "level": "L2"
+      },
+      {
+        "tag": "facesitting",
+        "label": "facesitting",
+        "level": "L2"
+      },
+      {
+        "tag": "saliva",
+        "label": "saliva",
+        "level": "L2"
+      },
+      {
+        "tag": "wet skin",
+        "label": "wet skin",
+        "level": "L2"
+      },
+      {
+        "tag": "after sex",
+        "label": "after sex",
+        "level": "L2"
+      },
+      {
+        "tag": "condom",
+        "label": "condom",
+        "level": "L2"
+      },
+      {
+        "tag": "ripped panties",
+        "label": "ripped panties",
+        "level": "L2"
+      },
+      {
+        "tag": "pulled bra",
+        "label": "pulled bra",
+        "level": "L2"
+      },
+      {
+        "tag": "grabbing breasts",
+        "label": "grabbing breasts",
+        "level": "L2"
+      },
+      {
+        "tag": "fingering",
+        "label": "fingering",
+        "level": "L2"
+      },
+      {
+        "tag": "solo",
+        "label": "solo",
+        "level": "L2"
+      },
+      {
+        "tag": "masturbation",
+        "label": "masturbation",
+        "level": "L2"
+      },
+      {
+        "tag": "mirror sex",
+        "label": "mirror sex",
+        "level": "L2"
+      },
+      {
+        "tag": "mirror view",
+        "label": "mirror view",
+        "level": "L2"
+      },
+      {
+        "tag": "foot fetish",
+        "label": "foot fetish",
+        "level": "L2"
+      },
+      {
+        "tag": "panties aside",
+        "label": "panties aside",
+        "level": "L2"
+      },
+      {
+        "tag": "pov sex",
+        "label": "pov sex",
+        "level": "L2"
+      },
+      {
+        "tag": "sex in public",
+        "label": "sex in public",
+        "level": "L2"
+      },
+      {
+        "tag": "sex standing",
+        "label": "sex standing",
+        "level": "L2"
+      },
+      {
+        "tag": "sex on desk",
+        "label": "sex on desk",
+        "level": "L2"
+      },
+      {
+        "tag": "nsfw",
+        "label": "nsfw",
+        "level": "L3"
+      },
+      {
+        "tag": "guro",
+        "label": "guro",
+        "level": "L3"
+      },
+      {
+        "tag": "blood",
+        "label": "blood",
+        "level": "L3"
+      },
+      {
+        "tag": "realistic blood",
+        "label": "realistic blood",
+        "level": "L3"
+      },
+      {
+        "tag": "bleeding",
+        "label": "bleeding",
+        "level": "L3"
+      },
+      {
+        "tag": "cut",
+        "label": "cut",
+        "level": "L3"
+      },
+      {
+        "tag": "stab wound",
+        "label": "stab wound",
+        "level": "L3"
+      },
+      {
+        "tag": "decapitation",
+        "label": "decapitation",
+        "level": "L3"
+      },
+      {
+        "tag": "amputation",
+        "label": "amputation",
+        "level": "L3"
+      },
+      {
+        "tag": "mutilation",
+        "label": "mutilation",
+        "level": "L3"
+      },
+      {
+        "tag": "disembowelment",
+        "label": "disembowelment",
+        "level": "L3"
+      },
+      {
+        "tag": "open wound",
+        "label": "open wound",
+        "level": "L3"
+      },
+      {
+        "tag": "organ exposure",
+        "label": "organ exposure",
+        "level": "L3"
+      },
+      {
+        "tag": "skull exposure",
+        "label": "skull exposure",
+        "level": "L3"
+      },
+      {
+        "tag": "eye gouging",
+        "label": "eye gouging",
+        "level": "L3"
+      },
+      {
+        "tag": "bruises",
+        "label": "bruises",
+        "level": "L3"
+      },
+      {
+        "tag": "scar",
+        "label": "scar",
+        "level": "L3"
+      },
+      {
+        "tag": "gore",
+        "label": "gore",
+        "level": "L3"
+      },
+      {
+        "tag": "violence",
+        "label": "violence",
+        "level": "L3"
+      },
+      {
+        "tag": "torture",
+        "label": "torture",
+        "level": "L3"
+      },
+      {
+        "tag": "death",
+        "label": "death",
+        "level": "L3"
+      },
+      {
+        "tag": "corpse",
+        "label": "corpse",
+        "level": "L3"
+      },
+      {
+        "tag": "rotting flesh",
+        "label": "rotting flesh",
+        "level": "L3"
+      },
+      {
+        "tag": "skeleton",
+        "label": "skeleton",
+        "level": "L3"
+      },
+      {
+        "tag": "zombie",
+        "label": "zombie",
+        "level": "L3"
+      },
+      {
+        "tag": "monster rape",
+        "label": "monster rape",
+        "level": "L3"
+      },
+      {
+        "tag": "tentacle rape",
+        "label": "tentacle rape",
+        "level": "L3"
+      },
+      {
+        "tag": "non-consensual",
+        "label": "non-consensual",
+        "level": "L3"
+      },
+      {
+        "tag": "blood splatter",
+        "label": "blood splatter",
+        "level": "L3"
+      },
+      {
+        "tag": "crushed body",
+        "label": "crushed body",
+        "level": "L3"
+      },
+      {
+        "tag": "impalement",
+        "label": "impalement",
+        "level": "L3"
+      },
+      {
+        "tag": "dismemberment",
+        "label": "dismemberment",
+        "level": "L3"
+      },
+      {
+        "tag": "hanging",
+        "label": "hanging",
+        "level": "L3"
+      },
+      {
+        "tag": "strangulation",
+        "label": "strangulation",
+        "level": "L3"
+      }
     ],
-    "R18_extra": [
-      "censored mosaic",
-      "poorly drawn genitalia",
-      "bad hands"
-    ]
+    "lighting": []
   }
 }
