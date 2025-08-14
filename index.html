@@ -33,7 +33,6 @@
       </div>
       <div class="note mini">
         <b>LoRA学習向け：</b>キャラ一貫性優先。18禁はレベル上限の範囲で手動選択したもののみ付与。<br>
-        <!-- ★ Added -->
         ・<b>学習モード → 服ごとに色指定</b>（トップス/ボトムス/靴 など）
       </div>
 
@@ -60,58 +59,64 @@
       <div class="grid g3">
         <div class="panel"><h3>髪型（1つ）</h3><div id="hairStyle" class="scroller"></div></div>
         <div class="panel"><h3>目の形（1つ）</h3><div id="eyeShape" class="scroller"></div></div>
-        <div class="panel"><h3>服（1つ固定）</h3><div id="outfit" class="scroller"></div></div>
+
+        <!-- ★ Updated: 服の直下に色UIを配置 -->
+        <div class="panel">
+          <h3>服（1つ固定）</h3>
+          <div id="outfit" class="scroller"></div>
+
+          <!-- 学習：服カラー（上/下/靴） -->
+          <div class="card" style="margin-top:10px">
+            <h4 style="margin:0 0 6px">服カラー（学習：服ごとに色指定）</h4>
+            <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
+            <div class="grid g3" style="margin-top:8px">
+              <div class="panel">
+                <div class="mini"><b>トップス色</b></div>
+                <div class="wheel-box" style="margin-top:6px">
+                  <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
+                </div>
+                <div class="row mini">
+                  S:<input id="sat_top" type="range" min="0" max="100" value="80">
+                  L:<input id="lit_top" type="range" min="0" max="100" value="50">
+                </div>
+                <div class="row mini"><div id="sw_top" class="swatch"></div><span>色タグ: <code class="tag" id="tag_top">—</code></span></div>
+              </div>
+
+              <div class="panel" id="bottomWearPanel">
+                <div class="mini"><b>ボトムス色</b> <span id="onepieceNote" class="mini" style="opacity:.7"></span></div>
+                <div class="wheel-box" style="margin-top:6px">
+                  <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
+                </div>
+                <div class="row mini">
+                  S:<input id="sat_bottom" type="range" min="0" max="100" value="80">
+                  L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
+                </div>
+                <div class="row mini"><div id="sw_bottom" class="swatch"></div><span>色タグ: <code class="tag" id="tag_bottom">—</code></span></div>
+                <div class="mini">※ ワンピース選択時は下カラーは無効（上カラーが全体に適用）</div>
+              </div>
+
+              <div class="panel">
+                <div class="mini"><b>靴の色</b></div>
+                <div class="wheel-box" style="margin-top:6px">
+                  <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
+                </div>
+                <div class="row mini">
+                  S:<input id="sat_shoes" type="range" min="0" max="100" value="80">
+                  L:<input id="lit_shoes" type="range" min="0" max="100" value="50">
+                </div>
+                <div class="row mini"><div id="sw_shoes" class="swatch"></div><span>色タグ: <code class="tag" id="tag_shoes">—</code></span></div>
+              </div>
+            </div>
+          </div>
+          <!-- ★ End Updated -->
+        </div>
       </div>
+
       <div class="grid g3">
         <div class="panel"><h3>顔の特徴（1つ）</h3><div id="face" class="scroller"></div></div>
         <div class="panel"><h3>体型（1つ）</h3><div id="skinBody" class="scroller"></div></div>
         <div class="panel"><h3>画風（1つ）</h3><div id="artStyle" class="scroller"></div></div>
       </div>
-
-      <!-- ★ Added: 学習モード用 服カラー（上/下/靴） -->
-      <div class="card">
-        <h3 style="margin:0 0 6px">服カラー（学習：服ごとに色指定）</h3>
-        <div class="note mini">トップス / ボトムス / 靴など、必要なものだけ色を付けられます（未操作＝色タグなし）。</div>
-        <div class="grid g3" style="margin-top:8px">
-          <div class="panel">
-            <div class="mini"><b>トップス色</b></div>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_top" type="range" min="0" max="100" value="80">
-              L:<input id="lit_top" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini"><div id="sw_top" class="swatch"></div><span>色タグ: <code class="tag" id="tag_top">—</code></span></div>
-          </div>
-
-          <div class="panel">
-            <div class="mini"><b>ボトムス色</b></div>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_bottom" type="range" min="0" max="100" value="80">
-              L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini"><div id="sw_bottom" class="swatch"></div><span>色タグ: <code class="tag" id="tag_bottom">—</code></span></div>
-          </div>
-
-          <div class="panel">
-            <div class="mini"><b>靴の色</b></div>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_shoes" type="range" min="0" max="100" value="80">
-              L:<input id="lit_shoes" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini"><div id="sw_shoes" class="swatch"></div><span>色タグ: <code class="tag" id="tag_shoes">—</code></span></div>
-          </div>
-        </div>
-        <div class="mini" style="margin-top:6px">※ 服タグと自動結合（例: <code>pastel navy top</code>）。実際の結合はJS側で行われます。</div>
-      </div>
-      <!-- ★ End Added -->
 
       <div class="grid g2">
         <div class="panel">
@@ -255,15 +260,33 @@
       </h2>
       <div class="note mini">
         <b>LoRA完成後：</b>18禁は選んだもののみ使用（オート追加なし）。<br>
-        <!-- ★ Added -->
-        ・<b>量産モード → 服ごとにランダム色 or 無色</b>（色UIは表示しません）
+        ・<b>量産モード → 服ごとにランダム色 or 無色</b> ＋ <b>基本色1色を任意指定可</b>
       </div>
 
       <div class="grid g3">
         <div class="panel">
-          <h3>服（複数可）</h3><div id="p_outfit" class="scroller"></div>
-          <!-- ★ Added: 量産の服カラーに関する注意 -->
-          <div class="mini" style="margin-top:6px">※ 服色は各行で自動的に「ランダム色 or 無色（タグのみ）」が付与されます。</div>
+          <h3>服（複数可）</h3>
+          <div id="p_outfit" class="scroller"></div>
+
+          <!-- ★ Added: 量産の服 基本色（1色・服直下） -->
+          <div class="card" style="margin-top:10px">
+            <h4 style="margin:0 0 6px">服 基本色（任意 / 1色）</h4>
+            <div class="mini">未指定なら従来どおり（ランダム色 or 無色）。ワンピースは全体に適用、上下分かれは上のみ適用。</div>
+            <div class="panel" style="margin-top:6px">
+              <div class="wheel-box">
+                <div id="wheel_outfitBase" class="wheel"></div><div id="thumb_outfitBase" class="thumb"></div>
+              </div>
+              <div class="row mini">
+                S:<input id="sat_outfitBase" type="range" min="0" max="100" value="80">
+                L:<input id="lit_outfitBase" type="range" min="0" max="100" value="50">
+              </div>
+              <div class="row mini">
+                <div id="sw_outfitBase" class="swatch"></div>
+                <span>色タグ: <code class="tag" id="tag_outfitBase">—</code></span>
+              </div>
+            </div>
+          </div>
+          <!-- ★ End Added -->
 
           <h3 style="margin-top:10px">アクセ（3スロット・色指定）</h3>
           <div class="grid g3">
