@@ -478,6 +478,7 @@ function initTabs(){
     $$(".tab").forEach(x=>x.classList.remove("active"));
     t.classList.add("active");
     const m=t.dataset.mode;
+    $("#panelBasic").hidden      = (m !== "basic");
     $("#panelLearning").hidden   = (m!=="learning");
     $("#panelProduction").hidden = (m!=="production");
     $("#panelSettings").hidden   = (m!=="settings");
