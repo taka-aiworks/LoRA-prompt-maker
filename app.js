@@ -277,6 +277,19 @@ function getLearningWearColorParts(selectedOutfitTag){
 /* ========= 服色ユーティリティ（量産） ========= */
 const COLOR_RATE = 0.5; // 色を付ける確率（0〜1）
 
+// 服ラベルに色を付ける（基本色があればそれを最優先）
+function maybeColorizeOutfit(tag){
+  if (!tag) return tag;
+
+  // ★ ユーザーが量産「基本色」を指定していたらそれを使う
+  const base = (typeof getOutfitBaseColor === "function" ? getOutfitBaseColor() : "").trim();
+  if (base && base !== "—") return `${base} ${tag}`;
+
+  // 未指定なら従来どおり：一定確率でランダム色
+  if (Math.random() >= COLOR_RATE) return tag;
+  const c = randomOutfitColorName();
+  return `${c} ${tag}`;
+}
 function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
 function randomOutfitColorName(){
   const h = randomInt(0,359);
@@ -386,6 +399,11 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const lit   = document.getElementById("lit_"+idBase);
   const sw    = document.getElementById("sw_"+idBase);
   const tag   = document.getElementById("tag_"+idBase);
+
+  // 要素が欠けてたら何もしない getter を返して安全にスキップ
+  if (!wheel || !thumb || !sat || !lit || !sw || !tag) {
+    return () => (document.getElementById("tag_"+idBase)?.textContent || "").trim();
+  }
 
   let hue = defaultHue; sat.value = defaultS; lit.value = defaultL;
 
@@ -1195,6 +1213,9 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   $("#nsfwProd")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（量産）" : "OFF");
 });
 
+// 先頭の宣言群に追加（任意）
+let getOutfitBaseColor;
+
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
   // 髪・瞳・アクセ（既存）
@@ -1210,9 +1231,6 @@ function setupColorPickers(){
   initColorWheel("bottom",210, 70, 50);
   initColorWheel("shoes",   0,  0, 30); // 初期は無彩（dark/black 寄り）でもOK
 
-   // ★量産：服色（ここが足りてなかった）
-  getProdTopColor    = initColorWheel("p_top",    35, 80, 55);
-  getProdBottomColor = initColorWheel("p_bottom",210, 70, 50);
-  getProdShoesColor  = initColorWheel("p_shoes",   0,  0, 30);
-
+  // ★ 量産：服 基本色（1色）— HTMLのIDに合わせる
+  getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
