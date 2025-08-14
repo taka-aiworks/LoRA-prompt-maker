@@ -31,7 +31,11 @@
         <input type="file" id="importChar" accept="application/json" hidden>
         <label for="importChar" class="btn small">キャラ設定インポート</label>
       </div>
-      <div class="note mini"><b>LoRA学習向け：</b>キャラ一貫性優先。18禁はレベル上限の範囲で手動選択したもののみ付与。</div>
+      <div class="note mini">
+        <b>LoRA学習向け：</b>キャラ一貫性優先。18禁はレベル上限の範囲で手動選択したもののみ付与。<br>
+        <!-- ★ Added -->
+        ・<b>学習モード → 服ごとに色指定</b>（トップス/ボトムス/靴 など）
+      </div>
 
       <div class="grid g3">
         <div class="panel">
@@ -64,6 +68,51 @@
         <div class="panel"><h3>画風（1つ）</h3><div id="artStyle" class="scroller"></div></div>
       </div>
 
+      <!-- ★ Added: 学習モード用 服カラー（上/下/靴） -->
+      <div class="card">
+        <h3 style="margin:0 0 6px">服カラー（学習：服ごとに色指定）</h3>
+        <div class="note mini">トップス / ボトムス / 靴など、必要なものだけ色を付けられます（未操作＝色タグなし）。</div>
+        <div class="grid g3" style="margin-top:8px">
+          <div class="panel">
+            <div class="mini"><b>トップス色</b></div>
+            <div class="wheel-box" style="margin-top:6px">
+              <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_top" type="range" min="0" max="100" value="80">
+              L:<input id="lit_top" type="range" min="0" max="100" value="50">
+            </div>
+            <div class="row mini"><div id="sw_top" class="swatch"></div><span>色タグ: <code class="tag" id="tag_top">—</code></span></div>
+          </div>
+
+          <div class="panel">
+            <div class="mini"><b>ボトムス色</b></div>
+            <div class="wheel-box" style="margin-top:6px">
+              <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_bottom" type="range" min="0" max="100" value="80">
+              L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
+            </div>
+            <div class="row mini"><div id="sw_bottom" class="swatch"></div><span>色タグ: <code class="tag" id="tag_bottom">—</code></span></div>
+          </div>
+
+          <div class="panel">
+            <div class="mini"><b>靴の色</b></div>
+            <div class="wheel-box" style="margin-top:6px">
+              <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_shoes" type="range" min="0" max="100" value="80">
+              L:<input id="lit_shoes" type="range" min="0" max="100" value="50">
+            </div>
+            <div class="row mini"><div id="sw_shoes" class="swatch"></div><span>色タグ: <code class="tag" id="tag_shoes">—</code></span></div>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:6px">※ 服タグと自動結合（例: <code>pastel navy top</code>）。実際の結合はJS側で行われます。</div>
+      </div>
+      <!-- ★ End Added -->
+
       <div class="grid g2">
         <div class="panel">
           <h3>差分（軽め / 学習向け）</h3>
@@ -75,58 +124,56 @@
           <hr class="sep">
           <div class="row mini"><b>ライティング</b></div><div id="lightLearn" class="scroller"></div>
           <hr class="sep">
-      </div>
-          <div class="panel">
-            <div class="mini"><b>固定アクセ（常時着用1種のみ）</b></div>
-            <select id="learn_acc"></select>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_learnAcc" class="wheel"></div><div id="thumb_learnAcc" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_learnAcc" type="range" min="0" max="100" value="75">
-              L:<input id="lit_learnAcc" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini">
-              <div id="sw_learnAcc" class="swatch"></div>
-              <span>色タグ: <code class="tag" id="tag_learnAcc">black</code></span>
-            </div>
-            <div class="mini">※ メガネ等の恒常特徴のみ。未選択なら挿入しません</div>
-          </div>
         </div>
-
         <div class="panel">
-          <h3>固定タグ / ネガティブ / 18禁</h3>
-          <label>固定タグ（全行に付与）</label>
-          <textarea id="fixedManual" rows="3" placeholder="masterpiece, best quality, solo, 1girl"></textarea>
-          <label style="margin-top:10px">ネガティブ（全行）</label>
-          <textarea id="negGlobal" rows="3" placeholder="lowres, blurry, bad anatomy, extra fingers"></textarea>
-
-          <div class="row" style="margin-top:8px">
-            <label class="inline"><input type="checkbox" id="nsfwLearn"> 18禁ON</label>
-            <span class="mini">（手動選択のみ）</span>
+          <div class="mini"><b>固定アクセ（常時着用1種のみ）</b></div>
+          <select id="learn_acc"></select>
+          <div class="wheel-box" style="margin-top:6px">
+            <div id="wheel_learnAcc" class="wheel"></div><div id="thumb_learnAcc" class="thumb"></div>
           </div>
-          <div id="nsfwLearnPanel" class="panel" style="margin-top:8px; display:none">
-            <div class="row mini">
-              <b>レベル上限</b>
-              <label class="inline"><input type="radio" name="nsfwLevelLearn" value="L1" checked>R-15</label>
-              <label class="inline"><input type="radio" name="nsfwLevelLearn" value="L2">R-18</label>
-              <label class="inline"><input type="radio" name="nsfwLevelLearn" value="L3">R-18G</label>
-            </div>
-            <div class="grid g3" id="nsfwLearnLists" style="margin-top:6px">
-              <div><b class="mini">表情</b><div id="nsfwL_expr" class="scroller"></div></div>
-              <div><b class="mini">露出</b><div id="nsfwL_expo" class="scroller"></div></div>
-              <div><b class="mini">シチュ</b><div id="nsfwL_situ" class="scroller"></div></div>
-              <!-- 追加: 学習用 NSFWライティング -->
-              <div><b class="mini">ライティング</b><div id="nsfwL_light" class="scroller"></div></div>
-            </div>
-            <div class="mini" style="margin-top:6px">※ リストはレベル上限の範囲で表示されます</div>
+          <div class="row mini">
+            S:<input id="sat_learnAcc" type="range" min="0" max="100" value="75">
+            L:<input id="lit_learnAcc" type="range" min="0" max="100" value="50">
           </div>
-
-          <label style="margin-top:8px">キャラ名（seed固定）</label>
-          <input id="charName" type="text" placeholder="例: Akari_v1">
-          <label style="margin-top:8px">LoRAタグ（任意）</label>
-          <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
+          <div class="row mini">
+            <div id="sw_learnAcc" class="swatch"></div>
+            <span>色タグ: <code class="tag" id="tag_learnAcc">black</code></span>
+          </div>
+          <div class="mini">※ メガネ等の恒常特徴のみ。未選択なら挿入しません</div>
         </div>
+      </div>
+
+      <div class="panel">
+        <h3>固定タグ / ネガティブ / 18禁</h3>
+        <label>固定タグ（全行に付与）</label>
+        <textarea id="fixedManual" rows="3" placeholder="masterpiece, best quality, solo, 1girl"></textarea>
+        <label style="margin-top:10px">ネガティブ（全行）</label>
+        <textarea id="negGlobal" rows="3" placeholder="lowres, blurry, bad anatomy, extra fingers"></textarea>
+
+        <div class="row" style="margin-top:8px">
+          <label class="inline"><input type="checkbox" id="nsfwLearn"> 18禁ON</label>
+          <span class="mini">（手動選択のみ）</span>
+        </div>
+        <div id="nsfwLearnPanel" class="panel" style="margin-top:8px; display:none">
+          <div class="row mini">
+            <b>レベル上限</b>
+            <label class="inline"><input type="radio" name="nsfwLevelLearn" value="L1" checked>R-15</label>
+            <label class="inline"><input type="radio" name="nsfwLevelLearn" value="L2">R-18</label>
+            <label class="inline"><input type="radio" name="nsfwLevelLearn" value="L3">R-18G</label>
+          </div>
+          <div class="grid g3" id="nsfwLearnLists" style="margin-top:6px">
+            <div><b class="mini">表情</b><div id="nsfwL_expr" class="scroller"></div></div>
+            <div><b class="mini">露出</b><div id="nsfwL_expo" class="scroller"></div></div>
+            <div><b class="mini">シチュ</b><div id="nsfwL_situ" class="scroller"></div></div>
+            <div><b class="mini">ライティング</b><div id="nsfwL_light" class="scroller"></div></div>
+          </div>
+          <div class="mini" style="margin-top:6px">※ リストはレベル上限の範囲で表示されます</div>
+        </div>
+
+        <label style="margin-top:8px">キャラ名（seed固定）</label>
+        <input id="charName" type="text" placeholder="例: Akari_v1">
+        <label style="margin-top:8px">LoRAタグ（任意）</label>
+        <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
       </div>
 
       <!-- 上段：1枚テスト -->
@@ -206,11 +253,18 @@
       <h2>量産モード（LoRA完成後）
         <span class="badge ok">多様性重視</span><span class="badge">アクセ3枠</span><span class="badge">18禁は手動選択のみ</span>
       </h2>
-      <div class="note mini"><b>LoRA完成後：</b>18禁は選んだもののみ使用（オート追加なし）。</div>
+      <div class="note mini">
+        <b>LoRA完成後：</b>18禁は選んだもののみ使用（オート追加なし）。<br>
+        <!-- ★ Added -->
+        ・<b>量産モード → 服ごとにランダム色 or 無色</b>（色UIは表示しません）
+      </div>
 
       <div class="grid g3">
         <div class="panel">
           <h3>服（複数可）</h3><div id="p_outfit" class="scroller"></div>
+          <!-- ★ Added: 量産の服カラーに関する注意 -->
+          <div class="mini" style="margin-top:6px">※ 服色は各行で自動的に「ランダム色 or 無色（タグのみ）」が付与されます。</div>
+
           <h3 style="margin-top:10px">アクセ（3スロット・色指定）</h3>
           <div class="grid g3">
             <div class="panel">
