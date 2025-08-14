@@ -1127,6 +1127,9 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   // デフォルト辞書を追記ロード
   await loadDefaultDicts();
 
+  // ▼ワンピース選択時にボトム色UIを無効化
+  bindOutfitDisableBottomUI();
+
   /* === ワンピース時に見た目でボトム色を無効化 === */
    function bindOutfitDisableBottomUI(){
       const panel = document.getElementById("bottomWearPanel");
