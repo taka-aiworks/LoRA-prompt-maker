@@ -792,6 +792,9 @@ function buildOneLearning(){
   if(BG.length===0 || PO.length===0 || EX.length===0) return {error:"背景・ポーズ・表情は最低1つずつ選択してください。"};
   const addon = getSelectedNSFW_Learn();
   const b = pick(BG), p = pick(PO), e=pick(EX), l = LI.length ? pick(LI) : "";
+  // ▼追加：ヌード優先フィルタ
+  let parts = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
+  parts = applyNudePriority(parts);
   const pos = ensurePromptOrder(uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean));
   const seed = seedFromName($("#charName").value||"", 0);
   return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
@@ -892,6 +895,44 @@ function ensurePromptOrder(parts) {
   ].filter(Boolean);
 }
 
+/* === ヌード優先ルール（全裸 / 上半身裸 / 下半身裸） === */
+function applyNudePriority(parts){
+  let filtered = [...parts];
+
+  const has = (re)=> filtered.some(t => re.test(String(t)));
+
+  // 検出（NSFWタグは英日まぜで想定）
+  const hasNude       = has(/\b(nude|naked|no clothes|全裸|完全に裸)\b/i);
+  const hasTopless    = has(/\b(topless|上半身裸)\b/i);
+  const hasBottomless = has(/\b(bottomless|下半身裸)\b/i);
+
+  // 服カテゴリ（色タグ含む：top/bottom/dress/gown/kimono/shoes を想定）
+  const RE_TOP      = /\b(top|shirt|t[-\s]?shirt|blouse|sweater|hoodie|jacket|coat|cardigan|tank top|camisole|bra|bikini top)\b/i;
+  const RE_BOTTOM   = /\b(bottom|skirt|shorts|pants|jeans|trousers|leggings|bikini bottom|panties|underwear|briefs)\b/i;
+  const RE_ONEPIECE = /\b(dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao)\b/i;
+  const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
+
+  const removeWhere = (re)=> { filtered = filtered.filter(t => !re.test(String(t))); };
+
+  if (hasNude) {
+    // 全裸 → すべての衣服・靴系を削除
+    removeWhere(RE_TOP);
+    removeWhere(RE_BOTTOM);
+    removeWhere(RE_ONEPIECE);
+    removeWhere(RE_SHOES);
+  } else {
+    // 上半身裸 → トップスのみ削除（靴・ボトムは残す）
+    if (hasTopless) removeWhere(RE_TOP);
+
+    // 下半身裸 → ボトム＆ワンピ削除（トップ・靴は残す）
+    if (hasBottomless) {
+      removeWhere(RE_BOTTOM);
+      removeWhere(RE_ONEPIECE);
+    }
+  }
+  return filtered;
+}
+
 /* ========= 量産：アクセ3スロット & 組み立て ========= */
 function readAccessorySlots(){
   const A = $("#p_accA")?.value || "", Ac = getAccAColor && getAccAColor();
@@ -943,7 +984,11 @@ function buildBatchProduction(n){
     if(light)          o.push(light);
     if(nsfwAdd.length) o.push(...nsfwAdd);
 
-    const prompt = ensurePromptOrder(uniq([...fixed, ...o]).filter(Boolean)).join(", ");
+    // ▼追加：ヌード優先フィルタ
+    let parts = uniq([...fixed, ...o]).filter(Boolean);
+    parts = applyNudePriority(parts);
+
+    const prompt = ensurePromptOrder(parts).join(", ");
     const seed = seedMode==="fixed" ? baseSeed : seedFromName($("#charName").value||"", out.length+1);
     const key = `${prompt}|${seed}`;
     if(out.some(x=>x.key===key)) continue;
