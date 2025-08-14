@@ -83,6 +83,27 @@ const KEYMAP = {
   "表情":"expressions","アクセサリー":"accessories","ライティング":"lighting"
 };
 function normNSFW(ns) {
+  // --- 新: nsfw_tags 形式を吸収 ---
+  if (ns?.nsfw_tags) {
+    const m = ns.nsfw_tags;
+    const pack = (arr, lv) => (arr || []).map(t => ({ tag: String(t), label: String(t), level: lv }));
+    // とりあえず “カテゴリー未分割” のフラットなタグなので、situation に寄せる（UI で使えるようになる）
+    const situation = [
+      ...pack(m.R15,  "L1"),
+      ...pack(m.R18,  "L2"),
+      ...pack(m.R18G, "L3"),
+    ];
+    // ライティング/表情/露出は空のまま
+    return {
+      expression: [],
+      exposure:   [],
+      situation,
+      lighting:   [],
+      // ここでは NEGATIVE_* は触らない（必要なら getNeg に統合する）
+    };
+  }
+
+  // --- 従来: categories or 直接キー形式 ---
   const src = (ns && ns.categories) ? ns.categories : (ns || {});
   const JP2EN = { "表情":"expression", "露出":"exposure", "シチュ":"situation", "ライティング":"lighting" };
   const keys = ["expression","exposure","situation","lighting"];
@@ -93,7 +114,6 @@ function normNSFW(ns) {
   });
   return out;
 }
-
 /* ========= 追記マージ ========= */
 function dedupeByTag(list) {
   const seen = new Set(); const out=[];
@@ -349,7 +369,8 @@ function isNSFWDict(json){
   return !!(
     j.categories ||
     j.expression || j.exposure || j.situation || j.lighting ||
-    j["表情"] || j["露出"] || j["シチュ"] || j["ライティング"]
+    j["表情"] || j["露出"] || j["シチュ"] || j["ライティング"] ||
+    j.nsfw_tags
   );
 }
 function bindDictIO(){
