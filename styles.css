@@ -102,3 +102,5 @@ code.tag{color:#d9e6ff;border-color:#2d3a56;background:#0e1522}
 
 /* テーブル見出しが重なるのを防ぐ微調整（モバイルでのスクロール時） */
 .table th{top:0;z-index:1}
+
+#bottomWearPanel.is-disabled { opacity:.45; filter:grayscale(0.3); pointer-events:none; }
