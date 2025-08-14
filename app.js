@@ -253,9 +253,11 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
     const s=+sat.value, l=+lit.value;
     const [r,g,b]=hslToRgb(hue,s,l);
     sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
-    const name = `${(l>=78?'light ':l<=32?'dark ':'')}${baseTag}`.trim();
-    tagEl.textContent = name;
-  }
+     
+    const cname = colorNameFromHSL(hue, s, l);
+    const shade = (l>=78 ? 'light ' : l<=32 ? 'dark ' : '');
+    tagEl.textContent = `${shade}${cname} ${baseTag}`.trim();
+}
 
   // ドラッグで角度更新
   const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
