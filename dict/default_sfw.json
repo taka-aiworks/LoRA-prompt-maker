@@ -1,335 +1,1458 @@
 {
   "hair_style": [
-    { "tag": "long hair", "desc": "長髪" },
-    { "tag": "short hair", "desc": "短髪" },
-    { "tag": "medium hair", "desc": "セミロング" },
-    { "tag": "very long hair", "desc": "超ロング" },
-    { "tag": "bob cut", "desc": "ボブカット" },
-    { "tag": "hime cut", "desc": "姫カット" },
-    { "tag": "ponytail", "desc": "ポニーテール" },
-    { "tag": "side ponytail", "desc": "サイドポニー" },
-    { "tag": "twin tails", "desc": "ツインテール" },
-    { "tag": "twin braids", "desc": "ツイン三つ編み" },
-    { "tag": "single braid", "desc": "一本三つ編み" },
-    { "tag": "braided ponytail", "desc": "編み込みポニー" },
-    { "tag": "drill hair", "desc": "縦ロール" },
-    { "tag": "curly hair", "desc": "カールヘア" },
-    { "tag": "wavy hair", "desc": "ウェーブヘア" },
-    { "tag": "straight hair", "desc": "ストレートヘア" },
-    { "tag": "messy hair", "desc": "乱れ髪" },
-    { "tag": "ahoge", "desc": "アホ毛" },
-    { "tag": "bun", "desc": "お団子ヘア" },
-    { "tag": "low twin tails", "desc": "ローツイン" },
-    { "tag": "high ponytail", "desc": "ハイポニー" },
-    { "tag": "side buns", "desc": "サイドお団子" },
-    { "tag": "hair over one eye", "desc": "片目隠れ" },
-    { "tag": "hair behind ear", "desc": "耳にかける" },
-    { "tag": "bangs", "desc": "前髪あり" },
-    { "tag": "no bangs", "desc": "前髪なし" },
-    { "tag": "short bangs", "desc": "短い前髪" },
-    { "tag": "asymmetrical bangs", "desc": "アシメ前髪" },
-    { "tag": "layered hair", "desc": "レイヤー" },
-    { "tag": "frizzy hair", "desc": "ふわふわ髪" }
+    {
+      "tag": "long hair",
+      "desc": "長髪"
+    },
+    {
+      "tag": "short hair",
+      "desc": "短髪"
+    },
+    {
+      "tag": "medium hair",
+      "desc": "セミロング"
+    },
+    {
+      "tag": "very long hair",
+      "desc": "超ロング"
+    },
+    {
+      "tag": "bob cut",
+      "desc": "ボブカット"
+    },
+    {
+      "tag": "hime cut",
+      "desc": "姫カット"
+    },
+    {
+      "tag": "ponytail",
+      "desc": "ポニーテール"
+    },
+    {
+      "tag": "side ponytail",
+      "desc": "サイドポニー"
+    },
+    {
+      "tag": "twin tails",
+      "desc": "ツインテール"
+    },
+    {
+      "tag": "twin braids",
+      "desc": "ツイン三つ編み"
+    },
+    {
+      "tag": "single braid",
+      "desc": "一本三つ編み"
+    },
+    {
+      "tag": "braided ponytail",
+      "desc": "編み込みポニー"
+    },
+    {
+      "tag": "drill hair",
+      "desc": "縦ロール"
+    },
+    {
+      "tag": "curly hair",
+      "desc": "カールヘア"
+    },
+    {
+      "tag": "wavy hair",
+      "desc": "ウェーブヘア"
+    },
+    {
+      "tag": "straight hair",
+      "desc": "ストレートヘア"
+    },
+    {
+      "tag": "messy hair",
+      "desc": "乱れ髪"
+    },
+    {
+      "tag": "ahoge",
+      "desc": "アホ毛"
+    },
+    {
+      "tag": "bun",
+      "desc": "お団子ヘア"
+    },
+    {
+      "tag": "low twin tails",
+      "desc": "ローツイン"
+    },
+    {
+      "tag": "high ponytail",
+      "desc": "ハイポニー"
+    },
+    {
+      "tag": "side buns",
+      "desc": "サイドお団子"
+    },
+    {
+      "tag": "hair over one eye",
+      "desc": "片目隠れ"
+    },
+    {
+      "tag": "hair behind ear",
+      "desc": "耳にかける"
+    },
+    {
+      "tag": "bangs",
+      "desc": "前髪あり"
+    },
+    {
+      "tag": "no bangs",
+      "desc": "前髪なし"
+    },
+    {
+      "tag": "short bangs",
+      "desc": "短い前髪"
+    },
+    {
+      "tag": "asymmetrical bangs",
+      "desc": "アシメ前髪"
+    },
+    {
+      "tag": "layered hair",
+      "desc": "レイヤー"
+    },
+    {
+      "tag": "frizzy hair",
+      "desc": "ふわふわ髪"
+    },
+    {
+      "tag": "low ponytail",
+      "label": "低い位置のポニーテール"
+    },
+    {
+      "tag": "bob with bangs",
+      "label": "前髪ありボブ"
+    },
+    {
+      "tag": "side braid",
+      "label": "サイド三つ編み"
+    },
+    {
+      "tag": "loose bun",
+      "label": "ゆるいお団子"
+    },
+    {
+      "tag": "short messy",
+      "label": "ショート・無造作"
+    },
+    {
+      "tag": "straight long",
+      "label": "ストレートロング"
+    },
+    {
+      "tag": "wavy medium",
+      "label": "ミディアム・ウェーブ"
+    }
   ],
-
   "hair_color": [
-    { "tag": "black hair", "desc": "黒髪" },
-    { "tag": "brown hair", "desc": "茶髪" },
-    { "tag": "dark brown hair", "desc": "ダークブラウン" },
-    { "tag": "light brown hair", "desc": "ライトブラウン" },
-    { "tag": "blonde hair", "desc": "ブロンド" },
-    { "tag": "platinum blonde hair", "desc": "プラチナブロンド" },
-    { "tag": "red hair", "desc": "赤髪" },
-    { "tag": "auburn hair", "desc": "オーバーン" },
-    { "tag": "orange hair", "desc": "オレンジ髪" },
-    { "tag": "pink hair", "desc": "ピンク髪" },
-    { "tag": "magenta hair", "desc": "マゼンタ髪" },
-    { "tag": "purple hair", "desc": "紫髪" },
-    { "tag": "lavender hair", "desc": "ラベンダー髪" },
-    { "tag": "blue hair", "desc": "青髪" },
-    { "tag": "navy hair", "desc": "ネイビー髪" },
-    { "tag": "turquoise hair", "desc": "ターコイズ髪" },
-    { "tag": "green hair", "desc": "緑髪" },
-    { "tag": "teal hair", "desc": "ティール髪" },
-    { "tag": "silver hair", "desc": "シルバー髪" },
-    { "tag": "gray hair", "desc": "グレー髪" },
-    { "tag": "white hair", "desc": "白髪" },
-    { "tag": "gradient hair", "desc": "グラデーション髪" }
+    {
+      "tag": "black hair",
+      "desc": "黒髪"
+    },
+    {
+      "tag": "brown hair",
+      "desc": "茶髪"
+    },
+    {
+      "tag": "dark brown hair",
+      "desc": "ダークブラウン"
+    },
+    {
+      "tag": "light brown hair",
+      "desc": "ライトブラウン"
+    },
+    {
+      "tag": "blonde hair",
+      "desc": "ブロンド"
+    },
+    {
+      "tag": "platinum blonde hair",
+      "desc": "プラチナブロンド"
+    },
+    {
+      "tag": "red hair",
+      "desc": "赤髪"
+    },
+    {
+      "tag": "auburn hair",
+      "desc": "オーバーン"
+    },
+    {
+      "tag": "orange hair",
+      "desc": "オレンジ髪"
+    },
+    {
+      "tag": "pink hair",
+      "desc": "ピンク髪"
+    },
+    {
+      "tag": "magenta hair",
+      "desc": "マゼンタ髪"
+    },
+    {
+      "tag": "purple hair",
+      "desc": "紫髪"
+    },
+    {
+      "tag": "lavender hair",
+      "desc": "ラベンダー髪"
+    },
+    {
+      "tag": "blue hair",
+      "desc": "青髪"
+    },
+    {
+      "tag": "navy hair",
+      "desc": "ネイビー髪"
+    },
+    {
+      "tag": "turquoise hair",
+      "desc": "ターコイズ髪"
+    },
+    {
+      "tag": "green hair",
+      "desc": "緑髪"
+    },
+    {
+      "tag": "teal hair",
+      "desc": "ティール髪"
+    },
+    {
+      "tag": "silver hair",
+      "desc": "シルバー髪"
+    },
+    {
+      "tag": "gray hair",
+      "desc": "グレー髪"
+    },
+    {
+      "tag": "white hair",
+      "desc": "白髪"
+    },
+    {
+      "tag": "gradient hair",
+      "desc": "グラデーション髪"
+    }
   ],
-
   "eyes": [
-    { "tag": "blue eyes", "desc": "青い目" },
-    { "tag": "green eyes", "desc": "緑の目" },
-    { "tag": "brown eyes", "desc": "茶色の目" },
-    { "tag": "amber eyes", "desc": "琥珀色の目" },
-    { "tag": "hazel eyes", "desc": "ヘーゼルの目" },
-    { "tag": "gray eyes", "desc": "灰色の目" },
-    { "tag": "violet eyes", "desc": "紫の目" },
-    { "tag": "gold eyes", "desc": "金色の目" },
-    { "tag": "red eyes", "desc": "赤い目" },
-    { "tag": "large eyes", "desc": "大きな目" },
-    { "tag": "narrow eyes", "desc": "細い目" },
-    { "tag": "almond-shaped eyes", "desc": "アーモンド形の目" },
-    { "tag": "round eyes", "desc": "丸い目" },
-    { "tag": "upturned eyes", "desc": "つり目" },
-    { "tag": "downturned eyes", "desc": "たれ目" },
-    { "tag": "heterochromia", "desc": "オッドアイ" },
-    { "tag": "glasses", "desc": "眼鏡（小物）" },
-    { "tag": "eyelashes", "desc": "まつ毛強調" }
+    {
+      "tag": "blue eyes",
+      "desc": "青い目"
+    },
+    {
+      "tag": "green eyes",
+      "desc": "緑の目"
+    },
+    {
+      "tag": "brown eyes",
+      "desc": "茶色の目"
+    },
+    {
+      "tag": "amber eyes",
+      "desc": "琥珀色の目"
+    },
+    {
+      "tag": "hazel eyes",
+      "desc": "ヘーゼルの目"
+    },
+    {
+      "tag": "gray eyes",
+      "desc": "灰色の目"
+    },
+    {
+      "tag": "violet eyes",
+      "desc": "紫の目"
+    },
+    {
+      "tag": "gold eyes",
+      "desc": "金色の目"
+    },
+    {
+      "tag": "red eyes",
+      "desc": "赤い目"
+    },
+    {
+      "tag": "large eyes",
+      "desc": "大きな目"
+    },
+    {
+      "tag": "narrow eyes",
+      "desc": "細い目"
+    },
+    {
+      "tag": "almond-shaped eyes",
+      "desc": "アーモンド形の目"
+    },
+    {
+      "tag": "round eyes",
+      "desc": "丸い目"
+    },
+    {
+      "tag": "upturned eyes",
+      "desc": "つり目"
+    },
+    {
+      "tag": "downturned eyes",
+      "desc": "たれ目"
+    },
+    {
+      "tag": "heterochromia",
+      "desc": "オッドアイ"
+    },
+    {
+      "tag": "glasses",
+      "desc": "眼鏡（小物）"
+    },
+    {
+      "tag": "eyelashes",
+      "desc": "まつ毛強調"
+    },
+    {
+      "tag": "almond eyes",
+      "label": "アーモンドアイ"
+    },
+    {
+      "tag": "monolid",
+      "label": "一重"
+    },
+    {
+      "tag": "double eyelid",
+      "label": "二重"
+    },
+    {
+      "tag": "large pupils",
+      "label": "大きな瞳孔"
+    }
   ],
-
   "face": [
-    { "tag": "youthful face", "desc": "幼い顔立ち" },
-    { "tag": "mature face", "desc": "大人びた顔立ち" },
-    { "tag": "round face", "desc": "丸顔" },
-    { "tag": "oval face", "desc": "卵型の顔" },
-    { "tag": "sharp jawline", "desc": "シャープな輪郭" },
-    { "tag": "soft facial features", "desc": "柔らかい顔立ち" },
-    { "tag": "small nose", "desc": "小さな鼻" },
-    { "tag": "small mouth", "desc": "小さな口" },
-    { "tag": "closed mouth", "desc": "口を閉じる" },
-    { "tag": "open mouth", "desc": "口を開く" },
-    { "tag": "freckles", "desc": "そばかす" },
-    { "tag": "mole under eye", "desc": "泣きぼくろ" }
+    {
+      "tag": "youthful face",
+      "desc": "幼い顔立ち"
+    },
+    {
+      "tag": "mature face",
+      "desc": "大人びた顔立ち"
+    },
+    {
+      "tag": "round face",
+      "desc": "丸顔"
+    },
+    {
+      "tag": "oval face",
+      "desc": "卵型の顔"
+    },
+    {
+      "tag": "sharp jawline",
+      "desc": "シャープな輪郭"
+    },
+    {
+      "tag": "soft facial features",
+      "desc": "柔らかい顔立ち"
+    },
+    {
+      "tag": "small nose",
+      "desc": "小さな鼻"
+    },
+    {
+      "tag": "small mouth",
+      "desc": "小さな口"
+    },
+    {
+      "tag": "closed mouth",
+      "desc": "口を閉じる"
+    },
+    {
+      "tag": "open mouth",
+      "desc": "口を開く"
+    },
+    {
+      "tag": "freckles",
+      "desc": "そばかす"
+    },
+    {
+      "tag": "mole under eye",
+      "desc": "泣きぼくろ"
+    },
+    {
+      "tag": "beauty mark",
+      "label": "ほくろ"
+    },
+    {
+      "tag": "rosy cheeks",
+      "label": "赤らんだ頬"
+    },
+    {
+      "tag": "pointed ears",
+      "label": "尖った耳"
+    }
   ],
-
   "skin_body": [
-    { "tag": "fair skin", "desc": "色白肌" },
-    { "tag": "light skin", "desc": "明るい肌" },
-    { "tag": "tan skin", "desc": "小麦肌" },
-    { "tag": "dark skin", "desc": "ダークスキン" },
-    { "tag": "slim body", "desc": "スリム体型" },
-    { "tag": "curvy body", "desc": "グラマラス体型" },
-    { "tag": "athletic build", "desc": "アスリート体型" },
-    { "tag": "petite", "desc": "小柄" },
-    { "tag": "tall", "desc": "長身" },
-    { "tag": "hourglass figure", "desc": "砂時計体型" },
-    { "tag": "broad shoulders", "desc": "広い肩幅" },
-    { "tag": "narrow waist", "desc": "くびれ" }
+    {
+      "tag": "fair skin",
+      "desc": "色白肌"
+    },
+    {
+      "tag": "light skin",
+      "desc": "明るい肌"
+    },
+    {
+      "tag": "tan skin",
+      "desc": "小麦肌"
+    },
+    {
+      "tag": "dark skin",
+      "desc": "ダークスキン"
+    },
+    {
+      "tag": "slim body",
+      "desc": "スリム体型"
+    },
+    {
+      "tag": "curvy body",
+      "desc": "グラマラス体型"
+    },
+    {
+      "tag": "athletic build",
+      "desc": "アスリート体型"
+    },
+    {
+      "tag": "petite",
+      "desc": "小柄"
+    },
+    {
+      "tag": "tall",
+      "desc": "長身"
+    },
+    {
+      "tag": "hourglass figure",
+      "desc": "砂時計体型"
+    },
+    {
+      "tag": "broad shoulders",
+      "desc": "広い肩幅"
+    },
+    {
+      "tag": "narrow waist",
+      "desc": "くびれ"
+    },
+    {
+      "tag": "petite build",
+      "label": "小柄"
+    },
+    {
+      "tag": "slim build",
+      "label": "スリム体型"
+    },
+    {
+      "tag": "curvy build",
+      "label": "グラマラス"
+    },
+    {
+      "tag": "tall stature",
+      "label": "高身長"
+    },
+    {
+      "tag": "short stature",
+      "label": "低身長"
+    },
+    {
+      "tag": "toned abs",
+      "label": "腹筋が割れている"
+    }
   ],
-
   "outfit": [
-    { "tag": "school uniform", "desc": "学生服" },
-    { "tag": "sailor uniform", "desc": "セーラー服" },
-    { "tag": "blazer uniform", "desc": "ブレザー制服" },
-    { "tag": "gym uniform", "desc": "体操着" },
-    { "tag": "tracksuit", "desc": "ジャージ" },
-    { "tag": "cardigan", "desc": "カーディガン" },
-    { "tag": "sweater", "desc": "セーター" },
-    { "tag": "hoodie", "desc": "パーカー" },
-    { "tag": "t-shirt", "desc": "Tシャツ" },
-    { "tag": "blouse", "desc": "ブラウス" },
-    { "tag": "pleated skirt", "desc": "プリーツスカート" },
-    { "tag": "skirt", "desc": "スカート" },
-    { "tag": "shorts", "desc": "ショートパンツ" },
-    { "tag": "jeans", "desc": "ジーンズ" },
-    { "tag": "overalls", "desc": "オーバーオール" },
-    { "tag": "dress", "desc": "ワンピース" },
-    { "tag": "sundress", "desc": "サンドレス" },
-    { "tag": "cocktail dress", "desc": "カクテルドレス" },
-    { "tag": "gothic lolita", "desc": "ゴスロリ" },
-    { "tag": "maid outfit", "desc": "メイド服" },
-    { "tag": "cheongsam", "desc": "チャイナドレス" },
-    { "tag": "kimono", "desc": "着物" },
-    { "tag": "yukata", "desc": "浴衣" },
-    { "tag": "hakama", "desc": "袴" },
-    { "tag": "armor", "desc": "鎧" },
-    { "tag": "cloak", "desc": "マント" },
-    { "tag": "jacket", "desc": "ジャケット" },
-    { "tag": "trench coat", "desc": "トレンチコート" },
-    { "tag": "raincoat", "desc": "レインコート" },
-    { "tag": "scarf", "desc": "マフラー" },
-    { "tag": "apron", "desc": "エプロン" },
-    { "tag": "one-piece swimsuit", "desc": "ワンピース水着" },
-    { "tag": "school swimsuit", "desc": "スクール水着" },
-    { "tag": "sweatshirt", "desc": "スウェット" },
-    { "tag": "puffer jacket", "desc": "ダウンジャケット" },
-    { "tag": "kimono-inspired dress", "desc": "和風ドレス" },
-    { "tag": "sailor dress", "desc": "セーラーワンピ" },
-    { "tag": "beret outfit", "desc": "ベレー帽コーデ" },
-    { "tag": "winter coat", "desc": "冬コート" },
-    { "tag": "summer dress", "desc": "夏ワンピ" },
-    { "tag": "formal suit", "desc": "スーツ" },
-    { "tag": "business suit", "desc": "ビジネススーツ" },
-    { "tag": "cape", "desc": "ケープ" },
-    { "tag": "vest", "desc": "ベスト" },
-    { "tag": "turtleneck", "desc": "タートルネック" }
+    {
+      "tag": "school uniform",
+      "desc": "学生服"
+    },
+    {
+      "tag": "sailor uniform",
+      "desc": "セーラー服"
+    },
+    {
+      "tag": "blazer uniform",
+      "desc": "ブレザー制服"
+    },
+    {
+      "tag": "gym uniform",
+      "desc": "体操着"
+    },
+    {
+      "tag": "tracksuit",
+      "desc": "ジャージ"
+    },
+    {
+      "tag": "cardigan",
+      "desc": "カーディガン"
+    },
+    {
+      "tag": "sweater",
+      "desc": "セーター"
+    },
+    {
+      "tag": "hoodie",
+      "desc": "パーカー"
+    },
+    {
+      "tag": "t-shirt",
+      "desc": "Tシャツ"
+    },
+    {
+      "tag": "blouse",
+      "desc": "ブラウス"
+    },
+    {
+      "tag": "pleated skirt",
+      "desc": "プリーツスカート"
+    },
+    {
+      "tag": "skirt",
+      "desc": "スカート"
+    },
+    {
+      "tag": "shorts",
+      "desc": "ショートパンツ"
+    },
+    {
+      "tag": "jeans",
+      "desc": "ジーンズ"
+    },
+    {
+      "tag": "overalls",
+      "desc": "オーバーオール"
+    },
+    {
+      "tag": "dress",
+      "desc": "ワンピース"
+    },
+    {
+      "tag": "sundress",
+      "desc": "サンドレス"
+    },
+    {
+      "tag": "cocktail dress",
+      "desc": "カクテルドレス"
+    },
+    {
+      "tag": "gothic lolita",
+      "desc": "ゴスロリ"
+    },
+    {
+      "tag": "maid outfit",
+      "desc": "メイド服"
+    },
+    {
+      "tag": "cheongsam",
+      "desc": "チャイナドレス"
+    },
+    {
+      "tag": "kimono",
+      "desc": "着物"
+    },
+    {
+      "tag": "yukata",
+      "desc": "浴衣"
+    },
+    {
+      "tag": "hakama",
+      "desc": "袴"
+    },
+    {
+      "tag": "armor",
+      "desc": "鎧"
+    },
+    {
+      "tag": "cloak",
+      "desc": "マント"
+    },
+    {
+      "tag": "jacket",
+      "desc": "ジャケット"
+    },
+    {
+      "tag": "trench coat",
+      "desc": "トレンチコート"
+    },
+    {
+      "tag": "raincoat",
+      "desc": "レインコート"
+    },
+    {
+      "tag": "scarf",
+      "desc": "マフラー"
+    },
+    {
+      "tag": "apron",
+      "desc": "エプロン"
+    },
+    {
+      "tag": "one-piece swimsuit",
+      "desc": "ワンピース水着"
+    },
+    {
+      "tag": "school swimsuit",
+      "desc": "スクール水着"
+    },
+    {
+      "tag": "sweatshirt",
+      "desc": "スウェット"
+    },
+    {
+      "tag": "puffer jacket",
+      "desc": "ダウンジャケット"
+    },
+    {
+      "tag": "kimono-inspired dress",
+      "desc": "和風ドレス"
+    },
+    {
+      "tag": "sailor dress",
+      "desc": "セーラーワンピ"
+    },
+    {
+      "tag": "beret outfit",
+      "desc": "ベレー帽コーデ"
+    },
+    {
+      "tag": "winter coat",
+      "desc": "冬コート"
+    },
+    {
+      "tag": "summer dress",
+      "desc": "夏ワンピ"
+    },
+    {
+      "tag": "formal suit",
+      "desc": "スーツ"
+    },
+    {
+      "tag": "business suit",
+      "desc": "ビジネススーツ"
+    },
+    {
+      "tag": "cape",
+      "desc": "ケープ"
+    },
+    {
+      "tag": "vest",
+      "desc": "ベスト"
+    },
+    {
+      "tag": "turtleneck",
+      "desc": "タートルネック"
+    },
+    {
+      "tag": "hoodie casual",
+      "label": "パーカー"
+    },
+    {
+      "tag": "turtleneck sweater",
+      "label": "タートルネック"
+    },
+    {
+      "tag": "gown",
+      "label": "ガウン"
+    },
+    {
+      "tag": "one-piece dress",
+      "label": "ワンピース"
+    },
+    {
+      "tag": "bikini",
+      "label": "ビキニ"
+    },
+    {
+      "tag": "armor light",
+      "label": "軽装甲"
+    },
+    {
+      "tag": "sweater + skirt",
+      "label": "セーター＋スカート"
+    },
+    {
+      "tag": "jacket + jeans",
+      "label": "ジャケット＋ジーンズ"
+    }
   ],
-
   "accessories": [
-    { "tag": "glasses", "desc": "眼鏡" },
-    { "tag": "sunglasses", "desc": "サングラス" },
-    { "tag": "hair ribbon", "desc": "髪リボン" },
-    { "tag": "hairclip", "desc": "ヘアクリップ" },
-    { "tag": "headband", "desc": "ヘアバンド" },
-    { "tag": "barrette", "desc": "バレッタ" },
-    { "tag": "earrings", "desc": "イヤリング" },
-    { "tag": "necklace", "desc": "ネックレス" },
-    { "tag": "choker", "desc": "チョーカー" },
-    { "tag": "bracelet", "desc": "ブレスレット" },
-    { "tag": "wristwatch", "desc": "腕時計" },
-    { "tag": "ring", "desc": "指輪" },
-    { "tag": "hat", "desc": "帽子" },
-    { "tag": "beret", "desc": "ベレー帽" },
-    { "tag": "beanie", "desc": "ニット帽" },
-    { "tag": "headphones", "desc": "ヘッドホン" },
-    { "tag": "earphones", "desc": "イヤホン" },
-    { "tag": "backpack", "desc": "リュック" },
-    { "tag": "satchel", "desc": "ショルダーバッグ" },
-    { "tag": "handbag", "desc": "ハンドバッグ" },
-    { "tag": "book", "desc": "本" },
-    { "tag": "umbrella", "desc": "傘" },
-    { "tag": "smartphone", "desc": "スマートフォン" },
-    { "tag": "camera", "desc": "カメラ" },
-    { "tag": "plush toy", "desc": "ぬいぐるみ" },
-    { "tag": "teddy bear", "desc": "テディベア" },
-    { "tag": "flower", "desc": "花" },
-    { "tag": "bouquet", "desc": "花束" },
-    { "tag": "sword", "desc": "剣" },
-    { "tag": "staff", "desc": "杖" },
-    { "tag": "wand", "desc": "魔法の杖" },
-    { "tag": "shield", "desc": "盾" },
-    { "tag": "guitar", "desc": "ギター" },
-    { "tag": "violin", "desc": "バイオリン" },
-    { "tag": "microphone", "desc": "マイク" }
+    {
+      "tag": "glasses",
+      "desc": "眼鏡"
+    },
+    {
+      "tag": "sunglasses",
+      "desc": "サングラス"
+    },
+    {
+      "tag": "hair ribbon",
+      "desc": "髪リボン"
+    },
+    {
+      "tag": "hairclip",
+      "desc": "ヘアクリップ"
+    },
+    {
+      "tag": "headband",
+      "desc": "ヘアバンド"
+    },
+    {
+      "tag": "barrette",
+      "desc": "バレッタ"
+    },
+    {
+      "tag": "earrings",
+      "desc": "イヤリング"
+    },
+    {
+      "tag": "necklace",
+      "desc": "ネックレス"
+    },
+    {
+      "tag": "choker",
+      "desc": "チョーカー"
+    },
+    {
+      "tag": "bracelet",
+      "desc": "ブレスレット"
+    },
+    {
+      "tag": "wristwatch",
+      "desc": "腕時計"
+    },
+    {
+      "tag": "ring",
+      "desc": "指輪"
+    },
+    {
+      "tag": "hat",
+      "desc": "帽子"
+    },
+    {
+      "tag": "beret",
+      "desc": "ベレー帽"
+    },
+    {
+      "tag": "beanie",
+      "desc": "ニット帽"
+    },
+    {
+      "tag": "headphones",
+      "desc": "ヘッドホン"
+    },
+    {
+      "tag": "earphones",
+      "desc": "イヤホン"
+    },
+    {
+      "tag": "backpack",
+      "desc": "リュック"
+    },
+    {
+      "tag": "satchel",
+      "desc": "ショルダーバッグ"
+    },
+    {
+      "tag": "handbag",
+      "desc": "ハンドバッグ"
+    },
+    {
+      "tag": "book",
+      "desc": "本"
+    },
+    {
+      "tag": "umbrella",
+      "desc": "傘"
+    },
+    {
+      "tag": "smartphone",
+      "desc": "スマートフォン"
+    },
+    {
+      "tag": "camera",
+      "desc": "カメラ"
+    },
+    {
+      "tag": "plush toy",
+      "desc": "ぬいぐるみ"
+    },
+    {
+      "tag": "teddy bear",
+      "desc": "テディベア"
+    },
+    {
+      "tag": "flower",
+      "desc": "花"
+    },
+    {
+      "tag": "bouquet",
+      "desc": "花束"
+    },
+    {
+      "tag": "sword",
+      "desc": "剣"
+    },
+    {
+      "tag": "staff",
+      "desc": "杖"
+    },
+    {
+      "tag": "wand",
+      "desc": "魔法の杖"
+    },
+    {
+      "tag": "shield",
+      "desc": "盾"
+    },
+    {
+      "tag": "guitar",
+      "desc": "ギター"
+    },
+    {
+      "tag": "violin",
+      "desc": "バイオリン"
+    },
+    {
+      "tag": "microphone",
+      "desc": "マイク"
+    },
+    {
+      "tag": "hair clip",
+      "label": "ヘアクリップ"
+    },
+    {
+      "tag": "pearl earrings",
+      "label": "パールピアス"
+    },
+    {
+      "tag": "pendant necklace",
+      "label": "ペンダント"
+    },
+    {
+      "tag": "round glasses",
+      "label": "丸メガネ"
+    },
+    {
+      "tag": "square glasses",
+      "label": "角メガネ"
+    }
   ],
-
   "background": [
-    { "tag": "studio background", "desc": "スタジオ背景" },
-    { "tag": "plain background", "desc": "無地背景" },
-    { "tag": "gradient background", "desc": "グラデ背景" },
-    { "tag": "classroom", "desc": "教室" },
-    { "tag": "school corridor", "desc": "学校の廊下" },
-    { "tag": "school rooftop", "desc": "学校の屋上" },
-    { "tag": "library", "desc": "図書館" },
-    { "tag": "laboratory", "desc": "理科室" },
-    { "tag": "office", "desc": "オフィス" },
-    { "tag": "cafe", "desc": "カフェ" },
-    { "tag": "restaurant", "desc": "レストラン" },
-    { "tag": "street", "desc": "通り" },
-    { "tag": "crosswalk", "desc": "横断歩道" },
-    { "tag": "city skyline", "desc": "都市のスカイライン" },
-    { "tag": "alley", "desc": "路地裏" },
-    { "tag": "park", "desc": "公園" },
-    { "tag": "forest", "desc": "森" },
-    { "tag": "riverside", "desc": "川沿い" },
-    { "tag": "beach", "desc": "砂浜" },
-    { "tag": "seaside", "desc": "海辺" },
-    { "tag": "mountains", "desc": "山" },
-    { "tag": "shrine", "desc": "神社" },
-    { "tag": "temple", "desc": "寺" },
-    { "tag": "church interior", "desc": "教会内部" },
-    { "tag": "marketplace", "desc": "市場" },
-    { "tag": "bedroom", "desc": "寝室" },
-    { "tag": "living room", "desc": "リビング" },
-    { "tag": "kitchen", "desc": "キッチン" },
-    { "tag": "bathroom", "desc": "バスルーム" },
-    { "tag": "stage", "desc": "ステージ" },
-    { "tag": "concert", "desc": "コンサート会場" },
-    { "tag": "festival", "desc": "祭り" },
-    { "tag": "fireworks", "desc": "花火" },
-    { "tag": "snowy landscape", "desc": "雪景色" },
-    { "tag": "rainy day", "desc": "雨の日" },
-    { "tag": "sunset", "desc": "夕焼け" },
-    { "tag": "night sky", "desc": "夜空" },
-    { "tag": "starry sky", "desc": "星空" }
+    {
+      "tag": "studio background",
+      "desc": "スタジオ背景"
+    },
+    {
+      "tag": "plain background",
+      "desc": "無地背景"
+    },
+    {
+      "tag": "gradient background",
+      "desc": "グラデ背景"
+    },
+    {
+      "tag": "classroom",
+      "desc": "教室"
+    },
+    {
+      "tag": "school corridor",
+      "desc": "学校の廊下"
+    },
+    {
+      "tag": "school rooftop",
+      "desc": "学校の屋上"
+    },
+    {
+      "tag": "library",
+      "desc": "図書館"
+    },
+    {
+      "tag": "laboratory",
+      "desc": "理科室"
+    },
+    {
+      "tag": "office",
+      "desc": "オフィス"
+    },
+    {
+      "tag": "cafe",
+      "desc": "カフェ"
+    },
+    {
+      "tag": "restaurant",
+      "desc": "レストラン"
+    },
+    {
+      "tag": "street",
+      "desc": "通り"
+    },
+    {
+      "tag": "crosswalk",
+      "desc": "横断歩道"
+    },
+    {
+      "tag": "city skyline",
+      "desc": "都市のスカイライン"
+    },
+    {
+      "tag": "alley",
+      "desc": "路地裏"
+    },
+    {
+      "tag": "park",
+      "desc": "公園"
+    },
+    {
+      "tag": "forest",
+      "desc": "森"
+    },
+    {
+      "tag": "riverside",
+      "desc": "川沿い"
+    },
+    {
+      "tag": "beach",
+      "desc": "砂浜"
+    },
+    {
+      "tag": "seaside",
+      "desc": "海辺"
+    },
+    {
+      "tag": "mountains",
+      "desc": "山"
+    },
+    {
+      "tag": "shrine",
+      "desc": "神社"
+    },
+    {
+      "tag": "temple",
+      "desc": "寺"
+    },
+    {
+      "tag": "church interior",
+      "desc": "教会内部"
+    },
+    {
+      "tag": "marketplace",
+      "desc": "市場"
+    },
+    {
+      "tag": "bedroom",
+      "desc": "寝室"
+    },
+    {
+      "tag": "living room",
+      "desc": "リビング"
+    },
+    {
+      "tag": "kitchen",
+      "desc": "キッチン"
+    },
+    {
+      "tag": "bathroom",
+      "desc": "バスルーム"
+    },
+    {
+      "tag": "stage",
+      "desc": "ステージ"
+    },
+    {
+      "tag": "concert",
+      "desc": "コンサート会場"
+    },
+    {
+      "tag": "festival",
+      "desc": "祭り"
+    },
+    {
+      "tag": "fireworks",
+      "desc": "花火"
+    },
+    {
+      "tag": "snowy landscape",
+      "desc": "雪景色"
+    },
+    {
+      "tag": "rainy day",
+      "desc": "雨の日"
+    },
+    {
+      "tag": "sunset",
+      "desc": "夕焼け"
+    },
+    {
+      "tag": "night sky",
+      "desc": "夜空"
+    },
+    {
+      "tag": "starry sky",
+      "desc": "星空"
+    },
+    {
+      "tag": "school hallway",
+      "label": "学校の廊下"
+    },
+    {
+      "tag": "japanese garden",
+      "label": "日本庭園"
+    },
+    {
+      "tag": "urban night",
+      "label": "都会の夜景"
+    },
+    {
+      "tag": "neon alley",
+      "label": "ネオン路地"
+    },
+    {
+      "tag": "cozy room",
+      "label": "こぢんまりした部屋"
+    },
+    {
+      "tag": "beach sunset",
+      "label": "夕焼けの海辺"
+    },
+    {
+      "tag": "futuristic city",
+      "label": "近未来都市"
+    }
   ],
-
   "art_style": [
-    { "tag": "anime style", "desc": "アニメ調" },
-    { "tag": "manga screentone", "desc": "漫画スクリーントーン" },
-    { "tag": "cel shading", "desc": "セル塗り" },
-    { "tag": "painterly", "desc": "絵画風" },
-    { "tag": "watercolor", "desc": "水彩風" },
-    { "tag": "oil painting", "desc": "油彩風" },
-    { "tag": "sketch", "desc": "スケッチ" },
-    { "tag": "pencil drawing", "desc": "鉛筆画" },
-    { "tag": "ink drawing", "desc": "インク画" },
-    { "tag": "pastel", "desc": "パステル調" },
-    { "tag": "pixel art", "desc": "ドット絵" },
-    { "tag": "3d render", "desc": "3Dレンダ" },
-    { "tag": "low poly", "desc": "ローポリ" },
-    { "tag": "isometric", "desc": "アイソメ" },
-    { "tag": "flat color", "desc": "フラットカラー" },
-    { "tag": "soft shading", "desc": "ソフト陰影" },
-    { "tag": "hard shading", "desc": "ハード陰影" },
-    { "tag": "rim lighting", "desc": "リムライト" },
-    { "tag": "volumetric lighting", "desc": "ボリューメトリック照明" },
-    { "tag": "bloom", "desc": "ブルーム" },
-    { "tag": "depth of field", "desc": "被写界深度" },
-    { "tag": "film grain", "desc": "フィルムグレイン" }
+    {
+      "tag": "anime style",
+      "desc": "アニメ調"
+    },
+    {
+      "tag": "manga screentone",
+      "desc": "漫画スクリーントーン"
+    },
+    {
+      "tag": "cel shading",
+      "desc": "セル塗り"
+    },
+    {
+      "tag": "painterly",
+      "desc": "絵画風"
+    },
+    {
+      "tag": "watercolor",
+      "desc": "水彩風"
+    },
+    {
+      "tag": "oil painting",
+      "desc": "油彩風"
+    },
+    {
+      "tag": "sketch",
+      "desc": "スケッチ"
+    },
+    {
+      "tag": "pencil drawing",
+      "desc": "鉛筆画"
+    },
+    {
+      "tag": "ink drawing",
+      "desc": "インク画"
+    },
+    {
+      "tag": "pastel",
+      "desc": "パステル調"
+    },
+    {
+      "tag": "pixel art",
+      "desc": "ドット絵"
+    },
+    {
+      "tag": "3d render",
+      "desc": "3Dレンダ"
+    },
+    {
+      "tag": "low poly",
+      "desc": "ローポリ"
+    },
+    {
+      "tag": "isometric",
+      "desc": "アイソメ"
+    },
+    {
+      "tag": "flat color",
+      "desc": "フラットカラー"
+    },
+    {
+      "tag": "soft shading",
+      "desc": "ソフト陰影"
+    },
+    {
+      "tag": "hard shading",
+      "desc": "ハード陰影"
+    },
+    {
+      "tag": "rim lighting",
+      "desc": "リムライト"
+    },
+    {
+      "tag": "volumetric lighting",
+      "desc": "ボリューメトリック照明"
+    },
+    {
+      "tag": "bloom",
+      "desc": "ブルーム"
+    },
+    {
+      "tag": "depth of field",
+      "desc": "被写界深度"
+    },
+    {
+      "tag": "film grain",
+      "desc": "フィルムグレイン"
+    },
+    {
+      "tag": "watercolor look",
+      "label": "水彩調"
+    },
+    {
+      "tag": "sketchy lineart",
+      "label": "ラフ線画"
+    },
+    {
+      "tag": "retro anime",
+      "label": "レトロアニメ調"
+    }
   ],
-
   "pose_composition": [
-    { "tag": "full body", "desc": "全身" },
-    { "tag": "upper body", "desc": "上半身" },
-    { "tag": "portrait", "desc": "ポートレート" },
-    { "tag": "close-up", "desc": "クローズアップ" },
-    { "tag": "profile view", "desc": "横顔" },
-    { "tag": "back view", "desc": "後ろ姿" },
-    { "tag": "from below", "desc": "煽り" },
-    { "tag": "from above", "desc": "俯瞰" },
-    { "tag": "dutch angle", "desc": "斜め構図" },
-    { "tag": "sitting", "desc": "座る" },
-    { "tag": "standing", "desc": "立つ" },
-    { "tag": "walking", "desc": "歩く" },
-    { "tag": "running", "desc": "走る" },
-    { "tag": "jumping", "desc": "跳ぶ" },
-    { "tag": "kneeling", "desc": "ひざまずく" },
-    { "tag": "lying", "desc": "寝転ぶ" },
-    { "tag": "cross-legged", "desc": "あぐら" },
-    { "tag": "arms crossed", "desc": "腕組み" },
-    { "tag": "hands on hips", "desc": "腰に手" },
-    { "tag": "hands behind back", "desc": "背中で手を組む" },
-    { "tag": "peace sign", "desc": "ピースサイン" },
-    { "tag": "waving", "desc": "手を振る" },
-    { "tag": "pointing", "desc": "指差し" },
-    { "tag": "holding object", "desc": "物を持つ" },
-    { "tag": "looking at viewer", "desc": "こちらを見る" },
-    { "tag": "looking away", "desc": "視線を外す" },
-    { "tag": "side glance", "desc": "横目" },
-    { "tag": "tilting head", "desc": "首をかしげる" }
+    {
+      "tag": "full body",
+      "desc": "全身"
+    },
+    {
+      "tag": "upper body",
+      "desc": "上半身"
+    },
+    {
+      "tag": "portrait",
+      "desc": "ポートレート"
+    },
+    {
+      "tag": "close-up",
+      "desc": "クローズアップ"
+    },
+    {
+      "tag": "profile view",
+      "desc": "横顔"
+    },
+    {
+      "tag": "back view",
+      "desc": "後ろ姿"
+    },
+    {
+      "tag": "from below",
+      "desc": "煽り"
+    },
+    {
+      "tag": "from above",
+      "desc": "俯瞰"
+    },
+    {
+      "tag": "dutch angle",
+      "desc": "斜め構図"
+    },
+    {
+      "tag": "sitting",
+      "desc": "座る"
+    },
+    {
+      "tag": "standing",
+      "desc": "立つ"
+    },
+    {
+      "tag": "walking",
+      "desc": "歩く"
+    },
+    {
+      "tag": "running",
+      "desc": "走る"
+    },
+    {
+      "tag": "jumping",
+      "desc": "跳ぶ"
+    },
+    {
+      "tag": "kneeling",
+      "desc": "ひざまずく"
+    },
+    {
+      "tag": "lying",
+      "desc": "寝転ぶ"
+    },
+    {
+      "tag": "cross-legged",
+      "desc": "あぐら"
+    },
+    {
+      "tag": "arms crossed",
+      "desc": "腕組み"
+    },
+    {
+      "tag": "hands on hips",
+      "desc": "腰に手"
+    },
+    {
+      "tag": "hands behind back",
+      "desc": "背中で手を組む"
+    },
+    {
+      "tag": "peace sign",
+      "desc": "ピースサイン"
+    },
+    {
+      "tag": "waving",
+      "desc": "手を振る"
+    },
+    {
+      "tag": "pointing",
+      "desc": "指差し"
+    },
+    {
+      "tag": "holding object",
+      "desc": "物を持つ"
+    },
+    {
+      "tag": "looking at viewer",
+      "desc": "こちらを見る"
+    },
+    {
+      "tag": "looking away",
+      "desc": "視線を外す"
+    },
+    {
+      "tag": "side glance",
+      "desc": "横目"
+    },
+    {
+      "tag": "tilting head",
+      "desc": "首をかしげる"
+    },
+    {
+      "tag": "medium shot",
+      "label": "バストアップ"
+    },
+    {
+      "tag": "over-the-shoulder",
+      "label": "振り向き"
+    },
+    {
+      "tag": "looking back",
+      "label": "見返り"
+    },
+    {
+      "tag": "sitting pose",
+      "label": "座りポーズ"
+    },
+    {
+      "tag": "kneeling pose",
+      "label": "ひざまずき"
+    },
+    {
+      "tag": "jumping pose",
+      "label": "ジャンプ"
+    }
   ],
-
   "expressions": [
-    { "tag": "smiling", "desc": "笑顔" },
-    { "tag": "laughing", "desc": "笑い" },
-    { "tag": "grin", "desc": "にやり" },
-    { "tag": "smirk", "desc": "ほほえみ" },
-    { "tag": "serious", "desc": "真剣" },
-    { "tag": "determined", "desc": "決意" },
-    { "tag": "angry", "desc": "怒り" },
-    { "tag": "annoyed", "desc": "不機嫌" },
-    { "tag": "pouting", "desc": "むくれ" },
-    { "tag": "surprised", "desc": "驚き" },
-    { "tag": "shocked", "desc": "ショック" },
-    { "tag": "gasp", "desc": "はっとする" },
-    { "tag": "crying", "desc": "泣き" },
-    { "tag": "teary eyes", "desc": "涙目" },
-    { "tag": "embarrassed", "desc": "恥ずかしい" },
-    { "tag": "blushing", "desc": "赤面" },
-    { "tag": "calm", "desc": "落ち着き" },
-    { "tag": "sleepy", "desc": "眠い" },
-    { "tag": "wink", "desc": "ウィンク" },
-    { "tag": "eyes closed", "desc": "目を閉じる" },
-    { "tag": "open mouth", "desc": "口を開く" },
-    { "tag": "closed mouth", "desc": "口を閉じる" },
-    { "tag": "tongue out", "desc": "舌を出す" },
-    { "tag": "soft gaze", "desc": "柔らかい視線" }
+    {
+      "tag": "smiling",
+      "desc": "笑顔"
+    },
+    {
+      "tag": "laughing",
+      "desc": "笑い"
+    },
+    {
+      "tag": "grin",
+      "desc": "にやり"
+    },
+    {
+      "tag": "smirk",
+      "desc": "ほほえみ"
+    },
+    {
+      "tag": "serious",
+      "desc": "真剣"
+    },
+    {
+      "tag": "determined",
+      "desc": "決意"
+    },
+    {
+      "tag": "angry",
+      "desc": "怒り"
+    },
+    {
+      "tag": "annoyed",
+      "desc": "不機嫌"
+    },
+    {
+      "tag": "pouting",
+      "desc": "むくれ"
+    },
+    {
+      "tag": "surprised",
+      "desc": "驚き"
+    },
+    {
+      "tag": "shocked",
+      "desc": "ショック"
+    },
+    {
+      "tag": "gasp",
+      "desc": "はっとする"
+    },
+    {
+      "tag": "crying",
+      "desc": "泣き"
+    },
+    {
+      "tag": "teary eyes",
+      "desc": "涙目"
+    },
+    {
+      "tag": "embarrassed",
+      "desc": "恥ずかしい"
+    },
+    {
+      "tag": "blushing",
+      "desc": "赤面"
+    },
+    {
+      "tag": "calm",
+      "desc": "落ち着き"
+    },
+    {
+      "tag": "sleepy",
+      "desc": "眠い"
+    },
+    {
+      "tag": "wink",
+      "desc": "ウィンク"
+    },
+    {
+      "tag": "eyes closed",
+      "desc": "目を閉じる"
+    },
+    {
+      "tag": "open mouth",
+      "desc": "口を開く"
+    },
+    {
+      "tag": "closed mouth",
+      "desc": "口を閉じる"
+    },
+    {
+      "tag": "tongue out",
+      "desc": "舌を出す"
+    },
+    {
+      "tag": "soft gaze",
+      "desc": "柔らかい視線"
+    },
+    {
+      "tag": "gentle smile",
+      "label": "やさしい微笑み"
+    },
+    {
+      "tag": "big grin",
+      "label": "にっこり笑顔"
+    },
+    {
+      "tag": "pout",
+      "label": "むすっと"
+    },
+    {
+      "tag": "tsundere shy",
+      "label": "ツンデレ照れ"
+    },
+    {
+      "tag": "sparkling eyes",
+      "label": "キラキラした目"
+    }
   ],
-
   "lighting": [
-    { "tag": "soft lighting", "desc": "柔らかい光" },
-    { "tag": "hard lighting", "desc": "ハードライト" },
-    { "tag": "backlighting", "desc": "逆光" },
-    { "tag": "rim lighting", "desc": "リムライト" },
-    { "tag": "volumetric lighting", "desc": "ボリューメトリックライト" },
-    { "tag": "natural light", "desc": "自然光" },
-    { "tag": "golden hour", "desc": "ゴールデンアワー" },
-    { "tag": "blue hour", "desc": "ブルーアワー" },
-    { "tag": "overcast light", "desc": "曇天の光" },
-    { "tag": "window light", "desc": "窓明かり" },
-    { "tag": "neon lighting", "desc": "ネオン照明" },
-    { "tag": "spot lighting", "desc": "スポットライト" }
+    {
+      "tag": "soft lighting",
+      "desc": "柔らかい光"
+    },
+    {
+      "tag": "hard lighting",
+      "desc": "ハードライト"
+    },
+    {
+      "tag": "backlighting",
+      "desc": "逆光"
+    },
+    {
+      "tag": "rim lighting",
+      "desc": "リムライト"
+    },
+    {
+      "tag": "volumetric lighting",
+      "desc": "ボリューメトリックライト"
+    },
+    {
+      "tag": "natural light",
+      "desc": "自然光"
+    },
+    {
+      "tag": "golden hour",
+      "desc": "ゴールデンアワー"
+    },
+    {
+      "tag": "blue hour",
+      "desc": "ブルーアワー"
+    },
+    {
+      "tag": "overcast light",
+      "desc": "曇天の光"
+    },
+    {
+      "tag": "window light",
+      "desc": "窓明かり"
+    },
+    {
+      "tag": "neon lighting",
+      "desc": "ネオン照明"
+    },
+    {
+      "tag": "spot lighting",
+      "desc": "スポットライト"
+    },
+    {
+      "tag": "soft light",
+      "label": "ソフトライト"
+    },
+    {
+      "tag": "hard light",
+      "label": "ハードライト"
+    },
+    {
+      "tag": "backlight",
+      "label": "逆光"
+    },
+    {
+      "tag": "rim light",
+      "label": "リムライト"
+    },
+    {
+      "tag": "spotlight",
+      "label": "スポットライト"
+    },
+    {
+      "tag": "volumetric light",
+      "label": "ボリューメトリックライト"
+    }
   ]
 }
