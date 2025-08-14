@@ -181,39 +181,59 @@ function toneToTag(v){
 }
 
 // === 色名ユーティリティ（アクセ & 髪/瞳で共用可） ===
+// 置き換え：前の colorNameFromHSL をこれに差し替え
 function colorNameFromHSL(h, s, l) {
-  const hueNames = [
-    {h: 0, name: "red"},
-    {h: 15, name: "crimson"},
-    {h: 30, name: "orange"},
-    {h: 45, name: "gold"},
-    {h: 60, name: "yellow"},
-    {h: 75, name: "lime"},
-    {h: 90, name: "green"},
-    {h: 150, name: "teal"},
-    {h: 180, name: "cyan"},
-    {h: 210, name: "sky blue"},
-    {h: 240, name: "blue"},
-    {h: 270, name: "indigo"},
-    {h: 285, name: "violet"},
-    {h: 300, name: "magenta"},
-    {h: 330, name: "pink"},
-    {h: 360, name: "red"} // wrap-around
-  ];
-
-  // 一番近い色名を探す
-  let closest = hueNames[0].name;
-  let minDiff = 360;
-  for (let i = 0; i < hueNames.length; i++) {
-    let diff = Math.abs(h - hueNames[i].h);
-    if (diff > 180) diff = 360 - diff;
-    if (diff < minDiff) {
-      minDiff = diff;
-      closest = hueNames[i].name;
-    }
+  // グレイスケール系の先判定
+  if (l < 12) return "black";
+  if (l > 92 && s < 20) return "white";
+  if (s < 10) {
+    if (l < 30) return "dark gray";
+    if (l > 70) return "light gray";
+    return "gray";
   }
 
-  return closest;
+  // ベース色名（細かめ）
+  const table = [
+    { h:   0, name: "red" },
+    { h:  12, name: "crimson" },
+    { h:  22, name: "vermilion" },
+    { h:  32, name: "orange" },
+    { h:  45, name: "gold" },
+    { h:  60, name: "yellow" },
+    { h:  75, name: "lime" },
+    { h:  90, name: "green" },
+    { h: 110, name: "emerald" },
+    { h: 150, name: "teal" },
+    { h: 180, name: "cyan" },
+    { h: 200, name: "aqua" },
+    { h: 210, name: "sky blue" },
+    { h: 225, name: "azure" },
+    { h: 240, name: "blue" },
+    { h: 255, name: "indigo" },
+    { h: 270, name: "violet" },
+    { h: 285, name: "purple" },
+    { h: 300, name: "magenta" },
+    { h: 320, name: "fuchsia" },
+    { h: 335, name: "rose" },
+    { h: 350, name: "pink" },
+    { h: 360, name: "red" } // wrap
+  ];
+  let base = table[0].name, min = 360;
+  for (const t of table) {
+    let d = Math.abs(h - t.h); if (d > 180) d = 360 - d;
+    if (d < min) { min = d; base = t.name; }
+  }
+
+  // 形容詞（明度・彩度）
+  let prefix = "";
+  if (s >= 70 && l <= 40) prefix = "deep";      // 濃く鮮やか
+  else if (s >= 70 && l >= 70) prefix = "bright";
+  else if (l >= 85 && s >= 20 && s <= 60) prefix = "pastel";
+  else if (s <= 35) prefix = "muted";
+  else if (l <= 30) prefix = "dark";
+  else if (l >= 80) prefix = "light";
+
+  return prefix ? `${prefix} ${base}` : base;
 }
 
 // 角度ドラッグ共通（pointer系で連続追従）
@@ -270,15 +290,14 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
   let hue = 35;
 
-  function paint(){
-    const s=+sat.value, l=+lit.value;
-    const [r,g,b]=hslToRgb(hue,s,l);
-    sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
-     
-    const cname = colorNameFromHSL(hue, s, l);
-    const shade = (l>=78 ? 'light ' : l<=32 ? 'dark ' : '');
-    tagEl.textContent = `${shade}${cname} ${baseTag}`.trim();
-}
+  // initWheel 内の paint() を差し替え
+   function paint(){
+      const s = +sat.value, l = +lit.value;
+      const [r,g,b] = hslToRgb(hue, s, l);
+      sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
+      const cname = colorNameFromHSL(hue, s, l);
+      tagEl.textContent = `${cname} ${baseTag}`;  // 例: "pastel sky blue hair"
+   }
 
   // ドラッグで角度更新
   const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
