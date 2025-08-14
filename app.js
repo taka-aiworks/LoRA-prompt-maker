@@ -795,7 +795,7 @@ function buildOneLearning(){
   // ▼追加：ヌード優先フィルタ
   let parts = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
   parts = applyNudePriority(parts);
-  const pos = ensurePromptOrder(uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean));
+  const pos = ensurePromptOrder(parts);
   const seed = seedFromName($("#charName").value||"", 0);
   return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
 }
