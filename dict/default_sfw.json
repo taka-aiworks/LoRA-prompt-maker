@@ -32,7 +32,6 @@
     { "tag": "frizzy hair", "desc": "ふわふわ髪" }
   ],
 
-  /* ←※髪色はUIには出ない（色相環で出す）けど残しておきたいならこのままでOK */
   "hair_color": [
     { "tag": "black hair", "desc": "黒髪" },
     { "tag": "brown hair", "desc": "茶髪" },
