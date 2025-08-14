@@ -74,3 +74,5 @@ details[open] summary .caret{transform:rotate(90deg)}
 .wheel::after {
   pointer-events: none;
 }
+/* wheel のドラッグ時にスクロール/ダブルタップ拡大を抑制 */
+.wheel, .wheel-box { touch-action: none; user-select: none; }
