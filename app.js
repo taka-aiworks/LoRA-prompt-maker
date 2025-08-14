@@ -339,8 +339,8 @@ function addHueDrag(wheelEl, thumbEl, onHueChange){
 
   // リサイズ時の親レイアウト変化で位置がズレないよう再配置
   const ro = new ResizeObserver(()=> {
-    // 直近のhueはonHueChange内で保持してもらう
-    onHueChange.__lastHue != null && setThumb(onHueChange.__lastHue);
+    const h = (onHueChange.__lastHue != null) ? onHueChange.__lastHue : 0;
+    setThumb(h)
   });
   ro.observe(wheelEl);
 
@@ -363,6 +363,7 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
 
   // ドラッグで角度更新
   const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
+  onHue.__lastHue = hue;               // ← 追加：初期値を保持
   addHueDrag(wheel, thumb, onHue);
 
   // スライダー反映
@@ -407,6 +408,7 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   }
 
   const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
+  onHue.__lastHue = hue;               // ← 追加：初期値を保持
   addHueDrag(wheel, thumb, onHue);
 
   sat.addEventListener("input", paint);
