@@ -721,7 +721,7 @@ function buildOneLearning(){
   if(BG.length===0 || PO.length===0 || EX.length===0) return {error:"背景・ポーズ・表情は最低1つずつ選択してください。"};
   const addon = getSelectedNSFW_Learn();
   const b = pick(BG), p = pick(PO), e=pick(EX), l = LI.length ? pick(LI) : "";
-  const pos = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
+  const pos = ensurePromptOrder(uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean));
   const seed = seedFromName($("#charName").value||"", 0);
   return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
 }
@@ -732,6 +732,86 @@ function buildBatchLearning(n){
     const key = o.pos.join("|"); if(used.has(key)) continue; used.add(key); out.push(o);
   }
   return out;
+}
+
+// === 追加: プロンプト並べ替え（正規順） ===
+function ensurePromptOrder(parts) {
+  const set = new Set(parts.filter(Boolean));
+
+  // SFW/NSFWのカテゴリ辞書から「そのカテゴリに属するタグ」を素早く判定するためのセットを作る
+  const asSet = (arr) => new Set((arr||[]).map(x => (typeof x==='string'? x : x.tag)));
+
+  const S = {
+    hair_style:      asSet(SFW.hair_style),
+    eyes_shape:      asSet(SFW.eyes),
+    outfit:          asSet(SFW.outfit),
+    face:            asSet(SFW.face),
+    skin_body:       asSet(SFW.skin_body),
+    art_style:       asSet(SFW.art_style),
+    background:      asSet(SFW.background),
+    pose:            asSet(SFW.pose_composition),
+    expr:            asSet(SFW.expressions),
+    acc:             asSet(SFW.accessories),
+    light:           asSet(SFW.lighting),
+    nsfw_expr:       asSet(NSFW.expression),
+    nsfw_expo:       asSet(NSFW.exposure),
+    nsfw_situ:       asSet(NSFW.situation),
+    nsfw_light:      asSet(NSFW.lighting),
+  };
+
+  // 便宜上の判定（色タグは " hair" / " eyes" で終わる）
+  const isHairColor = (t)=> /\bhair$/.test(t)   && !S.hair_style.has(t);
+  const isEyeColor  = (t)=> /\beyes$/.test(t)   && !S.eyes_shape.has(t);
+  const isSkinTone  = (t)=> /\bskin$/.test(t)   && !S.skin_body.has(t);
+
+  // バケツに仕分け
+  const B = {
+    lora: [], name: [], hairColor: [], eyeColor: [], skin: [],
+    hairStyle: [], eyeShape: [], face: [], body: [], art: [], outfit: [],
+    acc: [], bg: [], pose: [], expr: [], light: [],
+    nsfw_expr: [], nsfw_expo: [], nsfw_situ: [], nsfw_light: [],
+    other: []
+  };
+
+  for (const t of set) {
+    if (!t) continue;
+    if (t.startsWith("<lora:") || t.includes("LoRA") || t.includes("<lyco:")) { B.lora.push(t); continue; }
+    if (t === (document.querySelector("#charName")?.value||"").trim())       { B.name.push(t); continue; }
+    if (isHairColor(t))        { B.hairColor.push(t); continue; }
+    if (isEyeColor(t))         { B.eyeColor.push(t);  continue; }
+    if (isSkinTone(t))         { B.skin.push(t);      continue; }
+
+    if (S.hair_style.has(t))   { B.hairStyle.push(t); continue; }
+    if (S.eyes_shape.has(t))   { B.eyeShape.push(t);  continue; }
+    if (S.face.has(t))         { B.face.push(t);      continue; }
+    if (S.skin_body.has(t))    { B.body.push(t);      continue; }
+    if (S.art_style.has(t))    { B.art.push(t);       continue; }
+    if (S.outfit.has(t))       { B.outfit.push(t);    continue; }
+    if (S.acc.has(t))          { B.acc.push(t);       continue; }
+    if (S.background.has(t))   { B.bg.push(t);        continue; }
+    if (S.pose.has(t))         { B.pose.push(t);      continue; }
+    if (S.expr.has(t))         { B.expr.push(t);      continue; }
+    if (S.light.has(t))        { B.light.push(t);     continue; }
+
+    if (S.nsfw_expr.has(t))    { B.nsfw_expr.push(t); continue; }
+    if (S.nsfw_expo.has(t))    { B.nsfw_expo.push(t); continue; }
+    if (S.nsfw_situ.has(t))    { B.nsfw_situ.push(t); continue; }
+    if (S.nsfw_light.has(t))   { B.nsfw_light.push(t);continue; }
+
+    B.other.push(t);
+  }
+
+  // ここで正規順に並べる（必要なら順序を編集してOK）
+  return [
+    ...B.lora, ...B.name,
+    ...B.hairColor, ...B.eyeColor, ...B.skin,
+    ...B.hairStyle, ...B.eyeShape, ...B.face, ...B.body, ...B.art, ...B.outfit,
+    ...B.acc,
+    ...B.bg, ...B.pose, ...B.expr, ...B.light,
+    // NSFW は最後にまとめる（R-18/R-18Gを分けたいなら順序調整）
+    ...B.nsfw_expr, ...B.nsfw_expo, ...B.nsfw_situ, ...B.nsfw_light,
+    ...B.other
+  ].filter(Boolean);
 }
 
 /* ========= 量産：アクセ3スロット & 組み立て ========= */
@@ -776,8 +856,8 @@ function buildBatchProduction(n){
     if(exprs.length)   o.push(pick(exprs));
     if(light)          o.push(light);
     if(nsfwAdd.length) o.push(...nsfwAdd);
-
-    const prompt = uniq([...fixed, ...o]).filter(Boolean).join(", ");
+     
+    const prompt = ensurePromptOrder(uniq([...fixed, ...o]).filter(Boolean)).join(", ");
     const seed = seedMode==="fixed" ? baseSeed : seedFromName($("#charName").value||"", out.length+1);
     const key = `${prompt}|${seed}`;
     if(out.some(x=>x.key===key)) continue;
