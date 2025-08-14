@@ -460,6 +460,16 @@ function renderSFW(){
   checkList($("#p_expr"),      SFW.expressions,     "p_expr");
   radioList($("#p_light"),     SFW.lighting,        "p_light");
   checkList($("#lightLearn"),    SFW.lighting,        "lightLearn");
+
+  // ★ここに基本情報の描画処理を追加
+  radioList($("#bf_age"),      SFW.age,             "bf_age");
+  radioList($("#bf_gender"),   SFW.gender,          "bf_gender");
+  radioList($("#bf_body"),     SFW.body_type,       "bf_body");
+  radioList($("#bf_height"),   SFW.height,          "bf_height");
+  radioList($("#bf_person"),   SFW.personality,     "bf_person");
+  radioList($("#bf_relation"), SFW.relationship,    "bf_relation");
+  radioList($("#bf_world"),    SFW.worldview,       "bf_world");
+  radioList($("#bf_tone"),     SFW.speech_tone, 
 }
 
 /* ========= タブ切替 ========= */
