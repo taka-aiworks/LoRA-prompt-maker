@@ -298,14 +298,6 @@ function randomOutfitColorName(){
   return colorNameFromHSL(h,s,l); // 既存の色名関数を再利用
 }
 
-// outfit ラベルを「色 + outfit」へ変換 or そのまま返す
-function maybeColorizeOutfit(tag){
-  if (!tag) return tag;
-  if (Math.random() >= COLOR_RATE) return tag;      // 無色（タグのみ）
-  const c = randomOutfitColorName();
-  return `${c} ${tag}`;
-}
-
 // 角度ドラッグ共通（pointer系で連続追従）
 function addHueDrag(wheelEl, thumbEl, onHueChange){
   if(!wheelEl || !thumbEl) return;
