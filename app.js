@@ -159,6 +159,22 @@ function toneToTag(v){
   if(v<=90) return "dark skin";
   return "very dark skin";
 }
+
+// === 色名ユーティリティ（アクセ & 髪/瞳で共用可） ===
+function colorNameFromHSL(h,s,l){
+  if(l < 18) return "black";
+  if(l > 88 && s < 18) return "white";
+  if(s < 12) return "gray";
+  if(h < 15 || h >= 345) return "red";
+  if(h < 45)  return "orange";
+  if(h < 70)  return "yellow";
+  if(h < 160) return "green";
+  if(h < 200) return "cyan";
+  if(h < 260) return "blue";
+  if(h < 300) return "purple";
+  return "magenta";
+}
+
 // 角度ドラッグ共通（pointer系で連続追従）
 function addHueDrag(wheelEl, thumbEl, onHueChange){
   if(!wheelEl || !thumbEl) return;
@@ -299,7 +315,6 @@ function renderSFW(){
   checkList($("#p_expr"),      SFW.expressions,     "p_expr");
   radioList($("#p_light"),     SFW.lighting,        "p_light");
   checkList($("#lightLearn"),    SFW.lighting,        "lightLearn");
-}
 }
 
 /* ========= タブ切替 ========= */
