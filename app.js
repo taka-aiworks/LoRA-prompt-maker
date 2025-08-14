@@ -1209,4 +1209,10 @@ function setupColorPickers(){
   initColorWheel("top",    35, 80, 55);
   initColorWheel("bottom",210, 70, 50);
   initColorWheel("shoes",   0,  0, 30); // 初期は無彩（dark/black 寄り）でもOK
+
+   // ★量産：服色（ここが足りてなかった）
+  getProdTopColor    = initColorWheel("p_top",    35, 80, 55);
+  getProdBottomColor = initColorWheel("p_bottom",210, 70, 50);
+  getProdShoesColor  = initColorWheel("p_shoes",   0,  0, 30);
+
 }
