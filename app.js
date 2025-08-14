@@ -236,6 +236,63 @@ function colorNameFromHSL(h, s, l) {
   return prefix ? `${prefix} ${base}` : base;
 }
 
+/* ========= 服色ユーティリティ（学習） ========= */
+// 学習用の色タグ getter（未操作＝"—" の場合は空文字を返す）
+function getWearColorTag(idBase){
+  const t = document.getElementById("tag_"+idBase);
+  if (!t) return "";
+  const txt = (t.textContent || "").trim();
+  return (txt && txt !== "—") ? txt : "";
+}
+
+// ワンピース判定（辞書のタグ名ベースの簡易判定）
+function isOnePieceOutfit(tag){
+  return /\b(dress|one[-\s]?piece|gown|kimono)\b/i.test(tag || "");
+}
+
+// 学習：服色タグを outfit 種別に応じて作る
+function getLearningWearColorParts(selectedOutfitTag){
+  const parts = [];
+  const top   = getWearColorTag("top");     // 例: "pastel blue"
+  const bottom= getWearColorTag("bottom");
+  const shoes = getWearColorTag("shoes");
+
+  if (isOnePieceOutfit(selectedOutfitTag)) {
+    // ワンピース系はトップ色だけ使って名詞も合わせる
+    if (top) {
+      const noun = (/\bkimono\b/i.test(selectedOutfitTag)) ? "kimono"
+                 : (/\bgown\b/i.test(selectedOutfitTag))   ? "gown"
+                 : "dress";
+      parts.push(`${top} ${noun}`);
+    }
+  } else {
+    if (top)    parts.push(`${top} top`);
+    if (bottom) parts.push(`${bottom} bottom`);
+  }
+  if (shoes)    parts.push(`${shoes} shoes`);
+
+  return parts;
+}
+
+/* ========= 服色ユーティリティ（量産） ========= */
+const COLOR_RATE = 0.5; // 色を付ける確率（0〜1）
+
+function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function randomOutfitColorName(){
+  const h = randomInt(0,359);
+  const s = randomInt(60,90);
+  const l = randomInt(35,65);
+  return colorNameFromHSL(h,s,l); // 既存の色名関数を再利用
+}
+
+// outfit ラベルを「色 + outfit」へ変換 or そのまま返す
+function maybeColorizeOutfit(tag){
+  if (!tag) return tag;
+  if (Math.random() >= COLOR_RATE) return tag;      // 無色（タグのみ）
+  const c = randomOutfitColorName();
+  return `${c} ${tag}`;
+}
+
 // 角度ドラッグ共通（pointer系で連続追従）
 function addHueDrag(wheelEl, thumbEl, onHueChange){
   if(!wheelEl || !thumbEl) return;
@@ -689,6 +746,7 @@ function getNeg(){
   const g = ($("#negGlobal").value||"").split(",").map(s=>s.trim()).filter(Boolean);
   return uniq([...base.split(",").map(s=>s.trim()), ...g]).join(", ");
 }
+
 function assembleFixedLearning(){
   const arr=[];
   arr.push($("#loraTag").value.trim());
@@ -696,16 +754,29 @@ function assembleFixedLearning(){
   arr.push(getHairColorTag && getHairColorTag());
   arr.push(getEyeColorTag && getEyeColorTag());
   arr.push($("#tagSkin").textContent);
+
+  // 基本の単一選択要素
   ["hairStyle","eyeShape","face","skinBody","artStyle","outfit"].forEach(n=>{
     const v=document.querySelector(`input[name="${n}"]:checked`)?.value; if(v) arr.push(v);
   });
+
+  // ★ 学習：服色（top/bottom/shoes）を outfit の直下に追加
+  const selectedOutfit = getOne("outfit");
+  if (selectedOutfit) {
+    const wearColors = getLearningWearColorParts(selectedOutfit);
+    arr.push(...wearColors);
+  }
+
+  // アクセ（恒常1種）
   const acc = $("#learn_acc")?.value || "";
   if (acc) arr.push(`${getLearnAccColor && getLearnAccColor()} ${acc}`);
+
+  // 手動固定
   const fixedManual = $("#fixedManual").value.split(",").map(s=>s.trim()).filter(Boolean);
   arr.push(...fixedManual);
+
   return uniq(arr).filter(Boolean);
-}
-function getSelectedNSFW_Learn(){
+}function getSelectedNSFW_Learn(){
   if (!$("#nsfwLearn").checked) return [];
   const pickeds = [
     ...$$('input[name="nsfwL_expr"]:checked').map(x=>x.value),
@@ -822,11 +893,12 @@ function readAccessorySlots(){
   const pack = (noun,color)=> noun ? `${color} ${noun}` : "";
   return [pack(A,Ac), pack(B,Bc), pack(C,Cc)].filter(Boolean);
 }
+
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
   const neg   = ($("#p_neg").value||"").trim();
-  const outfits = getMany("p_outfit");
+  const outfits = getMany("p_outfit");       // ← 複数可
   const bgs  = getMany("p_bg");
   const poses= getMany("p_pose");
   const exprs= getMany("p_expr");
@@ -848,15 +920,22 @@ function buildBatchProduction(n){
   const out=[]; let guard=0;
   while(out.length<n && guard<n*400){
     guard++;
+
+    // 1行分の可変要素を組み立て
     const o = [];
-    if(outfits.length) o.push(pick(outfits));
+
+    if(outfits.length){
+      const rawOutfit = pick(outfits);
+      const colored   = maybeColorizeOutfit(rawOutfit); // ★ ここで色付け or 無色
+      o.push(colored);
+    }
     if(acc.length)     o.push(...acc);
     if(bgs.length)     o.push(pick(bgs));
     if(poses.length)   o.push(pick(poses));
     if(exprs.length)   o.push(pick(exprs));
     if(light)          o.push(light);
     if(nsfwAdd.length) o.push(...nsfwAdd);
-     
+
     const prompt = ensurePromptOrder(uniq([...fixed, ...o]).filter(Boolean)).join(", ");
     const seed = seedMode==="fixed" ? baseSeed : seedFromName($("#charName").value||"", out.length+1);
     const key = `${prompt}|${seed}`;
@@ -1049,10 +1128,29 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
+  // 髪・瞳・アクセ（既存）
   getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
   getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes");
   getLearnAccColor  = initColorWheel("learnAcc", 0,   75, 50);
   getAccAColor      = initColorWheel("accA",     0,   80, 50);
   getAccBColor      = initColorWheel("accB",   220,   80, 50);
   getAccCColor      = initColorWheel("accC",   130,   80, 50);
+
+  // ★ 学習：服色（トップ/ボトム/靴）— 初期は「—」のまま（未指定）
+  initColorWheel("top",    35, 80, 55);
+  initColorWheel("bottom",210, 70, 50);
+  initColorWheel("shoes",   0,  0, 30); // 初期は無彩（dark/black 寄り）でもOK
+}
+/* === ワンピース時に見た目でボトム色を無効化 === */
+function bindOutfitDisableBottomUI(){
+  const panel = document.getElementById("bottomWearPanel");
+  if (!panel) return;
+  const update = ()=>{
+    const tag = getOne("outfit");
+    panel.classList.toggle('is-disabled', isOnePieceOutfit(tag));
+  };
+  document.addEventListener("change", (e)=>{
+    if (e.target && e.target.name === "outfit") update();
+  });
+  update();
 }
