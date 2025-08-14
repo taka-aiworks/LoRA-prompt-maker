@@ -658,6 +658,8 @@ function paintSkin(){
 
 /* ========= アクセ色相環 ========= */
 let getHairColorTag, getEyeColorTag, getLearnAccColor, getAccAColor, getAccBColor, getAccCColor;
+// 追加
+let getOutfitBaseColor;
 
 /* ========= フォーマッタ & CSV ========= */
 const FORMATTERS = {
@@ -674,7 +676,7 @@ const FORMATTERS = {
     csvHeader:['"no"','"seed"','"positive"','"negative"'],
     csvRow:(i,seed,p,n)=>[`"${i}"`,`"${seed}"`,`"${p.replace(/"/g,'""')}"`,`"${n.replace(/"/g,'""')}"`].join(",") },
   sdnext:{ label:"SD.Next（dream.py）",
-    line:(p,n,seed)=>`python dream.py -p "${p}" - n "${n}" -S ${seed}`,
+    line:(p,n,seed)=>`python dream.py -p "${p}" -n "${n}" -S ${seed}`,
     csvHeader:['"no"','"command"'],
     csvRow:(i,seed,p,n)=>[`"${i}"`,`"python dream.py -p \\\"${p.replace(/\"/g,'\"\"')}\\\" - n \\\"${n.replace(/\"/g,'\"\"')}\\\" -S ${seed}"`].join(",").replace(" - n "," -n ") },
   nai:{ label:"NovelAI",
@@ -1206,9 +1208,6 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   $("#nsfwLearn")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（学習）" : "OFF");
   $("#nsfwProd")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（量産）" : "OFF");
 });
-
-// 先頭の宣言群に追加（任意）
-let getOutfitBaseColor;
 
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
