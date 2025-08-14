@@ -83,6 +83,7 @@ const KEYMAP = {
   "表情":"expressions","アクセサリー":"accessories","ライティング":"lighting"
 };
 function normNSFW(ns) {
+  // ns = { categories:{expression:[],...} } / {expression:[]...} / {表情:[]...} どれでもOKにする
   const src = (ns && ns.categories) ? ns.categories : (ns || {});
   const JP2EN = { "表情":"expression", "露出":"exposure", "シチュ":"situation", "ライティング":"lighting" };
   const keys = ["expression","exposure","situation","lighting"];
@@ -101,8 +102,10 @@ function dedupeByTag(list) {
   return out;
 }
 function mergeIntoSFW(json) {
+  // 入力が {背景:[..]} / {background:[..]} / {SFW:{...}} のようでもOKにする
+  const src = json?.SFW || json || {};
   const next = { ...SFW };
-  for (const [k,v] of Object.entries(json||{})) {
+  for (const [k,v] of Object.entries(src||{})) {
     const key = KEYMAP[k] || k;
     if (next[key] === undefined) continue;
     next[key] = dedupeByTag([...(next[key] || []), ...normList(v)]);
@@ -110,7 +113,7 @@ function mergeIntoSFW(json) {
   SFW = next;
 }
 function mergeIntoNSFW(json) {
-  const src = normNSFW(json);
+  const src = json?.NSFW ? normNSFW(json.NSFW) : normNSFW(json);
   NSFW = {
     expression: dedupeByTag([...(NSFW.expression||[]), ...src.expression]),
     exposure:   dedupeByTag([...(NSFW.exposure||[]),   ...src.exposure]),
@@ -160,18 +163,14 @@ function toneToTag(v){
 }
 
 /* ======= 色ホイール（髪/瞳） ======= */
-/* ★修正：色名推定を採用（アクセと同じ関数を使用） */
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
-  if(!wheel || !thumb || !sat || !lit || !sw || !tagEl) return ()=>"";
   let hue=35;
   function update(){
     const s=+sat.value, l=+lit.value;
     const [r,g,b]=hslToRgb(hue,s,l);
     sw.style.background=`#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
-    const cname = colorNameFromHSL(hue,s,l);
-    const prefix = (l>=78?'light ':l<=32?'dark ':'');
-    const name = `${prefix}${cname} ${baseTag}`.trim();
+    const name = `${(l>=78?'light ':l<=32?'dark ':'')}${baseTag}`.trim();
     tagEl.textContent=name;
   }
   wheel.addEventListener("click", e=>{
@@ -211,8 +210,6 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const sw    = document.getElementById("sw_"+idBase);
   const tag   = document.getElementById("tag_"+idBase);
 
-  if(!wheel || !thumb || !sat || !lit || !sw || !tag) return ()=>"";
-
   let hue = defaultHue; sat.value = defaultS; lit.value = defaultL;
 
   function setThumb(){
@@ -240,7 +237,6 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
 /* ========= UI生成 ========= */
 function radioList(el, list, name){
   const items = normList(list);
-  if(!el) return;
   el.innerHTML = items.map((it,i)=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
     return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}" ${i===0?"checked":""}> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
@@ -248,7 +244,6 @@ function radioList(el, list, name){
 }
 function checkList(el, list, name){
   const items = normList(list);
-  if(!el) return;
   el.innerHTML = items.map(it=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
     return `<label class="chip"><input type="checkbox" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
@@ -287,19 +282,24 @@ function initTabs(){
 }
 
 /* ========= 辞書 I/O ========= */
+function isNSFWDict(json){
+  // 幅広く判定：categories / 英語キー / 日本語キー / NSFWラップ
+  const j = json?.NSFW || json || {};
+  return !!(
+    j.categories ||
+    j.expression || j.exposure || j.situation || j.lighting ||
+    j["表情"] || j["露出"] || j["シチュ"] || j["ライティング"]
+  );
+}
 function bindDictIO(){
   const input = document.getElementById("importDict");
   if (!input) return;
   input.addEventListener("change", async (e)=>{
     const f = e.target.files[0]; if (!f) return;
     try {
-      const json = JSON.parse(await f.text());
-      const isNSFW = !!(
-        json.categories ||
-        json.expression || json.exposure || json.situation || json.lighting ||
-        json["表情"] || json["露出"] || json["シチュ"] || json["ライティング"]
-      );
-      if (isNSFW) {
+      const raw = await f.text();
+      const json = JSON.parse(raw);
+      if (isNSFWDict(json)) {
         mergeIntoNSFW(json);
         renderNSFWProduction(); renderNSFWLearning();
         toast("NSFW辞書を追記しました");
@@ -313,7 +313,10 @@ function bindDictIO(){
   });
 
   $("#btnExport")?.addEventListener("click", ()=>{
-    const save = { sfw:SFW, nsfw:NSFW, settings:Settings };
+    const save = {
+      __meta:{ app:"LoRA Prompt Maker", version:"1.0", exported_at:new Date().toISOString() },
+      sfw:SFW, nsfw:NSFW, settings:Settings
+    };
     dl("lora_prompt_maker_settings.json", JSON.stringify(save,null,2));
   });
 }
@@ -510,9 +513,10 @@ function csvFromProd(fmtSelId="#fmtProd"){
 async function postCSVtoGAS(kind, csv, meta = {}){
   const url = (Settings.gasUrl||"").trim();
   if(!url){ toast("クラウド保存URL（GAS）を設定タブで入力してください"); throw new Error("missing GAS url"); }
+  const nameChar = ($("#charName")?.value||"").replace(/[^\w\-]/g,"_") || "noname";
   const body = {
     kind,
-    filename: `${kind}_set_${nowStamp()}.csv`,
+    filename: `${kind}_${nameChar}_${nowStamp()}.csv`,
     csv,
     meta: { charName: $("#charName")?.value||"", fmt:(kind==="learning" ? $("#fmtLearnBatch")?.value : $("#fmtProd")?.value)||"", ...meta },
     ts: Date.now()
@@ -542,9 +546,14 @@ function bindGASTools(){
     try{
       const headers = {"Content-Type":"application/json"};
       if(Settings.gasToken) headers["Authorization"]="Bearer "+Settings.gasToken;
-      const r = await fetch(url, { method:"POST", headers, body: JSON.stringify({kind:"ping", ts:Date.now()}) });
+
+      // タイムアウト付き ping
+      const ctrl = new AbortController();
+      const timer = setTimeout(()=>ctrl.abort(), 6000);
+      const r = await fetch(url, { method:"POST", headers, body: JSON.stringify({kind:"ping", ts:Date.now()}), signal: ctrl.signal });
+      clearTimeout(timer);
       $("#gasTestResult").textContent = r.ok ? "OK" : ("NG ("+r.status+")");
-    }catch{
+    }catch(e){
       $("#gasTestResult").textContent = "no-cors で送信（レスポンス確認不可）";
     }
   });
@@ -760,7 +769,8 @@ function bindLearnBatch(){
   $("#btnCsvLearn")?.addEventListener("click", ()=>{
     const csv = csvFromLearn("#fmtLearnBatch");
     if(!csv || csv.split("\n").length<=1){ toast("学習テーブルが空です"); return; }
-    dl("learning_set.csv", csv); toast("学習セットをローカル（CSV）に保存しました");
+    const char = ($("#charName")?.value||"noname").replace(/[^\w\-]/g,"_");
+    dl(`learning_${char}_${nowStamp()}.csv`, csv); toast("学習セットをローカル（CSV）に保存しました");
   });
   $("#btnCloudLearn")?.addEventListener("click", async ()=>{
     const csv = csvFromLearn("#fmtLearnBatch");
@@ -782,7 +792,8 @@ function bindProduction(){
   $("#btnCsvProd")?.addEventListener("click", ()=>{
     const csv = csvFromProd("#fmtProd");
     if(!csv || csv.split("\n").length<=1){ toast("量産テーブルが空です"); return; }
-    dl("production_set.csv", csv); toast("量産セットをローカル（CSV）に保存しました");
+    const char = ($("#charName")?.value||"noname").replace(/[^\w\-]/g,"_");
+    dl(`production_${char}_${nowStamp()}.csv`, csv); toast("量産セットをローカル（CSV）に保存しました");
   });
   $("#btnCloudProd")?.addEventListener("click", async ()=>{
     const csv = csvFromProd("#fmtProd");
