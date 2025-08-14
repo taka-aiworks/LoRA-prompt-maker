@@ -159,74 +159,84 @@ function toneToTag(v){
   if(v<=90) return "dark skin";
   return "very dark skin";
 }
+// 角度ドラッグ共通（pointer系で連続追従）
+function addHueDrag(wheelEl, thumbEl, onHueChange){
+  if(!wheelEl || !thumbEl) return;
+  const getCenter = () => {
+    const r = wheelEl.getBoundingClientRect();
+    return { cx: r.left + r.width/2, cy: r.top + r.height/2, rOuter: r.width/2 - 7 };
+  };
+  const setThumb = (hue) => {
+    const { rOuter } = getCenter();
+    const rad = (hue - 90) * Math.PI / 180;
+    thumbEl.style.left = (wheelEl.clientWidth/2 + rOuter*Math.cos(rad) - 7) + "px";
+    thumbEl.style.top  = (wheelEl.clientHeight/2 + rOuter*Math.sin(rad) - 7) + "px";
+  };
+
+  let dragging = false;
+
+  const updateFromEvent = (e) => {
+    const { cx, cy } = getCenter();
+    const x = (e.clientX ?? (e.touches && e.touches[0]?.clientX)) - cx;
+    const y = (e.clientY ?? (e.touches && e.touches[0]?.clientY)) - cy;
+    const ang = Math.atan2(y, x);
+    const hue = (ang * 180 / Math.PI + 360 + 90) % 360; // 右=0° → 上=90°に合わせる
+    setThumb(hue);
+    onHueChange(hue);
+  };
+
+  const onDown = (e) => {
+    dragging = true;
+    wheelEl.setPointerCapture?.(e.pointerId);
+    updateFromEvent(e);
+  };
+  const onMove = (e) => { if (dragging) updateFromEvent(e); };
+  const onUp   = (e) => { dragging = false; wheelEl.releasePointerCapture?.(e.pointerId); };
+
+  // pointer系で統一
+  wheelEl.addEventListener("pointerdown", onDown);
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup",   onUp);
+
+  // リサイズ時の親レイアウト変化で位置がズレないよう再配置
+  const ro = new ResizeObserver(()=> {
+    // 直近のhueはonHueChange内で保持してもらう
+    onHueChange.__lastHue != null && setThumb(onHueChange.__lastHue);
+  });
+  ro.observe(wheelEl);
+
+  return setThumb; // 必要なら外からも呼べるように
+}
 
 /* ======= 色ホイール（髪/瞳） ======= */
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
-  if (!wheel || !thumb || !sat || !lit || !sw || !tagEl) return ()=>""; // 欠落ガード
+  let hue = 35;
 
-  let hue=35;
-  wheel.style.cursor = "crosshair";
-  wheel.style.touchAction = "none";
-
-  function update(){
-    const s=+sat.value||0, l=+lit.value||50;
+  function paint(){
+    const s=+sat.value, l=+lit.value;
     const [r,g,b]=hslToRgb(hue,s,l);
-    sw.style.background=`rgb(${r},${g},${b})`;
+    sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
     const name = `${(l>=78?'light ':l<=32?'dark ':'')}${baseTag}`.trim();
-    tagEl.textContent=name;
-  }
-  function setThumbByHue(){
-    const rect=wheel.getBoundingClientRect();
-    if (!rect.width || !rect.height) return; // display:none対策
-    const r=rect.width/2-7, rad=(hue-90)*Math.PI/180;
-    thumb.style.left=(rect.width/2+r*Math.cos(rad)-7)+"px";
-    thumb.style.top =(rect.height/2+r*Math.sin(rad)-7)+"px";
-  }
-  function handlePoint(clientX, clientY){
-    const rect=wheel.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    const x=clientX-cx, y=clientY-cy;
-    const ang=Math.atan2(y,x); hue=(ang*180/Math.PI+360+90)%360;
-    setThumbByHue(); update();
+    tagEl.textContent = name;
   }
 
-  // Pointerイベントでマウス/タッチ両対応＋ドラッグ可
-  let dragging=false;
-  wheel.addEventListener("pointerdown",(e)=>{ dragging=true; wheel.setPointerCapture(e.pointerId); handlePoint(e.clientX,e.clientY); });
-  wheel.addEventListener("pointermove",(e)=>{ if(!dragging) return; handlePoint(e.clientX,e.clientY); });
-  wheel.addEventListener("pointerup",  (e)=>{ dragging=false; try{ wheel.releasePointerCapture(e.pointerId); }catch{} });
-  wheel.addEventListener("click", (e)=> handlePoint(e.clientX,e.clientY)); // 念のため
+  // ドラッグで角度更新
+  const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
+  addHueDrag(wheel, thumb, onHue);
 
-  sat.addEventListener("input", update);
-  lit.addEventListener("input", update);
+  // スライダー反映
+  sat.addEventListener("input", paint);
+  lit.addEventListener("input", paint);
 
-  // 表示切替やリサイズでも親の寸法決定後に再配置
-  if (typeof ResizeObserver !== "undefined") {
-    const ro = new ResizeObserver(()=> setThumbByHue());
-    ro.observe(wheel);
-  } else {
-    window.addEventListener("resize", setThumbByHue);
-  }
+  // 初期描画（親の実サイズに応じてthumb位置を置く）
+  requestAnimationFrame(paint);
 
-  update();
-  setThumbByHue();
-  return ()=> tagEl.textContent;
+  // getterは従来通り
+  return ()=> $(tagId).textContent;
 }
 
 /* ======= 色ホイール（アクセ） ======= */
-function colorNameFromHSL(h,s,l){
-  if(l<18) return "black";
-  if(l>88 && s<18) return "white";
-  if(s<12) return "gray";
-  if(h<15 || h>=345) return "red";
-  if(h<45) return "orange";
-  if(h<70) return "yellow";
-  if(h<160) return "green";
-  if(h<200) return "cyan";
-  if(h<260) return "blue";
-  if(h<300) return "purple";
-  return "magenta";
-}
 function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const wheel = document.getElementById("wheel_"+idBase);
   const thumb = document.getElementById("thumb_"+idBase);
@@ -235,47 +245,23 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const sw    = document.getElementById("sw_"+idBase);
   const tag   = document.getElementById("tag_"+idBase);
 
-  if (!wheel || !thumb || !sat || !lit || !sw || !tag) return ()=>""; // 欠落ガード
-
   let hue = defaultHue; sat.value = defaultS; lit.value = defaultL;
-  wheel.style.cursor = "crosshair";
-  wheel.style.touchAction = "none";
 
-  function setThumb(){
-    const rect=wheel.getBoundingClientRect();
-    if (!rect.width || !rect.height) return; // display:none対策
-    const r=rect.width/2-7; const rad=(hue-90)*Math.PI/180;
-    thumb.style.left=(rect.width/2+r*Math.cos(rad)-7)+"px";
-    thumb.style.top =(rect.height/2+r*Math.sin(rad)-7)+"px";
-  }
   function paint(){
-    const s=+sat.value||0, l=+lit.value||50; const [r,g,b]=hslToRgb(hue,s,l);
-    sw.style.background=`rgb(${r},${g},${b})`;
+    const s=+sat.value, l=+lit.value;
+    const [r,g,b]=hslToRgb(hue,s,l);
+    sw.style.background = `rgb(${r},${g},${b})`;
     tag.textContent = colorNameFromHSL(hue,s,l);
   }
-  function handlePoint(clientX, clientY){
-    const rect=wheel.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    const x=clientX-cx, y=clientY-cy; hue=(Math.atan2(y,x)*180/Math.PI+360+90)%360;
-    setThumb(); paint();
-  }
 
-  let dragging=false;
-  wheel.addEventListener("pointerdown",(e)=>{ dragging=true; wheel.setPointerCapture(e.pointerId); handlePoint(e.clientX,e.clientY); });
-  wheel.addEventListener("pointermove",(e)=>{ if(!dragging) return; handlePoint(e.clientX,e.clientY); });
-  wheel.addEventListener("pointerup",  (e)=>{ dragging=false; try{ wheel.releasePointerCapture(e.pointerId); }catch{} });
-  wheel.addEventListener("click",      (e)=> handlePoint(e.clientX,e.clientY));
+  const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
+  addHueDrag(wheel, thumb, onHue);
 
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
 
-  if (typeof ResizeObserver !== "undefined") {
-    const ro = new ResizeObserver(()=> setThumb());
-    ro.observe(wheel);
-  } else {
-    window.addEventListener("resize", setThumb);
-  }
+  requestAnimationFrame(paint);
 
-  setThumb(); paint();
   return ()=> tag.textContent.trim();
 }
 
