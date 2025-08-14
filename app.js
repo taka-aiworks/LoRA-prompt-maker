@@ -160,14 +160,18 @@ function toneToTag(v){
 }
 
 /* ======= 色ホイール（髪/瞳） ======= */
+/* ★修正：色名推定を採用（アクセと同じ関数を使用） */
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
+  if(!wheel || !thumb || !sat || !lit || !sw || !tagEl) return ()=>"";
   let hue=35;
   function update(){
     const s=+sat.value, l=+lit.value;
     const [r,g,b]=hslToRgb(hue,s,l);
     sw.style.background=`#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
-    const name = `${(l>=78?'light ':l<=32?'dark ':'')}${baseTag}`.trim();
+    const cname = colorNameFromHSL(hue,s,l);
+    const prefix = (l>=78?'light ':l<=32?'dark ':'');
+    const name = `${prefix}${cname} ${baseTag}`.trim();
     tagEl.textContent=name;
   }
   wheel.addEventListener("click", e=>{
@@ -207,6 +211,8 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const sw    = document.getElementById("sw_"+idBase);
   const tag   = document.getElementById("tag_"+idBase);
 
+  if(!wheel || !thumb || !sat || !lit || !sw || !tag) return ()=>"";
+
   let hue = defaultHue; sat.value = defaultS; lit.value = defaultL;
 
   function setThumb(){
@@ -234,6 +240,7 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
 /* ========= UI生成 ========= */
 function radioList(el, list, name){
   const items = normList(list);
+  if(!el) return;
   el.innerHTML = items.map((it,i)=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
     return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}" ${i===0?"checked":""}> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
@@ -241,6 +248,7 @@ function radioList(el, list, name){
 }
 function checkList(el, list, name){
   const items = normList(list);
+  if(!el) return;
   el.innerHTML = items.map(it=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
     return `<label class="chip"><input type="checkbox" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
