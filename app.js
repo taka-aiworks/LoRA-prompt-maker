@@ -83,7 +83,6 @@ const KEYMAP = {
   "表情":"expressions","アクセサリー":"accessories","ライティング":"lighting"
 };
 function normNSFW(ns) {
-  // ns = { categories:{expression:[],...} } / {expression:[]...} / {表情:[]...} どれでもOKにする
   const src = (ns && ns.categories) ? ns.categories : (ns || {});
   const JP2EN = { "表情":"expression", "露出":"exposure", "シチュ":"situation", "ライティング":"lighting" };
   const keys = ["expression","exposure","situation","lighting"];
@@ -102,7 +101,6 @@ function dedupeByTag(list) {
   return out;
 }
 function mergeIntoSFW(json) {
-  // 入力が {背景:[..]} / {background:[..]} / {SFW:{...}} のようでもOKにする
   const src = json?.SFW || json || {};
   const next = { ...SFW };
   for (const [k,v] of Object.entries(src||{})) {
@@ -165,27 +163,54 @@ function toneToTag(v){
 /* ======= 色ホイール（髪/瞳） ======= */
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
+  if (!wheel || !thumb || !sat || !lit || !sw || !tagEl) return ()=>""; // 欠落ガード
+
   let hue=35;
+  wheel.style.cursor = "crosshair";
+  wheel.style.touchAction = "none";
+
   function update(){
-    const s=+sat.value, l=+lit.value;
+    const s=+sat.value||0, l=+lit.value||50;
     const [r,g,b]=hslToRgb(hue,s,l);
-    sw.style.background=`#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
+    sw.style.background=`rgb(${r},${g},${b})`;
     const name = `${(l>=78?'light ':l<=32?'dark ':'')}${baseTag}`.trim();
     tagEl.textContent=name;
   }
-  wheel.addEventListener("click", e=>{
-    const rect=wheel.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    const x=e.clientX-cx, y=e.clientY-cy;
-    const ang=Math.atan2(y,x); hue=(ang*180/Math.PI+360+90)%360;
+  function setThumbByHue(){
+    const rect=wheel.getBoundingClientRect();
+    if (!rect.width || !rect.height) return; // display:none対策
     const r=rect.width/2-7, rad=(hue-90)*Math.PI/180;
     thumb.style.left=(rect.width/2+r*Math.cos(rad)-7)+"px";
     thumb.style.top =(rect.height/2+r*Math.sin(rad)-7)+"px";
-    update();
-  });
+  }
+  function handlePoint(clientX, clientY){
+    const rect=wheel.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
+    const x=clientX-cx, y=clientY-cy;
+    const ang=Math.atan2(y,x); hue=(ang*180/Math.PI+360+90)%360;
+    setThumbByHue(); update();
+  }
+
+  // Pointerイベントでマウス/タッチ両対応＋ドラッグ可
+  let dragging=false;
+  wheel.addEventListener("pointerdown",(e)=>{ dragging=true; wheel.setPointerCapture(e.pointerId); handlePoint(e.clientX,e.clientY); });
+  wheel.addEventListener("pointermove",(e)=>{ if(!dragging) return; handlePoint(e.clientX,e.clientY); });
+  wheel.addEventListener("pointerup",  (e)=>{ dragging=false; try{ wheel.releasePointerCapture(e.pointerId); }catch{} });
+  wheel.addEventListener("click", (e)=> handlePoint(e.clientX,e.clientY)); // 念のため
+
   sat.addEventListener("input", update);
   lit.addEventListener("input", update);
+
+  // 表示切替やリサイズでも親の寸法決定後に再配置
+  if (typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(()=> setThumbByHue());
+    ro.observe(wheel);
+  } else {
+    window.addEventListener("resize", setThumbByHue);
+  }
+
   update();
-  return ()=> $(tagId).textContent;
+  setThumbByHue();
+  return ()=> tagEl.textContent;
 }
 
 /* ======= 色ホイール（アクセ） ======= */
@@ -210,26 +235,46 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const sw    = document.getElementById("sw_"+idBase);
   const tag   = document.getElementById("tag_"+idBase);
 
+  if (!wheel || !thumb || !sat || !lit || !sw || !tag) return ()=>""; // 欠落ガード
+
   let hue = defaultHue; sat.value = defaultS; lit.value = defaultL;
+  wheel.style.cursor = "crosshair";
+  wheel.style.touchAction = "none";
 
   function setThumb(){
     const rect=wheel.getBoundingClientRect();
+    if (!rect.width || !rect.height) return; // display:none対策
     const r=rect.width/2-7; const rad=(hue-90)*Math.PI/180;
     thumb.style.left=(rect.width/2+r*Math.cos(rad)-7)+"px";
     thumb.style.top =(rect.height/2+r*Math.sin(rad)-7)+"px";
   }
   function paint(){
-    const s=+sat.value, l=+lit.value; const [r,g,b]=hslToRgb(hue,s,l);
+    const s=+sat.value||0, l=+lit.value||50; const [r,g,b]=hslToRgb(hue,s,l);
     sw.style.background=`rgb(${r},${g},${b})`;
     tag.textContent = colorNameFromHSL(hue,s,l);
   }
-  wheel.addEventListener("click", (e)=>{
+  function handlePoint(clientX, clientY){
     const rect=wheel.getBoundingClientRect(), cx=rect.left+rect.width/2, cy=rect.top+rect.height/2;
-    const x=e.clientX-cx, y=e.clientY-cy; hue=(Math.atan2(y,x)*180/Math.PI+360+90)%360;
+    const x=clientX-cx, y=clientY-cy; hue=(Math.atan2(y,x)*180/Math.PI+360+90)%360;
     setThumb(); paint();
-  });
+  }
+
+  let dragging=false;
+  wheel.addEventListener("pointerdown",(e)=>{ dragging=true; wheel.setPointerCapture(e.pointerId); handlePoint(e.clientX,e.clientY); });
+  wheel.addEventListener("pointermove",(e)=>{ if(!dragging) return; handlePoint(e.clientX,e.clientY); });
+  wheel.addEventListener("pointerup",  (e)=>{ dragging=false; try{ wheel.releasePointerCapture(e.pointerId); }catch{} });
+  wheel.addEventListener("click",      (e)=> handlePoint(e.clientX,e.clientY));
+
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
+
+  if (typeof ResizeObserver !== "undefined") {
+    const ro = new ResizeObserver(()=> setThumb());
+    ro.observe(wheel);
+  } else {
+    window.addEventListener("resize", setThumb);
+  }
+
   setThumb(); paint();
   return ()=> tag.textContent.trim();
 }
@@ -283,7 +328,6 @@ function initTabs(){
 
 /* ========= 辞書 I/O ========= */
 function isNSFWDict(json){
-  // 幅広く判定：categories / 英語キー / 日本語キー / NSFWラップ
   const j = json?.NSFW || json || {};
   return !!(
     j.categories ||
@@ -547,7 +591,6 @@ function bindGASTools(){
       const headers = {"Content-Type":"application/json"};
       if(Settings.gasToken) headers["Authorization"]="Bearer "+Settings.gasToken;
 
-      // タイムアウト付き ping
       const ctrl = new AbortController();
       const timer = setTimeout(()=>ctrl.abort(), 6000);
       const r = await fetch(url, { method:"POST", headers, body: JSON.stringify({kind:"ping", ts:Date.now()}), signal: ctrl.signal });
@@ -569,14 +612,14 @@ function assembleFixedLearning(){
   const arr=[];
   arr.push($("#loraTag").value.trim());
   arr.push($("#charName").value.trim());
-  arr.push(getHairColorTag());
-  arr.push(getEyeColorTag());
+  arr.push(getHairColorTag && getHairColorTag());
+  arr.push(getEyeColorTag && getEyeColorTag());
   arr.push($("#tagSkin").textContent);
   ["hairStyle","eyeShape","face","skinBody","artStyle","outfit"].forEach(n=>{
     const v=document.querySelector(`input[name="${n}"]:checked`)?.value; if(v) arr.push(v);
   });
   const acc = $("#learn_acc")?.value || "";
-  if (acc) arr.push(`${getLearnAccColor()} ${acc}`);
+  if (acc) arr.push(`${getLearnAccColor && getLearnAccColor()} ${acc}`);
   const fixedManual = $("#fixedManual").value.split(",").map(s=>s.trim()).filter(Boolean);
   arr.push(...fixedManual);
   return uniq(arr).filter(Boolean);
@@ -611,9 +654,9 @@ function buildBatchLearning(n){
 
 /* ========= 量産：アクセ3スロット & 組み立て ========= */
 function readAccessorySlots(){
-  const A = $("#p_accA")?.value || "", Ac = getAccAColor();
-  const B = $("#p_accB")?.value || "", Bc = getAccBColor();
-  const C = $("#p_accC")?.value || "", Cc = getAccCColor();
+  const A = $("#p_accA")?.value || "", Ac = getAccAColor && getAccAColor();
+  const B = $("#p_accB")?.value || "", Bc = getAccBColor && getAccBColor();
+  const C = $("#p_accC")?.value || "", Cc = getAccCColor && getAccCColor();
   const pack = (noun,color)=> noun ? `${color} ${noun}` : "";
   return [pack(A,Ac), pack(B,Bc), pack(C,Cc)].filter(Boolean);
 }
@@ -715,7 +758,6 @@ function fillAccessorySlots(){
 
 /* ========= デフォルト辞書ロード ========= */
 async function loadDefaultDicts(){
-  // ローカル file:// だと fetch がブロックされる環境あり → 失敗しても無視
   const tryFetch = async (path)=>{
     try{
       const r = await fetch(path, {cache:"no-store"});
@@ -827,8 +869,12 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   $("#skinTone")?.addEventListener("input", paintSkin);
   paintSkin();
 
-  // 色ホイール（初回だけDOM計測が重いので後段で）
-  requestIdleCallback?.(setupColorPickers, {timeout: 300}) || setTimeout(setupColorPickers, 60);
+  // 色ホイール（アイドル時初期化の取りこぼし防止）
+  if (typeof requestIdleCallback === "function") {
+    requestIdleCallback(setupColorPickers, { timeout: 300 });
+  } else {
+    setTimeout(setupColorPickers, 0);
+  }
 
   // デフォルト辞書を追記ロード
   await loadDefaultDicts();
