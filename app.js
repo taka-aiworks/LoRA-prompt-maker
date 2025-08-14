@@ -312,6 +312,8 @@ function renderSFW(){
   checkList($("#p_pose"),      SFW.pose_composition,"p_pose");
   checkList($("#p_expr"),      SFW.expressions,     "p_expr");
   radioList($("#p_light"),     SFW.lighting,        "p_light");
+  checkList($("#lightLearn"),    SFW.lighting,        "lightLearn");
+}
 }
 
 /* ========= タブ切替 ========= */
@@ -629,17 +631,18 @@ function getSelectedNSFW_Learn(){
   const pickeds = [
     ...$$('input[name="nsfwL_expr"]:checked').map(x=>x.value),
     ...$$('input[name="nsfwL_expo"]:checked').map(x=>x.value),
-    ...$$('input[name="nsfwL_situ"]:checked').map(x=>x.value)
+    ...$$('input[name="nsfwL_situ"]:checked').map(x=>x.value),
+    ...$$('input[name="nsfwL_light"]:checked').map(x=>x.value)
   ];
   return uniq(pickeds);
 }
 function buildOneLearning(){
   const fixed = assembleFixedLearning();
-  const BG = getMany("bg"), PO=getMany("pose"), EX=getMany("expr");
+  const BG = getMany("bg"), PO=getMany("pose"), EX=getMany("expr"), LI=getMany("lightLearn");
   if(BG.length===0 || PO.length===0 || EX.length===0) return {error:"背景・ポーズ・表情は最低1つずつ選択してください。"};
   const addon = getSelectedNSFW_Learn();
-  const b = pick(BG), p = pick(PO), e=pick(EX);
-  const pos = uniq([...fixed, b, p, e, ...addon]).filter(Boolean);
+  const b = pick(BG), p = pick(PO), e=pick(EX), l = LI.length ? pick(LI) : "";
+  const pos = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
   const seed = seedFromName($("#charName").value||"", 0);
   return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
 }
