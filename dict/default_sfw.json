@@ -1166,3 +1166,19 @@
     }
   ]
 }
+{
+  "lighting": [
+    { "tag": "soft lighting",        "ja": "柔らかい光" },
+    { "tag": "hard lighting",        "ja": "ハードライト" },
+    { "tag": "backlighting",         "ja": "逆光" },
+    { "tag": "rim lighting",         "ja": "リムライト" },
+    { "tag": "volumetric lighting",  "ja": "ボリューメトリックライト" },
+    { "tag": "natural light",        "ja": "自然光" },
+    { "tag": "golden hour",          "ja": "ゴールデンアワー" },
+    { "tag": "blue hour",            "ja": "ブルーアワー" },
+    { "tag": "overcast light",       "ja": "曇天の光" },
+    { "tag": "window light",         "ja": "窓明かり" },
+    { "tag": "neon lighting",        "ja": "ネオン照明" },
+    { "tag": "spot lighting",        "ja": "スポットライト" }
+  ]
+}
