@@ -10,9 +10,8 @@
   <div class="header">
     <div class="inner">
       <div class="tabbar">
-        <!-- ★ 新タブ: basic -->
         <div class="tab active" data-mode="basic">👤 基本情報</div>
-        <div class="tab" data-mode="learning">🧠 学習モード</div>
+        <div class="tab" data-mode="learning">🧠 LoRA学習モード</div>
         <div class="tab" data-mode="production">📦 量産モード</div>
         <div class="tab" data-mode="settings">⚙️ 設定</div>
       </div>
@@ -23,21 +22,61 @@
   </div>
 
   <main class="container">
-
-    <!-- ★★★ 基本情報タブ（LoRAの恒常部分） ★★★ -->
+    <!-- 基本情報 -->
     <section id="panelBasic" class="card">
-      <div class="row" style="align-items:center">
-        <h2 style="margin:0;flex:1">👤 基本情報（LoRAの恒常設定）</h2>
-        <input type="file" id="importChar" accept="application/json" hidden>
-        <label for="importChar" class="btn small">キャラ設定インポート</label>
-        <button id="btnExportChar" class="btn ghost small">キャラ設定エクスポート</button>
-      </div>
+      <h2>キャラの基本情報（LoRA安定化用・固定）</h2>
       <div class="note mini">
-        ここは<strong>学習＆量産の両方で固定</strong>されるキャラ基準値。<br>
-        髪/瞳/肌/髪型/顔/体型/画風/服、そして <b>キャラ名（seed）</b> と <b>LoRAタグ</b> を設定。
+        髪/瞳/肌・髪型・目の形・服・<b>服カラー</b>はここで固定。学習や量産では基本的に変更しません。
       </div>
 
-      <!-- 色（髪/瞳/肌） -->
+      <!-- SFW基礎属性（年齢/性別/体型/身長/性格/関係性/世界観/口調） -->
+<div class="panel">
+  <h2 style="margin-top:18px">テキスト属性（SFW基礎）</h2>
+  <div class="note mini">
+    文章トーンやプロンプトの補助タグとして使用。LoRAの視覚的学習には影響しないが、キャラ解像度を上げるため固定推奨。
+  </div>
+
+  <div class="grid g4" style="margin-top:8px">
+    <div class="panel">
+      <h3>年齢</h3>
+      <div id="bf_age" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h3>性別</h3>
+      <div id="bf_gender" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h3>体型</h3>
+      <div id="bf_body_type" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h3>身長</h3>
+      <div id="bf_height" class="scroller"></div>
+    </div>
+  </div>
+
+  <div class="grid g4" style="margin-top:10px">
+    <div class="panel">
+      <h3>性格</h3>
+      <div id="bf_personality" class="scroller"></div>
+      <div class="mini">※ 主導的/従順など一部はNSFWレベル依存のタグがある場合があります。</div>
+    </div>
+    <div class="panel">
+      <h3>関係性</h3>
+      <div id="bf_relationship" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h3>世界観</h3>
+      <div id="bf_world" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h3>口調</h3>
+      <div id="bf_speech_style" class="scroller"></div>
+    </div>
+  </div>
+</div>
+      
+      <!-- 色：髪/瞳/肌 -->
       <div class="grid g3">
         <div class="panel">
           <h3>髪色</h3>
@@ -58,107 +97,101 @@
         </div>
       </div>
 
-      <!-- 形/服/画風 -->
+      <!-- 形状：髪型/目の形/服 -->
       <div class="grid g3">
         <div class="panel"><h3>髪型（1つ）</h3><div id="hairStyle" class="scroller"></div></div>
         <div class="panel"><h3>目の形（1つ）</h3><div id="eyeShape" class="scroller"></div></div>
+
+        <!-- 服＋服カラー（※ここに移動） -->
         <div class="panel">
           <h3>服（1つ固定）</h3>
           <div id="outfit" class="scroller"></div>
+
+          <div class="card" style="margin-top:10px">
+            <h4 style="margin:0 0 6px">服カラー（固定）</h4>
+            <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
+            <div class="grid g3" style="margin-top:8px">
+              <div class="panel">
+                <div class="mini"><b>トップス色</b></div>
+                <div class="wheel-box" style="margin-top:6px">
+                  <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
+                </div>
+                <div class="row mini">
+                  S:<input id="sat_top" type="range" min="0" max="100" value="80">
+                  L:<input id="lit_top" type="range" min="0" max="100" value="50">
+                </div>
+                <div class="row mini"><div id="sw_top" class="swatch"></div><span>色タグ: <code class="tag" id="tag_top">—</code></span></div>
+              </div>
+
+              <div class="panel" id="bottomWearPanel">
+                <div class="mini"><b>ボトムス色</b></div>
+                <div class="wheel-box" style="margin-top:6px">
+                   <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
+                </div>
+                <div class="row mini">
+                  S:<input id="sat_bottom" type="range" min="0" max="100" value="80">
+                  L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
+                </div>
+                <div class="row mini"><div id="sw_bottom" class="swatch"></div><span>色タグ: <code class="tag" id="tag_bottom">—</code></span></div>
+                <div class="mini">※ ワンピース選択時は下カラーは無効（上カラーが全体に適用）</div>
+              </div>
+
+              <div class="panel">
+                <div class="mini"><b>靴の色</b></div>
+                <div class="wheel-box" style="margin-top:6px">
+                  <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
+                </div>
+                <div class="row mini">
+                  S:<input id="sat_shoes" type="range" min="0" max="100" value="80">
+                  L:<input id="lit_shoes" type="range" min="0" max="100" value="50">
+                </div>
+                <div class="row mini"><div id="sw_shoes" class="swatch"></div><span>色タグ: <code class="tag" id="tag_shoes">—</code></span></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
+      <!-- 形質：顔/体/画風（必要なら固定に） -->
       <div class="grid g3">
         <div class="panel"><h3>顔の特徴（1つ）</h3><div id="face" class="scroller"></div></div>
         <div class="panel"><h3>体型（1つ）</h3><div id="skinBody" class="scroller"></div></div>
         <div class="panel"><h3>画風（1つ）</h3><div id="artStyle" class="scroller"></div></div>
       </div>
 
-      <div class="grid g2">
-        <div class="panel">
-          <label>キャラ名（seed固定）</label>
-          <input id="charName" type="text" placeholder="例: Akari_v1">
-        </div>
-        <div class="panel">
-          <label>LoRAタグ（任意）</label>
-          <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
-        </div>
+      <div class="panel">
+        <h3>キャラ識別</h3>
+        <label>キャラ名（seed固定）</label>
+        <input id="charName" type="text" placeholder="例: Akari_v1">
+        <label style="margin-top:8px">LoRAタグ（任意）</label>
+        <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
       </div>
 
-      <div class="note mini">
-        ※ 18禁カテゴリや学習/量産向けの差分は各タブで設定します（ここは恒常のみ）。
+      <div class="row" style="gap:8px">
+        <input type="file" id="importChar" accept="application/json" hidden>
+        <label for="importChar" class="btn small">キャラ設定インポート</label>
+        <button id="btnExportChar" class="btn ghost small">キャラ設定エクスポート</button>
       </div>
     </section>
 
-    <!-- ★★★ 学習モード（軽い差分＋学習用の服色だけ） ★★★ -->
+    <!-- 学習モード（バリエーション） -->
     <section id="panelLearning" class="card" hidden>
       <div class="row" style="align-items:center">
-        <h2 style="margin:0;flex:1">🧠 LoRA学習用セット作成
-          <span class="badge warn">露出控えめ推奨</span>
-          <span class="badge">18禁は手動選択のみ</span>
-        </h2>
+        <h2 style="margin:0;flex:1">LoRA学習用セット（軽いバリエーション）</h2>
+        <span class="badge warn">露出控えめ推奨</span>
+        <span class="badge">18禁は手動選択のみ</span>
       </div>
       <div class="note mini">
-        <b>学習向け差分：</b>背景 / ポーズ / 表情 / ライティング ＋ <b>服の学習用色</b>（トップ/ボトム/靴）。<br>
-        髪・瞳・肌・髪型・服・顔・体型・画風は <b>基本情報</b> で固定。
+        基本情報は固定。ここでは<b>背景/ポーズ/表情/照明＋固定アクセ</b>だけを揺らします。
       </div>
 
-      <!-- 学習：服カラー（上/下/靴） -->
-      <div class="card" style="margin-top:10px">
-        <h3 style="margin:0 0 6px">服カラー（学習：服ごとに色指定）</h3>
-        <div class="mini">未操作＝色タグなし。ワンピース選択時はボトム無効（上色を全体に適用）。</div>
-        <div class="grid g3" style="margin-top:8px">
-          <div class="panel">
-            <div class="mini"><b>トップス色</b></div>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_top" type="range" min="0" max="100" value="80">
-              L:<input id="lit_top" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini"><div id="sw_top" class="swatch"></div><span>色タグ: <code class="tag" id="tag_top">—</code></span></div>
-          </div>
-
-          <div class="panel" id="bottomWearPanel">
-            <div class="mini"><b>ボトムス色</b></div>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_bottom" type="range" min="0" max="100" value="80">
-              L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini"><div id="sw_bottom" class="swatch"></div><span>色タグ: <code class="tag" id="tag_bottom">—</code></span></div>
-            <div class="mini">※ ワンピース選択時は無効</div>
-          </div>
-
-          <div class="panel">
-            <div class="mini"><b>靴の色</b></div>
-            <div class="wheel-box" style="margin-top:6px">
-              <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_shoes" type="range" min="0" max="100" value="80">
-              L:<input id="lit_shoes" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini"><div id="sw_shoes" class="swatch"></div><span>色タグ: <code class="tag" id="tag_shoes">—</code></span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 差分（背景・ポーズ・表情・ライティング） -->
-      <div class="grid g2" style="margin-top:10px">
+      <div class="grid g2">
         <div class="panel">
-          <h3>差分（軽め / 学習向け）</h3>
-          <div class="row mini"><b>背景</b></div><div id="bg" class="scroller"></div>
-          <hr class="sep">
-          <div class="row mini"><b>ポーズ・構図</b></div><div id="pose" class="scroller"></div>
-          <hr class="sep">
-          <div class="row mini"><b>表情</b></div><div id="expr" class="scroller"></div>
-          <hr class="sep">
+          <h3>差分（学習向け）</h3>
+          <div class="row mini"><b>背景</b></div><div id="bg" class="scroller"></div><hr class="sep">
+          <div class="row mini"><b>ポーズ・構図</b></div><div id="pose" class="scroller"></div><hr class="sep">
+          <div class="row mini"><b>表情</b></div><div id="expr" class="scroller"></div><hr class="sep">
           <div class="row mini"><b>ライティング</b></div><div id="lightLearn" class="scroller"></div>
-          <hr class="sep">
         </div>
         <div class="panel">
           <div class="mini"><b>固定アクセ（常時着用1種のみ）</b></div>
@@ -206,11 +239,10 @@
         </div>
       </div>
 
-      <!-- テスト＆学習セット出力（既存のまま） -->
+      <!-- テスト & バッチ出力（既存） -->
       <div class="card" id="learnTestCard">
         <div class="row">
-          <h3 style="margin:0">1枚テスト</h3>
-          <span style="flex:1"></span>
+          <h3 style="margin:0">1枚テスト</h3><span style="flex:1"></span>
           <label class="inline mini">出力フォーマット
             <select id="fmtLearn">
               <option value="a1111" selected>Web UI（汎用）</option>
@@ -276,14 +308,13 @@
       </div>
     </section>
 
-    <!-- ★★★ 量産モード（既存のまま） ★★★ -->
+    <!-- 量産モード（従来どおり） -->
     <section id="panelProduction" class="card" hidden>
-      <h2>📦 量産モード（LoRA完成後）
+      <h2>量産モード（LoRA完成後）
         <span class="badge ok">多様性重視</span><span class="badge">アクセ3枠</span><span class="badge">18禁は手動選択のみ</span>
       </h2>
       <div class="note mini">
-        <b>LoRA完成後：</b>18禁は選んだもののみ使用（オート追加なし）。<br>
-        ・<b>量産モード → 服ごとにランダム色 or 無色</b> ＋ <b>基本色1色を任意指定可</b>
+        量産では服ごとにランダム色 or 無色。基本色1色の任意指定も可。
       </div>
 
       <div class="grid g3">
@@ -291,10 +322,9 @@
           <h3>服（複数可）</h3>
           <div id="p_outfit" class="scroller"></div>
 
-          <!-- 量産の服 基本色（1色） -->
           <div class="card" style="margin-top:10px">
             <h4 style="margin:0 0 6px">服 基本色（任意 / 1色）</h4>
-            <div class="mini">未指定ならランダム色 or 無色。ワンピ：全体 / 上下分かれ：上のみ適用。</div>
+            <div class="mini">未指定ならランダム色 or 無色。ワンピースは全体に適用、上下分かれは上のみ適用。</div>
             <div class="panel" style="margin-top:6px">
               <div class="wheel-box">
                 <div id="wheel_outfitBase" class="wheel"></div><div id="thumb_outfitBase" class="thumb"></div>
@@ -318,8 +348,10 @@
               <div class="wheel-box" style="margin-top:6px">
                 <div id="wheel_accA" class="wheel"></div><div id="thumb_accA" class="thumb"></div>
               </div>
-              <div class="row mini">S:<input id="sat_accA" type="range" min="0" max="100" value="80">
-                L:<input id="lit_accA" type="range" min="0" max="100" value="50"></div>
+              <div class="row mini">
+                S:<input id="sat_accA" type="range" min="0" max="100" value="80">
+                L:<input id="lit_accA" type="range" min="0" max="100" value="50">
+              </div>
               <div class="row mini"><div id="sw_accA" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accA">red</code></span></div>
             </div>
             <details>
@@ -439,10 +471,9 @@
       </div>
     </section>
 
-    <!-- ★★★ 設定タブ（既存） ★★★ -->
+    <!-- 設定タブ（そのまま） -->
     <section id="panelSettings" class="card" hidden>
       <h2>⚙️ 設定</h2>
-
       <div class="grid g3">
         <div class="panel">
           <h3>クラウド保存（GAS）</h3>
@@ -473,31 +504,6 @@
     </section>
   </main>
 
-  <!-- 既存 app.js を利用 -->
   <script src="app.js" defer></script>
-
-  <!-- ★ 追加: タブ切替の互換パッチ（app.jsのinitTabsがbasic未対応なため） -->
-  <script>
-  // app.js の既存 initTabs は basic を知らない想定なので、差し込みで上書き
-  window.addEventListener("DOMContentLoaded", () => {
-    const $ = (s)=>document.querySelector(s);
-    const $$= (s)=>Array.from(document.querySelectorAll(s));
-    const switchTo = (m)=>{
-      $("#panelBasic").hidden      = (m !== "basic");
-      $("#panelLearning").hidden   = (m !== "learning");
-      $("#panelProduction").hidden = (m !== "production");
-      $("#panelSettings").hidden   = (m !== "settings");
-    };
-    $$(".tabbar .tab").forEach(t=>{
-      t.addEventListener("click", ()=>{
-        $$(".tabbar .tab").forEach(x=>x.classList.remove("active"));
-        t.classList.add("active");
-        switchTo(t.dataset.mode);
-      });
-    });
-    // 初期は basic を表示
-    switchTo("basic");
-  });
-  </script>
 </body>
 </html>
