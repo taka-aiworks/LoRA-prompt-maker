@@ -200,14 +200,14 @@ function addHueDrag(wheelEl, thumbEl, onHueChange){
     setThumb(hue);
     onHueChange(hue);
   };
+   const onDown = (e) => {
+      e.preventDefault();           // ← スクロール抑止
+      dragging = true;
+      updateFromEvent(e);
+   };
 
-  const onDown = (e) => {
-    dragging = true;
-    wheelEl.setPointerCapture?.(e.pointerId);
-    updateFromEvent(e);
-  };
   const onMove = (e) => { if (dragging) updateFromEvent(e); };
-  const onUp   = (e) => { dragging = false; wheelEl.releasePointerCapture?.(e.pointerId); };
+  const onUp   = () => { dragging = false; };
 
   // pointer系で統一
   wheelEl.addEventListener("pointerdown", onDown);
@@ -246,7 +246,14 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   lit.addEventListener("input", paint);
 
   // 初期描画（親の実サイズに応じてthumb位置を置く）
-  requestAnimationFrame(paint);
+   requestAnimationFrame(()=>{
+      paint();
+      const rect = wheel.getBoundingClientRect();
+      const r = rect.width/2 - 7;
+      const rad = (hue - 90) * Math.PI/180;
+      thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
+      thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
+   }); 
 
   // getterは従来通り
   return ()=> $(tagId).textContent;
@@ -276,7 +283,14 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
 
-  requestAnimationFrame(paint);
+  requestAnimationFrame(()=>{
+     paint();
+     const rect = wheel.getBoundingClientRect();
+     const r = rect.width/2 - 7;
+     const rad = (hue - 90) * Math.PI/180;
+     thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
+     thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
+   });
 
   return ()=> tag.textContent.trim();
 }
@@ -477,6 +491,7 @@ function renderNSFWLearning(){
   $("#nsfwL_expr") && ($("#nsfwL_expr").innerHTML = toChips(NSFW.expression,"nsfwL_expr"));
   $("#nsfwL_expo") && ($("#nsfwL_expo").innerHTML = toChips(NSFW.exposure, "nsfwL_expo"));
   $("#nsfwL_situ") && ($("#nsfwL_situ").innerHTML = toChips(NSFW.situation,"nsfwL_situ"));
+  $("#nsfwL_light")&& ($("#nsfwL_light").innerHTML= toChips(NSFW.lighting, "nsfwL_light"));
 }
 function renderNSFWProduction(){
   const cap = document.querySelector('input[name="nsfwLevelProd"]:checked')?.value || "L1";
