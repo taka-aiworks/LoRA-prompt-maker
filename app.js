@@ -181,18 +181,39 @@ function toneToTag(v){
 }
 
 // === 色名ユーティリティ（アクセ & 髪/瞳で共用可） ===
-function colorNameFromHSL(h,s,l){
-  if(l < 18) return "black";
-  if(l > 88 && s < 18) return "white";
-  if(s < 12) return "gray";
-  if(h < 15 || h >= 345) return "red";
-  if(h < 45)  return "orange";
-  if(h < 70)  return "yellow";
-  if(h < 160) return "green";
-  if(h < 200) return "cyan";
-  if(h < 260) return "blue";
-  if(h < 300) return "purple";
-  return "magenta";
+function colorNameFromHSL(h, s, l) {
+  const hueNames = [
+    {h: 0, name: "red"},
+    {h: 15, name: "crimson"},
+    {h: 30, name: "orange"},
+    {h: 45, name: "gold"},
+    {h: 60, name: "yellow"},
+    {h: 75, name: "lime"},
+    {h: 90, name: "green"},
+    {h: 150, name: "teal"},
+    {h: 180, name: "cyan"},
+    {h: 210, name: "sky blue"},
+    {h: 240, name: "blue"},
+    {h: 270, name: "indigo"},
+    {h: 285, name: "violet"},
+    {h: 300, name: "magenta"},
+    {h: 330, name: "pink"},
+    {h: 360, name: "red"} // wrap-around
+  ];
+
+  // 一番近い色名を探す
+  let closest = hueNames[0].name;
+  let minDiff = 360;
+  for (let i = 0; i < hueNames.length; i++) {
+    let diff = Math.abs(h - hueNames[i].h);
+    if (diff > 180) diff = 360 - diff;
+    if (diff < minDiff) {
+      minDiff = diff;
+      closest = hueNames[i].name;
+    }
+  }
+
+  return closest;
 }
 
 // 角度ドラッグ共通（pointer系で連続追従）
