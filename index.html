@@ -114,6 +114,8 @@
               <div><b class="mini">表情</b><div id="nsfwL_expr" class="scroller"></div></div>
               <div><b class="mini">露出</b><div id="nsfwL_expo" class="scroller"></div></div>
               <div><b class="mini">シチュ</b><div id="nsfwL_situ" class="scroller"></div></div>
+              <!-- 追加: 学習用 NSFWライティング -->
+              <div><b class="mini">ライティング</b><div id="nsfwL_light" class="scroller"></div></div>
             </div>
             <div class="mini" style="margin-top:6px">※ リストはレベル上限の範囲で表示されます</div>
           </div>
@@ -123,6 +125,12 @@
           <label style="margin-top:8px">LoRAタグ（任意）</label>
           <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
         </div>
+      </div>
+
+      <!-- 非18禁ライティング（学習） -->
+      <div class="panel">
+        <h3>ライティング（学習）</h3>
+        <div id="lightLearn" class="scroller"></div>
       </div>
 
       <!-- 上段：1枚テスト -->
