@@ -56,3 +56,21 @@ details[open] summary .caret{transform:rotate(90deg)}
 .badge.ok{background:#132019;border-color:#294b38;color:#9be7b3}
 .note{margin:8px 0;padding:10px;border:1px dashed #2a3240;border-radius:10px;background:#0f141d;color:#cfd7e6}
 .note .mini{opacity:.9}
+/* --- color wheel: interaction fixes --- */
+.wheel { 
+  z-index: 1;              /* クリックを受ける層を明示 */
+  cursor: crosshair;       /* クリックできる見た目 */
+  user-select: none; 
+  -webkit-user-select: none;
+  touch-action: manipulation; /* モバイルでの誤ジェスチャ抑制 */
+}
+
+.thumb {
+  z-index: 2; 
+  pointer-events: none;    /* ← これが一番大事：thumbを貫通クリックに */
+}
+
+/* 中心の塞ぎ（擬似要素）は見た目だけ。イベントはwheelへ */
+.wheel::after {
+  pointer-events: none;
+}
