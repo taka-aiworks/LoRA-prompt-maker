@@ -104,3 +104,13 @@ code.tag{color:#d9e6ff;border-color:#2d3a56;background:#0e1522}
 .table th{top:0;z-index:1}
 
 #bottomWearPanel.is-disabled { opacity:.45; filter:grayscale(0.3); pointer-events:none; }
+/* タイトル行をフレックス化して右寄せ */
+.header-row { display: flex; align-items: center; gap: 8px; }
+.header-row .card-title { margin: 0; }
+.header-row .push { margin-left: auto; }
+
+/* モバイルで折り返し可にする（任意） */
+@media (max-width: 640px) {
+  .header-row { flex-wrap: wrap; }
+  .header-row .push { margin-left: 0; }
+}
