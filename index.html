@@ -617,5 +617,39 @@
     swap();
   });
 </script>
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+  const $ = s => document.querySelector(s);
+  const panelOf = id => document.getElementById(id)?.closest('.panel');
+
+  const applyOutfitMode = () => {
+    const isOnepiece = $('#outfitModeDress')?.checked;
+
+    // ワンピースの有効/無効（fieldset の disabled 切替＋見た目）
+    const fsDress = document.getElementById('fsDress');
+    if (fsDress) {
+      fsDress.disabled = !isOnepiece;
+      fsDress.classList.toggle('disabled', !isOnepiece);
+    }
+
+    // トップスと下カテゴリのパネルを一括でグレーアウト
+    panelOf('outfit_top')?.classList.toggle('disabled', !!isOnepiece);
+    // 下カテゴリ（ボトム/スカート切替ブロック全体）
+    const bottomPanel = $('#bottomCategoryRadios')?.closest('.panel');
+    bottomPanel?.classList?.toggle('disabled', !!isOnepiece);
+
+    // 下カラーのパネルも無効化（ワンピの時）
+    const bottomWearPanel = document.getElementById('bottomWearPanel');
+    bottomWearPanel?.classList?.toggle('disabled', !!isOnepiece);
+  };
+
+  // ラジオに連動
+  $('#outfitModeSeparate')?.addEventListener('change', applyOutfitMode);
+  $('#outfitModeDress')?.addEventListener('change', applyOutfitMode);
+
+  // 初期反映
+  applyOutfitMode();
+});
+</script>
 </body>
 </html>
