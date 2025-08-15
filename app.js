@@ -187,9 +187,7 @@ function toneToTag(v){
 }
 
 // === 色名ユーティリティ（アクセ & 髪/瞳で共用可） ===
-// 置き換え：前の colorNameFromHSL をこれに差し替え
 function colorNameFromHSL(h, s, l) {
-  // グレイスケール系の先判定
   if (l < 12) return "black";
   if (l > 92 && s < 20) return "white";
   if (s < 10) {
@@ -197,8 +195,6 @@ function colorNameFromHSL(h, s, l) {
     if (l > 70) return "light gray";
     return "gray";
   }
-
-  // ベース色名（細かめ）
   const table = [
     { h:   0, name: "red" },
     { h:  12, name: "crimson" },
@@ -222,49 +218,39 @@ function colorNameFromHSL(h, s, l) {
     { h: 320, name: "fuchsia" },
     { h: 335, name: "rose" },
     { h: 350, name: "pink" },
-    { h: 360, name: "red" } // wrap
+    { h: 360, name: "red" }
   ];
   let base = table[0].name, min = 360;
   for (const t of table) {
     let d = Math.abs(h - t.h); if (d > 180) d = 360 - d;
     if (d < min) { min = d; base = t.name; }
   }
-
-  // 形容詞（明度・彩度）
   let prefix = "";
-  if (s >= 70 && l <= 40) prefix = "deep";      // 濃く鮮やか
+  if (s >= 70 && l <= 40) prefix = "deep";
   else if (s >= 70 && l >= 70) prefix = "bright";
   else if (l >= 85 && s >= 20 && s <= 60) prefix = "pastel";
   else if (s <= 35) prefix = "muted";
   else if (l <= 30) prefix = "dark";
   else if (l >= 80) prefix = "light";
-
   return prefix ? `${prefix} ${base}` : base;
 }
 
 /* ========= 服色ユーティリティ（学習） ========= */
-// 学習用の色タグ getter（未操作＝"—" の場合は空文字を返す）
 function getWearColorTag(idBase){
   const t = document.getElementById("tag_"+idBase);
   if (!t) return "";
   const txt = (t.textContent || "").trim();
   return (txt && txt !== "—") ? txt : "";
 }
-
-// ワンピース判定（辞書のタグ名ベースの簡易判定）
 function isOnePieceOutfit(tag){
   return /\b(dress|one[-\s]?piece|gown|kimono)\b/i.test(tag || "");
 }
-
-// 学習：服色タグを outfit 種別に応じて作る
 function getLearningWearColorParts(selectedOutfitTag){
   const parts = [];
-  const top   = getWearColorTag("top");     // 例: "pastel blue"
+  const top   = getWearColorTag("top");
   const bottom= getWearColorTag("bottom");
   const shoes = getWearColorTag("shoes");
-
   if (isOnePieceOutfit(selectedOutfitTag)) {
-    // ワンピース系はトップ色だけ使って名詞も合わせる
     if (top) {
       const noun = (/\bkimono\b/i.test(selectedOutfitTag)) ? "kimono"
                  : (/\bgown\b/i.test(selectedOutfitTag))   ? "gown"
@@ -276,22 +262,15 @@ function getLearningWearColorParts(selectedOutfitTag){
     if (bottom) parts.push(`${bottom} bottom`);
   }
   if (shoes)    parts.push(`${shoes} shoes`);
-
   return parts;
 }
 
 /* ========= 服色ユーティリティ（量産） ========= */
-const COLOR_RATE = 0.5; // 色を付ける確率（0〜1）
-
-// 服ラベルに色を付ける（基本色があればそれを最優先）
+const COLOR_RATE = 0.5;
 function maybeColorizeOutfit(tag){
   if (!tag) return tag;
-
-  // ★ ユーザーが量産「基本色」を指定していたらそれを使う
   const base = (typeof getOutfitBaseColor === "function" ? getOutfitBaseColor() : "").trim();
   if (base && base !== "—") return `${base} ${tag}`;
-
-  // 未指定なら従来どおり：一定確率でランダム色
   if (Math.random() >= COLOR_RATE) return tag;
   const c = randomOutfitColorName();
   return `${c} ${tag}`;
@@ -301,10 +280,10 @@ function randomOutfitColorName(){
   const h = randomInt(0,359);
   const s = randomInt(60,90);
   const l = randomInt(35,65);
-  return colorNameFromHSL(h,s,l); // 既存の色名関数を再利用
+  return colorNameFromHSL(h,s,l);
 }
 
-// 角度ドラッグ共通（pointer系で連続追従）
+/* 角度ドラッグ共通 */
 function addHueDrag(wheelEl, thumbEl, onHueChange){
   if(!wheelEl || !thumbEl) return;
   const getCenter = () => {
@@ -317,76 +296,58 @@ function addHueDrag(wheelEl, thumbEl, onHueChange){
     thumbEl.style.left = (wheelEl.clientWidth/2 + rOuter*Math.cos(rad) - 7) + "px";
     thumbEl.style.top  = (wheelEl.clientHeight/2 + rOuter*Math.sin(rad) - 7) + "px";
   };
-
   let dragging = false;
-
   const updateFromEvent = (e) => {
     const { cx, cy } = getCenter();
     const x = (e.clientX ?? (e.touches && e.touches[0]?.clientX)) - cx;
     const y = (e.clientY ?? (e.touches && e.touches[0]?.clientY)) - cy;
     const ang = Math.atan2(y, x);
-    const hue = (ang * 180 / Math.PI + 360 + 90) % 360; // 右=0° → 上=90°に合わせる
+    const hue = (ang * 180 / Math.PI + 360 + 90) % 360;
     setThumb(hue);
     onHueChange(hue);
   };
-   const onDown = (e) => {
-      e.preventDefault();           // ← スクロール抑止
-      dragging = true;
-      updateFromEvent(e);
-   };
-
+  const onDown = (e) => {
+    e.preventDefault();
+    dragging = true;
+    updateFromEvent(e);
+  };
   const onMove = (e) => { if (dragging) updateFromEvent(e); };
   const onUp   = () => { dragging = false; };
-
-  // pointer系で統一
   wheelEl.addEventListener("pointerdown", onDown);
   window.addEventListener("pointermove", onMove);
   window.addEventListener("pointerup",   onUp);
-
-  // リサイズ時の親レイアウト変化で位置がズレないよう再配置
   const ro = new ResizeObserver(()=> {
     const h = (onHueChange.__lastHue != null) ? onHueChange.__lastHue : 0;
     setThumb(h)
   });
   ro.observe(wheelEl);
-
-  return setThumb; // 必要なら外からも呼べるように
+  return setThumb;
 }
 
 /* ======= 色ホイール（髪/瞳） ======= */
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
   let hue = 35;
-
-  // initWheel 内の paint() を差し替え
-   function paint(){
-      const s = +sat.value, l = +lit.value;
-      const [r,g,b] = hslToRgb(hue, s, l);
-      sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
-      const cname = colorNameFromHSL(hue, s, l);
-      tagEl.textContent = `${cname} ${baseTag}`;  // 例: "pastel sky blue hair"
-   }
-
-  // ドラッグで角度更新
+  function paint(){
+    const s = +sat.value, l = +lit.value;
+    const [r,g,b] = hslToRgb(hue, s, l);
+    sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
+    const cname = colorNameFromHSL(hue, s, l);
+    tagEl.textContent = `${cname} ${baseTag}`;
+  }
   const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
-  onHue.__lastHue = hue;               // ← 追加：初期値を保持
+  onHue.__lastHue = hue;
   addHueDrag(wheel, thumb, onHue);
-
-  // スライダー反映
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
-
-  // 初期描画（親の実サイズに応じてthumb位置を置く）
-   requestAnimationFrame(()=>{
-      paint();
-      const rect = wheel.getBoundingClientRect();
-      const r = rect.width/2 - 7;
-      const rad = (hue - 90) * Math.PI/180;
-      thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
-      thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
-   }); 
-
-  // getterは従来通り
+  requestAnimationFrame(()=>{
+    paint();
+    const rect = wheel.getBoundingClientRect();
+    const r = rect.width/2 - 7;
+    const rad = (hue - 90) * Math.PI/180;
+    thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
+    thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
+  });
   return ()=> $(tagId).textContent;
 }
 
@@ -398,37 +359,29 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const lit   = document.getElementById("lit_"+idBase);
   const sw    = document.getElementById("sw_"+idBase);
   const tag   = document.getElementById("tag_"+idBase);
-
-  // 要素が欠けてたら何もしない getter を返して安全にスキップ
   if (!wheel || !thumb || !sat || !lit || !sw || !tag) {
     return () => (document.getElementById("tag_"+idBase)?.textContent || "").trim();
   }
-
   let hue = defaultHue; sat.value = defaultS; lit.value = defaultL;
-
   function paint(){
     const s=+sat.value, l=+lit.value;
     const [r,g,b]=hslToRgb(hue,s,l);
     sw.style.background = `rgb(${r},${g},${b})`;
     tag.textContent = colorNameFromHSL(hue,s,l);
   }
-
   const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
-  onHue.__lastHue = hue;               // ← 追加：初期値を保持
+  onHue.__lastHue = hue;
   addHueDrag(wheel, thumb, onHue);
-
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
-
   requestAnimationFrame(()=>{
-     paint();
-     const rect = wheel.getBoundingClientRect();
-     const r = rect.width/2 - 7;
-     const rad = (hue - 90) * Math.PI/180;
-     thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
-     thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
-   });
-
+    paint();
+    const rect = wheel.getBoundingClientRect();
+    const r = rect.width/2 - 7;
+    const rad = (hue - 90) * Math.PI/180;
+    thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
+    thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
+  });
   return ()=> tag.textContent.trim();
 }
 
@@ -465,17 +418,17 @@ function renderSFW(){
   checkList($("#p_pose"),      SFW.pose_composition,"p_pose");
   checkList($("#p_expr"),      SFW.expressions,     "p_expr");
   radioList($("#p_light"),     SFW.lighting,        "p_light");
-  checkList($("#lightLearn"),    SFW.lighting,        "lightLearn");
+  checkList($("#lightLearn"),  SFW.lighting,        "lightLearn");
 
-  // ★ここに基本情報の描画処理を追加
-  radioList($("#bf_age"),      SFW.age,             "bf_age");
-  radioList($("#bf_gender"),   SFW.gender,          "bf_gender");
-  radioList($("#bf_body"),     SFW.body_type,       "bf_body");
-  radioList($("#bf_height"),   SFW.height,          "bf_height");
-  radioList($("#bf_person"),   SFW.personality,     "bf_person");
-  radioList($("#bf_relation"), SFW.relationship,    "bf_relation");
-  radioList($("#bf_world"),    SFW.worldview,       "bf_world");
-  radioList($("#bf_tone"),     SFW.speech_tone,     "bf_tone");
+  // ★ 基本情報（ID / name をHTMLに合わせる）
+  radioList($("#bf_age"),            SFW.age,             "bf_age");
+  radioList($("#bf_gender"),         SFW.gender,          "bf_gender");
+  radioList($("#bf_body_type"),      SFW.body_type,       "bf_body_type");
+  radioList($("#bf_height"),         SFW.height,          "bf_height");
+  radioList($("#bf_personality"),    SFW.personality,     "bf_personality");
+  radioList($("#bf_relationship"),   SFW.relationship,    "bf_relationship");
+  radioList($("#bf_world"),          SFW.worldview,       "bf_world");
+  radioList($("#bf_speech_style"),   SFW.speech_tone,     "bf_speech_style");
 }
 
 /* ========= タブ切替 ========= */
@@ -675,7 +628,6 @@ function paintSkin(){
 
 /* ========= アクセ色相環 ========= */
 let getHairColorTag, getEyeColorTag, getLearnAccColor, getAccAColor, getAccBColor, getAccCColor;
-// 追加
 let getOutfitBaseColor;
 
 /* ========= フォーマッタ & CSV ========= */
@@ -786,13 +738,14 @@ function assembleFixedLearning(){
   arr.push(getEyeColorTag && getEyeColorTag());
   arr.push($("#tagSkin").textContent);
 
-  // 基本の単一選択要素
-  ["hairStyle","eyeShape","face","skinBody","artStyle","outfit","bf_age","bf_gender","bf_body","bf_height",
-   "bf_person","bf_relation","bf_world","bf_tone"].forEach(n=>{
+  // 基本の単一選択要素（name を修正）
+  ["hairStyle","eyeShape","face","skinBody","artStyle","outfit",
+   "bf_age","bf_gender","bf_body_type","bf_height",
+   "bf_personality","bf_relationship","bf_world","bf_speech_style"].forEach(n=>{
     const v=document.querySelector(`input[name="${n}"]:checked`)?.value; if(v) arr.push(v);
   });
 
-  // ★ 学習：服色（top/bottom/shoes）を outfit の直下に追加
+  // 服色（top/bottom/shoes）
   const selectedOutfit = getOne("outfit");
   if (selectedOutfit) {
     const wearColors = getLearningWearColorParts(selectedOutfit);
@@ -808,7 +761,8 @@ function assembleFixedLearning(){
   arr.push(...fixedManual);
 
   return uniq(arr).filter(Boolean);
-}function getSelectedNSFW_Learn(){
+}
+function getSelectedNSFW_Learn(){
   if (!$("#nsfwLearn").checked) return [];
   const pickeds = [
     ...$$('input[name="nsfwL_expr"]:checked').map(x=>x.value),
@@ -824,7 +778,6 @@ function buildOneLearning(){
   if(BG.length===0 || PO.length===0 || EX.length===0) return {error:"背景・ポーズ・表情は最低1つずつ選択してください。"};
   const addon = getSelectedNSFW_Learn();
   const b = pick(BG), p = pick(PO), e=pick(EX), l = LI.length ? pick(LI) : "";
-  // ▼追加：ヌード優先フィルタ
   let parts = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
   parts = applyNudePriority(parts);
   const pos = ensurePromptOrder(parts);
@@ -840,12 +793,10 @@ function buildBatchLearning(n){
   return out;
 }
 
-// === 追加: プロンプト並べ替え（正規順） ===//
+/* === 追加: プロンプト並べ替え（正規順） ===*/
 function ensurePromptOrder(parts) {
   const set = new Set(parts.filter(Boolean));
   const asSet = (arr) => new Set((arr||[]).map(x => (typeof x==='string'? x : x.tag)));
-
-  // 判定セット
   const S = {
     age:        asSet(SFW.age),
     gender:     asSet(SFW.gender),
@@ -873,16 +824,11 @@ function ensurePromptOrder(parts) {
     nsfw_situ:  asSet(NSFW.situation),
     nsfw_light: asSet(NSFW.lighting),
   };
-
-  // 服色タグ検出（top/bottom/dress/gown/kimono/shoes）※ outfit 本体と区別
   const isWearColor = (t)=> /\b(top|bottom|dress|gown|kimono|shoes)\b/i.test(t) && !S.outfit.has(t);
-
-  // 色タグの簡易判定
   const isHairColor = (t)=> /\bhair$/.test(t) && !S.hair_style.has(t);
   const isEyeColor  = (t)=> /\beyes$/.test(t) && !S.eyes_shape.has(t);
   const isSkinTone  = (t)=> /\bskin$/.test(t) && !S.skin_body.has(t);
 
-  // バケツ
   const B = {
     lora: [], name: [],
     basic: { age:[], gender:[], body:[], height:[], person:[], relation:[], world:[], tone:[] },
@@ -894,15 +840,11 @@ function ensurePromptOrder(parts) {
     other: []
   };
 
-  // 仕分け
   for (const t of set) {
     if (!t) continue;
-
-    // LoRA / キャラ名
     if (t.startsWith("<lora:") || t.includes("<lyco:") || /LoRA/i.test(t)) { B.lora.push(t); continue; }
     if (t === (document.querySelector("#charName")?.value||"").trim()) { B.name.push(t); continue; }
 
-    // 基本情報（先に処理）
     if (S.age.has(t))      { B.basic.age.push(t);      continue; }
     if (S.gender.has(t))   { B.basic.gender.push(t);   continue; }
     if (S.body_basic.has(t)){ B.basic.body.push(t);    continue; }
@@ -912,12 +854,10 @@ function ensurePromptOrder(parts) {
     if (S.world.has(t))    { B.basic.world.push(t);    continue; }
     if (S.tone.has(t))     { B.basic.tone.push(t);     continue; }
 
-    // 色（髪/瞳/肌）
     if (isHairColor(t)) { B.hairColor.push(t); continue; }
     if (isEyeColor(t))  { B.eyeColor.push(t);  continue; }
     if (isSkinTone(t))  { B.skin.push(t);      continue; }
 
-    // 外見固定
     if (S.hair_style.has(t)) { B.hairStyle.push(t); continue; }
     if (S.eyes_shape.has(t)) { B.eyeShape.push(t);  continue; }
     if (S.face.has(t))       { B.face.push(t);      continue; }
@@ -925,49 +865,32 @@ function ensurePromptOrder(parts) {
     if (S.art_style.has(t))  { B.art.push(t);       continue; }
     if (S.outfit.has(t))     { B.outfit.push(t);    continue; }
 
-    // 服色（top/bottom/dress/gown/kimono/shoes など）
     if (isWearColor(t)) { B.wearColor.push(t); continue; }
 
-    // 小物・シチュ系
     if (S.acc.has(t))        { B.acc.push(t);  continue; }
     if (S.background.has(t)) { B.bg.push(t);   continue; }
     if (S.pose.has(t))       { B.pose.push(t); continue; }
     if (S.expr.has(t))       { B.expr.push(t); continue; }
     if (S.light.has(t))      { B.light.push(t);continue; }
 
-    // NSFW
     if (S.nsfw_expr.has(t))  { B.nsfw_expr.push(t);  continue; }
     if (S.nsfw_expo.has(t))  { B.nsfw_expo.push(t);  continue; }
     if (S.nsfw_situ.has(t))  { B.nsfw_situ.push(t);  continue; }
     if (S.nsfw_light.has(t)) { B.nsfw_light.push(t); continue; }
 
-    // その他
     B.other.push(t);
   }
 
-  // 正規順で返す
   return [
     ...B.lora, ...B.name,
-
-    // 基本情報
     ...B.basic.age, ...B.basic.gender, ...B.basic.body, ...B.basic.height,
     ...B.basic.person, ...B.basic.relation, ...B.basic.world, ...B.basic.tone,
-
-    // 色 → 外見固定
     ...B.hairColor, ...B.eyeColor, ...B.skin,
     ...B.hairStyle, ...B.eyeShape, ...B.face, ...B.body, ...B.art, ...B.outfit,
-
-    // 服色 → アクセ
     ...B.wearColor,
     ...B.acc,
-
-    // シチュ系
     ...B.bg, ...B.pose, ...B.expr, ...B.light,
-
-    // NSFW
     ...B.nsfw_expr, ...B.nsfw_expo, ...B.nsfw_situ, ...B.nsfw_light,
-
-    // その他
     ...B.other
   ].filter(Boolean);
 }
@@ -975,33 +898,22 @@ function ensurePromptOrder(parts) {
 /* === ヌード優先ルール（全裸 / 上半身裸 / 下半身裸） === */
 function applyNudePriority(parts){
   let filtered = [...parts];
-
   const has = (re)=> filtered.some(t => re.test(String(t)));
-
-  // 検出（NSFWタグは英日まぜで想定）
   const hasNude       = has(/\b(nude|naked|no clothes|全裸|完全に裸)\b/i);
   const hasTopless    = has(/\b(topless|上半身裸)\b/i);
   const hasBottomless = has(/\b(bottomless|下半身裸)\b/i);
-
-  // 服カテゴリ（色タグ含む：top/bottom/dress/gown/kimono/shoes を想定）
   const RE_TOP      = /\b(top|shirt|t[-\s]?shirt|blouse|sweater|hoodie|jacket|coat|cardigan|tank top|camisole|bra|bikini top)\b/i;
   const RE_BOTTOM   = /\b(bottom|skirt|shorts|pants|jeans|trousers|leggings|bikini bottom|panties|underwear|briefs)\b/i;
   const RE_ONEPIECE = /\b(dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao)\b/i;
   const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
-
   const removeWhere = (re)=> { filtered = filtered.filter(t => !re.test(String(t))); };
-
   if (hasNude) {
-    // 全裸 → すべての衣服・靴系を削除
     removeWhere(RE_TOP);
     removeWhere(RE_BOTTOM);
     removeWhere(RE_ONEPIECE);
     removeWhere(RE_SHOES);
   } else {
-    // 上半身裸 → トップスのみ削除（靴・ボトムは残す）
     if (hasTopless) removeWhere(RE_TOP);
-
-    // 下半身裸 → ボトム＆ワンピ削除（トップ・靴は残す）
     if (hasBottomless) {
       removeWhere(RE_BOTTOM);
       removeWhere(RE_ONEPIECE);
@@ -1023,7 +935,7 @@ function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
   const neg   = ($("#p_neg").value||"").trim();
-  const outfits = getMany("p_outfit");       // ← 複数可
+  const outfits = getMany("p_outfit");
   const bgs  = getMany("p_bg");
   const poses= getMany("p_pose");
   const exprs= getMany("p_expr");
@@ -1045,13 +957,10 @@ function buildBatchProduction(n){
   const out=[]; let guard=0;
   while(out.length<n && guard<n*400){
     guard++;
-
-    // 1行分の可変要素を組み立て
     const o = [];
-
     if(outfits.length){
       const rawOutfit = pick(outfits);
-      const colored   = maybeColorizeOutfit(rawOutfit); // ★ ここで色付け or 無色
+      const colored   = maybeColorizeOutfit(rawOutfit);
       o.push(colored);
     }
     if(acc.length)     o.push(...acc);
@@ -1061,7 +970,6 @@ function buildBatchProduction(n){
     if(light)          o.push(light);
     if(nsfwAdd.length) o.push(...nsfwAdd);
 
-    // ▼追加：ヌード優先フィルタ
     let parts = uniq([...fixed, ...o]).filter(Boolean);
     parts = applyNudePriority(parts);
 
@@ -1232,41 +1140,33 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   bindProduction();
   bindSettings();
 
-  // まず空で描画（軽い）
   renderSFW(); renderNSFWProduction(); renderNSFWLearning(); fillAccessorySlots();
 
-  // 肌トーン
   $("#skinTone")?.addEventListener("input", paintSkin);
   paintSkin();
 
-  // 色ホイール（アイドル時初期化の取りこぼし防止）
   if (typeof requestIdleCallback === "function") {
     requestIdleCallback(setupColorPickers, { timeout: 300 });
   } else {
     setTimeout(setupColorPickers, 0);
   }
 
-  // デフォルト辞書を追記ロード
   await loadDefaultDicts();
 
-  // ▼ワンピース選択時にボトム色UIを無効化
   bindOutfitDisableBottomUI();
-
-  /* === ワンピース時に見た目でボトム色を無効化 === */
-   function bindOutfitDisableBottomUI(){
-      const panel = document.getElementById("bottomWearPanel");
-      if (!panel) return;
-      const update = ()=>{
-         const tag = getOne("outfit");
-         panel.classList.toggle('is-disabled', isOnePieceOutfit(tag));
-      };
-      document.addEventListener("change", (e)=>{
-         if (e.target && e.target.name === "outfit") update();
-      });
-      update();
-   }
+  function bindOutfitDisableBottomUI(){
+    const panel = document.getElementById("bottomWearPanel");
+    if (!panel) return;
+    const update = ()=>{
+      const tag = getOne("outfit");
+      panel.classList.toggle('is-disabled', isOnePieceOutfit(tag));
+    };
+    document.addEventListener("change", (e)=>{
+      if (e.target && e.target.name === "outfit") update();
+    });
+    update();
+  }
    
-  // ステータス
   $("#nsfwState").textContent = "OFF";
   $("#nsfwLearn")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（学習）" : "OFF");
   $("#nsfwProd")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（量産）" : "OFF");
@@ -1274,7 +1174,6 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
-  // 髪・瞳・アクセ（既存）
   getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
   getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes");
   getLearnAccColor  = initColorWheel("learnAcc", 0,   75, 50);
@@ -1282,11 +1181,9 @@ function setupColorPickers(){
   getAccBColor      = initColorWheel("accB",   220,   80, 50);
   getAccCColor      = initColorWheel("accC",   130,   80, 50);
 
-  // ★ 学習：服色（トップ/ボトム/靴）— 初期は「—」のまま（未指定）
   initColorWheel("top",    35, 80, 55);
   initColorWheel("bottom",210, 70, 50);
-  initColorWheel("shoes",   0,  0, 30); // 初期は無彩（dark/black 寄り）でもOK
+  initColorWheel("shoes",   0,  0, 30);
 
-  // ★ 量産：服 基本色（1色）— HTMLのIDに合わせる
   getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
