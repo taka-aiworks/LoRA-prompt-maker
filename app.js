@@ -419,7 +419,7 @@ function renderSFW(){
   checkList($("#p_bg"),        SFW.background,      "p_bg");
   checkList($("#p_pose"),      SFW.pose_composition,"p_pose");
   checkList($("#p_expr"),      SFW.expressions,     "p_expr");
-  radioList($("#p_light"),     SFW.lighting,        "p_light");
+  checkList($("#p_light"),     SFW.lighting,        "p_light");
   checkList($("#lightLearn"),  SFW.lighting,        "lightLearn");
 
   // ★ 基本情報（ID / name をHTMLに合わせる）
@@ -941,7 +941,7 @@ function buildBatchProduction(n){
   const bgs  = getMany("p_bg");
   const poses= getMany("p_pose");
   const exprs= getMany("p_expr");
-  const light= getOne("p_light");
+  const lights= getMany("p_light");
   const acc  = readAccessorySlots();
 
   const nsfwOn = $("#nsfwProd").checked;
