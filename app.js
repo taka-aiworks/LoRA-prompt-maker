@@ -1127,6 +1127,59 @@ function bindSettings(){
   $("#btnResetSettings")?.addEventListener("click", ()=>{ resetSettings(); loadSettings(); });
 }
 
+/* ========= 画面上部にキャラ設定IOを固定 ========= */
+function pinCharImportToTop(){
+  const inp = document.getElementById("importChar");
+  const btnExport = document.getElementById("btnExportChar");
+  if (!inp) return; // インポートinputが無ければ何もしない
+
+  // 置き場所（あれば #topBar / #header / .toolbar、なければ <body> 先頭）
+  const host = document.getElementById("topBar")
+            || document.getElementById("header")
+            || document.querySelector(".toolbar")
+            || document.body;
+
+  // スタイル注入（軽く見栄え＆追従）
+  if (!document.getElementById("charImportPinnedStyle")) {
+    const style = document.createElement("style");
+    style.id = "charImportPinnedStyle";
+    style.textContent = `
+      #charImportPinned{position:sticky;top:0;z-index:50;display:flex;gap:.5rem;align-items:center;
+        padding:.5rem .75rem;background:var(--panel-bg, rgba(255,255,255,.85));
+        backdrop-filter:saturate(150%) blur(6px); border-bottom:1px solid rgba(0,0,0,.06)}
+      #charImportPinned .btn{padding:.45rem .8rem;border:1px solid rgba(0,0,0,.15);border-radius:.4rem;cursor:pointer}
+    `;
+    document.head.appendChild(style);
+  }
+
+  // 固定バー生成
+  const box = document.createElement("div");
+  box.id = "charImportPinned";
+  box.innerHTML = `
+    <button id="btnImportCharTop" class="btn">キャラ設定を読み込む</button>
+    <button id="btnExportCharTop" class="btn">キャラ設定を保存</button>
+  `;
+
+  // 先頭に配置
+  if (host === document.body) {
+    document.body.insertBefore(box, document.body.firstChild);
+  } else {
+    host.prepend(box);
+  }
+
+  // クリックで既存のIOを呼ぶ（inputは元の場所のまま）
+  box.querySelector("#btnImportCharTop")?.addEventListener("click", ()=> inp.click());
+  box.querySelector("#btnExportCharTop")?.addEventListener("click", ()=> {
+    // 既存ボタンがあればそれをクリック、無ければ処理を直呼び
+    if (btnExport) btnExport.click();
+    else {
+      const preset = collectCharacterPreset();
+      dl("character_preset.json", JSON.stringify(preset, null, 2));
+      toast("キャラ設定をローカル（JSON）に保存しました");
+    }
+  });
+}
+
 /* ========= 初期化 ========= */
 window.addEventListener("DOMContentLoaded", async ()=>{
   loadSettings();
@@ -1139,6 +1192,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   bindLearnBatch();
   bindProduction();
   bindSettings();
+  pinCharImportToTop();
 
   renderSFW(); renderNSFWProduction(); renderNSFWLearning(); fillAccessorySlots();
 
