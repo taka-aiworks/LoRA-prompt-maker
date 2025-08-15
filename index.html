@@ -719,5 +719,22 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pageshow', applyOutfitMode);
 });
 </script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // ここはあなたの既存ヘルパを使って初期化する
+  // 例: initColorWheel(wheelId, thumbId, swatchId, tagId, satId, litId)
+  initColorWheel('wheel_p_top',    'thumb_p_top',    'sw_p_top',    'tag_p_top',    'sat_p_top',    'lit_p_top');
+  initColorWheel('wheel_p_bottom', 'thumb_p_bottom', 'sw_p_bottom', 'tag_p_bottom', 'sat_p_bottom', 'lit_p_bottom');
+  initColorWheel('wheel_p_shoes',  'thumb_p_shoes',  'sw_p_shoes',  'tag_p_shoes',  'sat_p_shoes',  'lit_p_shoes');
+
+  // 生成側から参照しやすいように公開（任意）
+  window.__prodColor = {
+    get top()    { return document.getElementById('p_use_top').checked    ? document.getElementById('tag_p_top')?.textContent?.trim()    : null; },
+    get bottom() { return document.getElementById('p_use_bottom').checked ? document.getElementById('tag_p_bottom')?.textContent?.trim() : null; },
+    get shoes()  { return document.getElementById('p_use_shoes').checked  ? document.getElementById('tag_p_shoes')?.textContent?.trim()  : null; }
+  };
+});
+</script>
+  
 </body>
 </html>
