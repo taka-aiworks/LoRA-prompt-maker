@@ -739,21 +739,16 @@ function bindNSFWToggles(){
 
 /* ========= 肌トーン描画 ========= */
 function paintSkin(){
-  const v = +($("#skinTone").value||0);
-  const hex = toneToHex(v), tag = toneToTag(v);
-  const sw = $("#swSkin"), label = $("#tagSkin");
-
-  sw.style.background = hex;
-  label.textContent = tag;
-
-  // 文字色を自動で黒/白に
-  const r = parseInt(hex.slice(1,3),16);
-  const g = parseInt(hex.slice(3,5),16);
-  const b = parseInt(hex.slice(5,7),16);
-  const yiq = (r*299 + g*587 + b*114) / 1000; // 簡易輝度
-  const textColor = yiq < 128 ? "#fff" : "#000";
-  label.style.color = textColor;
-}
+    const v   = +($("#skinTone").value||0);
+    const hex = toneToHex(v);
+    const tag = toneToTag(v);
+    $("#swSkin").style.background = hex;
+    const label = $("#tagSkin");
+    label.textContent = tag;
+    // ← 文字色は変えない（過去につけたインライン色があれば消す）
+    label.style.color = "";
+    // または label.style.removeProperty("color");
+  }
 
 /* ========= アクセ色相環 ========= */
 let getHairColorTag, getEyeColorTag, getLearnAccColor, getAccAColor, getAccBColor, getAccCColor;
