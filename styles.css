@@ -329,3 +329,23 @@ details[open] summary .caret { transform: rotate(90deg); }
 @media (max-width: 640px) {
   .panel .wheel-box { width: 140px; height: 140px; }
 }
+
+/* fieldset のデフォルト枠線をリセット */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/* iOS/Safari で念のため */
+fieldset, fieldset:disabled {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: 0;
+}
+
+/* legend を使っていないなら消す */
+legend { display: none; }
+
+/* 無効グループの視覚だけ保つ（任意） */
+fieldset:disabled { opacity: .55; pointer-events: none; }
