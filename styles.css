@@ -53,7 +53,7 @@ details[open] summary .caret{transform:rotate(90deg)}
 /* badges & notes */
 .badge{display:inline-block;font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid #2a3240;background:#121a2a;color:#cfe0ff;margin-left:6px}
 .badge.warn{background:#1b1420;border-color:#4a2a3a;color:#ffb6c1}
-.badge.ok{背景:#132019;border-color:#294b38;color:#9be7b3}
+.badge.ok{background:#132019;border-color:#294b38;color:#9be7b3}
 .note{margin:8px 0;padding:10px;border:1px dashed #2a3240;border-radius:10px;background:#0f141d;color:#cfd7e6}
 .note .mini{opacity:.9}
 /* --- color wheel: interaction fixes --- */
