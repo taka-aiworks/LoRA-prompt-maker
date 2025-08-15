@@ -114,3 +114,6 @@ code.tag{color:#d9e6ff;border-color:#2d3a56;background:#0e1522}
   .header-row { flex-wrap: wrap; }
   .header-row .push { margin-left: 0; }
 }
+.g4{grid-template-columns:repeat(4,1fr)}
+@media (max-width:1024px){.g4{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.g4{grid-template-columns:1fr}}
