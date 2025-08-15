@@ -1,47 +1,143 @@
 {
   "age": [
-    { "tag": "child", "desc": "子供" },
-    { "tag": "teen", "desc": "ティーン" },
-    { "tag": "young adult", "desc": "若年成人" },
-    { "tag": "adult", "desc": "成人" },
-    { "tag": "middle aged", "desc": "中年" }
+    { "tag": "toddler", "label": "幼児" },
+    { "tag": "child", "label": "子供" },
+    { "tag": "preteen", "label": "プレティーン" },
+    { "tag": "early teen", "label": "前半ティーン" },
+    { "tag": "late teen", "label": "後半ティーン" },
+    { "tag": "young adult", "label": "若年成人（20代）" },
+    { "tag": "adult 30s", "label": "成人（30代）" },
+    { "tag": "adult 40s", "label": "成人（40代）" },
+    { "tag": "mature 50s+", "label": "成熟（50代以上）" },
+    { "tag": "ageless", "label": "年齢不詳" }
   ],
   "gender": [
-    { "tag": "female", "desc": "女性" },
-    { "tag": "male", "desc": "男性" },
-    { "tag": "androgynous", "desc": "中性的" }
+    { "tag": "female", "label": "女性" },
+    { "tag": "male", "label": "男性" },
+    { "tag": "androgynous", "label": "中性的" },
+    { "tag": "nonbinary", "label": "ノンバイナリ" },
+    { "tag": "feminine-presenting", "label": "女性らしい口調/所作" },
+    { "tag": "masculine-presenting", "label": "男性らしい口調/所作" }
   ],
-  "body": [
-    { "tag": "slim", "desc": "スリム" },
-    { "tag": "curvy", "desc": "グラマラス" },
-    { "tag": "athletic", "desc": "アスリート" }
+  "body_type": [
+    { "tag": "petite build", "label": "小柄" },
+    { "tag": "slim build", "label": "スリム" },
+    { "tag": "lanky", "label": "手足が長い" },
+    { "tag": "fit", "label": "引き締まった" },
+    { "tag": "athletic", "label": "アスリート体型" },
+    { "tag": "muscular", "label": "筋肉質" },
+    { "tag": "curvy", "label": "グラマラス" },
+    { "tag": "hourglass figure", "label": "砂時計体型" },
+    { "tag": "pear-shaped", "label": "下半身ボリューム" },
+    { "tag": "apple-shaped", "label": "上半身ボリューム" },
+    { "tag": "voluptuous", "label": "豊満" },
+    { "tag": "chubby", "label": "ぽっちゃり" },
+    { "tag": "toned abs", "label": "腹筋が割れている" }
   ],
   "height": [
-    { "tag": "short", "desc": "低身長" },
-    { "tag": "average height", "desc": "中背" },
-    { "tag": "tall", "desc": "高身長" }
+    { "tag": "very short", "label": "とても低身長" },
+    { "tag": "short", "label": "低身長" },
+    { "tag": "average height", "label": "中背" },
+    { "tag": "tall", "label": "高身長" },
+    { "tag": "very tall", "label": "かなり高身長" },
+    { "tag": "towering", "label": "頭ひとつ抜けた高身長" }
   ],
-  "person": [
-    { "tag": "cheerful", "desc": "明るい" },
-    { "tag": "calm", "desc": "落ち着き" },
-    { "tag": "tsundere", "desc": "ツンデレ" }
+  "personality": [
+    { "tag": "cheerful", "label": "明るい" },
+    { "tag": "energetic", "label": "元気" },
+    { "tag": "optimistic", "label": "楽観的" },
+    { "tag": "calm", "label": "落ち着き" },
+    { "tag": "stoic", "label": "ストイック" },
+    { "tag": "cool-headed", "label": "クール" },
+    { "tag": "kind", "label": "やさしい" },
+    { "tag": "gentle", "label": "穏やか" },
+    { "tag": "shy", "label": "恥ずかしがり" },
+    { "tag": "reserved", "label": "控えめ" },
+    { "tag": "confident", "label": "自信家" },
+    { "tag": "brave", "label": "勇敢" },
+    { "tag": "mischievous", "label": "いたずら好き" },
+    { "tag": "playful", "label": "遊び心" },
+    { "tag": "bookish", "label": "本好き" },
+    { "tag": "elegant", "label": "上品" },
+    { "tag": "tomboyish", "label": "ボーイッシュ" },
+    { "tag": "tsundere", "label": "ツンデレ" },
+    { "tag": "kuudere", "label": "クーデレ" },
+    { "tag": "dandere", "label": "ダウナー/無口" },
+    { "tag": "serious", "label": "真面目" }
   ],
-  "relation": [
-    { "tag": "friend", "desc": "友達" },
-    { "tag": "lover", "desc": "恋人" },
-    { "tag": "rival", "desc": "ライバル" }
+  "relationship": [
+    { "tag": "stranger", "label": "見知らぬ関係" },
+    { "tag": "acquaintance", "label": "顔見知り" },
+    { "tag": "classmate", "label": "クラスメイト" },
+    { "tag": "senpai", "label": "先輩" },
+    { "tag": "kohai", "label": "後輩" },
+    { "tag": "childhood friend", "label": "幼なじみ" },
+    { "tag": "neighbor", "label": "近所の人" },
+    { "tag": "friend", "label": "友達" },
+    { "tag": "best friend", "label": "親友" },
+    { "tag": "rival", "label": "ライバル" },
+    { "tag": "coworker", "label": "同僚" },
+    { "tag": "boss", "label": "上司" },
+    { "tag": "subordinate", "label": "部下" },
+    { "tag": "teacher", "label": "先生" },
+    { "tag": "student", "label": "生徒" },
+    { "tag": "teammate", "label": "チームメイト" },
+    { "tag": "adventuring partner", "label": "冒険仲間" },
+    { "tag": "idol and fan", "label": "推しとファン" },
+    { "tag": "lover", "label": "恋人" },
+    { "tag": "fiance", "label": "婚約者" },
+    { "tag": "married couple", "label": "夫婦" },
+    { "tag": "unrequited love", "label": "片想い" },
+    { "tag": "sibling", "label": "きょうだい" },
+    { "tag": "twin", "label": "双子" },
+    { "tag": "cousin", "label": "いとこ" },
+    { "tag": "master and servant", "label": "主従" },
+    { "tag": "pet owner", "label": "飼い主" }
   ],
-  "world": [
-    { "tag": "modern", "desc": "現代" },
-    { "tag": "fantasy", "desc": "ファンタジー" },
-    { "tag": "sci-fi", "desc": "SF" }
+  "worldview": [
+    { "tag": "modern day", "label": "現代" },
+    { "tag": "modern japan", "label": "現代日本" },
+    { "tag": "urban life", "label": "都会生活" },
+    { "tag": "rural life", "label": "田舎/郊外" },
+    { "tag": "school life", "label": "学園もの" },
+    { "tag": "slice of life", "label": "日常系" },
+    { "tag": "fantasy medieval", "label": "中世ファンタジー" },
+    { "tag": "high fantasy", "label": "ハイファンタジー" },
+    { "tag": "dark fantasy", "label": "ダークファンタジー" },
+    { "tag": "steampunk", "label": "スチームパンク" },
+    { "tag": "cyberpunk", "label": "サイバーパンク" },
+    { "tag": "urban fantasy", "label": "現代異能/都市伝奇" },
+    { "tag": "post-apocalyptic", "label": "終末世界" },
+    { "tag": "dystopia", "label": "ディストピア" },
+    { "tag": "utopia", "label": "ユートピア" },
+    { "tag": "space opera", "label": "宇宙冒険" },
+    { "tag": "hard sci-fi", "label": "ハードSF" },
+    { "tag": "mythology", "label": "神話世界" },
+    { "tag": "historical edo", "label": "江戸時代" },
+    { "tag": "historical taisho", "label": "大正ロマン" },
+    { "tag": "victorian era", "label": "ヴィクトリア朝" }
   ],
-  "tone": [
-    { "tag": "polite", "desc": "丁寧語" },
-    { "tag": "casual", "desc": "くだけた" },
-    { "tag": "archaic", "desc": "古風" }
-  ],
-
+  "speech_tone": [
+    { "tag": "polite", "label": "丁寧語" },
+    { "tag": "very polite", "label": "敬語（かしこまり）" },
+    { "tag": "formal", "label": "フォーマル" },
+    { "tag": "casual", "label": "くだけた口調" },
+    { "tag": "rough", "label": "荒っぽい口調" },
+    { "tag": "girly", "label": "女の子っぽい口調" },
+    { "tag": "boyish", "label": "男の子っぽい口調" },
+    { "tag": "soft-spoken", "label": "おっとり/小声" },
+    { "tag": "energetic", "label": "ハイテンション" },
+    { "tag": "monotone", "label": "無機質/一本調子" },
+    { "tag": "sarcastic", "label": "皮肉混じり" },
+    { "tag": "playful", "label": "おちゃめ" },
+    { "tag": "flirty", "label": "軽くあしらう/小悪魔" },
+    { "tag": "archaic", "label": "古風な言い回し" },
+    { "tag": "robotic", "label": "ロボット風" },
+    { "tag": "kansai dialect", "label": "関西弁" },
+    { "tag": "tohoku dialect", "label": "東北訛り" },
+    { "tag": "kyoto dialect", "label": "京都弁" }
+  ]
+}
   // 以下はあなたの提示した元データ
   "hair_style": [
     { "tag": "long hair", "desc": "長髪" },
