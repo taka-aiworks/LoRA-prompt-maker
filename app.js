@@ -257,11 +257,61 @@ function colorNameFromHSL(h, s, l) {
 
 /* ========= 服色ユーティリティ（学習） ========= */
 function getWearColorTag(idBase){
+  // idBase: "top" | "bottom" | "shoes"
+  const use = document.getElementById("use_"+idBase);
+  if (use && !use.checked) return "";               // ← チェックOFFなら無効
+
   const t = document.getElementById("tag_"+idBase);
   if (!t) return "";
   const txt = (t.textContent || "").trim();
   return (txt && txt !== "—") ? txt : "";
 }
+
+// 追加：部位の有効/無効を見た目＆入力に反映
+function updateWearPanelEnabled(idBase){
+  const panel = (idBase === "bottom")
+    ? document.getElementById("bottomWearPanel")
+    : document.getElementById("panel_"+idBase);
+  const use   = document.getElementById("use_"+idBase);
+  const disabled = !!(use && !use.checked);
+
+  if (panel) panel.classList.toggle("is-disabled", disabled);
+
+  // スライダは操作不可に
+  const sat = document.getElementById("sat_"+idBase);
+  const lit = document.getElementById("lit_"+idBase);
+  if (sat) sat.disabled = disabled;
+  if (lit) lit.disabled = disabled;
+}
+
+// 追加：チェックボックスのバインド
+function bindWearToggles(){
+  ["top","bottom","shoes"].forEach(idBase=>{
+    const cb = document.getElementById("use_"+idBase);
+    if (!cb) return;
+    cb.addEventListener("change", ()=> updateWearPanelEnabled(idBase));
+    updateWearPanelEnabled(idBase);
+  });
+
+  // ワンピース選択時は自動でボトム無効（チェックも外す）
+  const syncBottomForOutfit = ()=>{
+    const tag = getOne("outfit");
+    const isOnePiece = isOnePieceOutfit(tag);
+    const cb = document.getElementById("use_bottom");
+    if (isOnePiece) {
+      if (cb) cb.checked = false;
+      updateWearPanelEnabled("bottom");
+    } else {
+      // ワンピース解除時も最新状態を反映
+      updateWearPanelEnabled("bottom");
+    }
+  };
+  document.addEventListener("change", (e)=>{
+    if (e.target && e.target.name === "outfit") syncBottomForOutfit();
+  });
+  syncBottomForOutfit();
+}
+
 function isOnePieceOutfit(tag){
   return /\b(dress|one[-\s]?piece|gown|kimono)\b/i.test(tag || "");
 }
@@ -1278,9 +1328,10 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 
   await loadDefaultDicts();
 
-  bindOutfitDisableBottomUI();
-  function bindOutfitDisableBottomUI(){
-    const panel = document.getElementById("bottomWearPanel");
+  bindWearToggles();   // ← 追加：トグル一括バインド
+   $("#nsfwState").textContent = "OFF";
+   
+   const panel = document.getElementById("bottomWearPanel");
     if (!panel) return;
     const update = ()=>{
       const tag = getOne("outfit");
