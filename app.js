@@ -1328,24 +1328,15 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 
   await loadDefaultDicts();
 
-  bindWearToggles();   // ← 追加：トグル一括バインド
-   $("#nsfwState").textContent = "OFF";
-   
-   const panel = document.getElementById("bottomWearPanel");
-    if (!panel) return;
-    const update = ()=>{
-      const tag = getOne("outfit");
-      panel.classList.toggle('is-disabled', isOnePieceOutfit(tag));
-    };
-    document.addEventListener("change", (e)=>{
-      if (e.target && e.target.name === "outfit") update();
-    });
-    update();
-  }
-   
+  // ✅ 新トグルだけ使う
+  bindWearToggles();
+
+  // ✅ NSFW表示の初期＆イベント
   $("#nsfwState").textContent = "OFF";
-  $("#nsfwLearn")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（学習）" : "OFF");
-  $("#nsfwProd")?.addEventListener("change", e=> $("#nsfwState").textContent = e.target.checked ? "ON（量産）" : "OFF");
+  $("#nsfwLearn")?.addEventListener("change",
+    e=> $("#nsfwState").textContent = e.target.checked ? "ON（学習）" : "OFF");
+  $("#nsfwProd")?.addEventListener("change",
+    e=> $("#nsfwState").textContent = e.target.checked ? "ON（量産）" : "OFF");
 });
 
 /* === カラーピッカー初期化（アイドル時） === */
