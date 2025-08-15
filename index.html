@@ -219,6 +219,64 @@
   </div>
 </div>
       </div><!-- ← grid g3 を閉じる -->
+      <div class="card" id="prodColorCard" style="margin-top:10px">
+  <h4 style="margin:0 0 6px">服カラー（量産の基本色）</h4>
+  <div class="mini">指定した色タグを各行に付与します。ワンピース採用行では下カラーは自動で無効。</div>
+
+  <div class="grid g3" style="margin-top:8px">
+    <div class="panel" id="panel_p_top">
+      <div class="row mini">
+        <label class="inline"><input type="checkbox" id="p_use_top"> トップス色を使う</label>
+      </div>
+      <div class="wheel-box">
+        <div id="wheel_p_top" class="wheel"></div><div id="thumb_p_top" class="thumb"></div>
+      </div>
+      <div class="row mini">
+        S:<input id="sat_p_top" type="range" min="0" max="100" value="80">
+        L:<input id="lit_p_top" type="range" min="0" max="100" value="55">
+      </div>
+      <div class="row mini">
+        <div id="sw_p_top" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_p_top">—</code></span>
+      </div>
+    </div>
+
+    <div class="panel" id="panel_p_bottom">
+      <div class="row mini">
+        <label class="inline"><input type="checkbox" id="p_use_bottom"> 下カラーを使う</label>
+      </div>
+      <div class="wheel-box">
+        <div id="wheel_p_bottom" class="wheel"></div><div id="thumb_p_bottom" class="thumb"></div>
+      </div>
+      <div class="row mini">
+        S:<input id="sat_p_bottom" type="range" min="0" max="100" value="70">
+        L:<input id="lit_p_bottom" type="range" min="0" max="100" value="50">
+      </div>
+      <div class="row mini">
+        <div id="sw_p_bottom" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_p_bottom">—</code></span>
+      </div>
+      <div class="mini">※ 行がワンピースの場合は無視</div>
+    </div>
+
+    <div class="panel" id="panel_p_shoes">
+      <div class="row mini">
+        <label class="inline"><input type="checkbox" id="p_use_shoes"> 靴色を使う</label>
+      </div>
+      <div class="wheel-box">
+        <div id="wheel_p_shoes" class="wheel"></div><div id="thumb_p_shoes" class="thumb"></div>
+      </div>
+      <div class="row mini">
+        S:<input id="sat_p_shoes" type="range" min="0" max="100" value="0">
+        L:<input id="lit_p_shoes" type="range" min="0" max="100" value="30">
+      </div>
+      <div class="row mini">
+        <div id="sw_p_shoes" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_p_shoes">—</code></span>
+      </div>
+    </div>
+  </div>
+</div>
       <!-- 形質：顔/体/画風（必要なら固定に） -->
       <div class="grid g3">
         <div class="panel"><h3>顔の特徴（1つ）</h3><div id="face" class="scroller"></div></div>
