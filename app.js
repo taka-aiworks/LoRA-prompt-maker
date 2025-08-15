@@ -787,7 +787,8 @@ function assembleFixedLearning(){
   arr.push($("#tagSkin").textContent);
 
   // 基本の単一選択要素
-  ["hairStyle","eyeShape","face","skinBody","artStyle","outfit"].forEach(n=>{
+  ["hairStyle","eyeShape","face","skinBody","artStyle","outfit","bf_age","bf_gender","bf_body","bf_height",
+   "bf_person","bf_relation","bf_world","bf_tone"].forEach(n=>{
     const v=document.querySelector(`input[name="${n}"]:checked`)?.value; if(v) arr.push(v);
   });
 
@@ -847,6 +848,14 @@ function ensurePromptOrder(parts) {
   const asSet = (arr) => new Set((arr||[]).map(x => (typeof x==='string'? x : x.tag)));
 
   const S = {
+    age:             asSet(SFW.age),
+    gender:          asSet(SFW.gender),
+    body_basic:      asSet(SFW.body_type),
+    height:          asSet(SFW.height),
+    person:          asSet(SFW.personality),
+    relation:        asSet(SFW.relationship),
+    world:           asSet(SFW.worldview),
+    tone:            asSet(SFW.speech_tone),
     hair_style:      asSet(SFW.hair_style),
     eyes_shape:      asSet(SFW.eyes),
     outfit:          asSet(SFW.outfit),
@@ -915,6 +924,8 @@ function ensurePromptOrder(parts) {
   // ここで正規順に並べる（必要なら順序を編集してOK）
   return [
     ...B.lora, ...B.name,
+    ...B.basic.age, ...B.basic.gender, ...B.basic.body, ...B.basic.height,
+    ...B.basic.person, ...B.basic.relation, ...B.basic.world, ...B.basic.tone,
     ...B.hairColor, ...B.eyeColor, ...B.skin,
     ...B.hairStyle, ...B.eyeShape, ...B.face, ...B.body, ...B.art, ...B.outfit,
     ...B.wearColor,
