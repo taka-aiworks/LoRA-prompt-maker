@@ -840,51 +840,53 @@ function buildBatchLearning(n){
   return out;
 }
 
-// === 追加: プロンプト並べ替え（正規順） ===
+// === 追加: プロンプト並べ替え（正規順） ===//
 function ensurePromptOrder(parts) {
   const set = new Set(parts.filter(Boolean));
-
-  // SFW/NSFWのカテゴリ辞書から「そのカテゴリに属するタグ」を素早く判定するためのセットを作る
   const asSet = (arr) => new Set((arr||[]).map(x => (typeof x==='string'? x : x.tag)));
 
+  // 判定セット
   const S = {
-    age:             asSet(SFW.age),
-    gender:          asSet(SFW.gender),
-    body_basic:      asSet(SFW.body_type),
-    height:          asSet(SFW.height),
-    person:          asSet(SFW.personality),
-    relation:        asSet(SFW.relationship),
-    world:           asSet(SFW.worldview),
-    tone:            asSet(SFW.speech_tone),
-    hair_style:      asSet(SFW.hair_style),
-    eyes_shape:      asSet(SFW.eyes),
-    outfit:          asSet(SFW.outfit),
-    face:            asSet(SFW.face),
-    skin_body:       asSet(SFW.skin_body),
-    art_style:       asSet(SFW.art_style),
-    background:      asSet(SFW.background),
-    pose:            asSet(SFW.pose_composition),
-    expr:            asSet(SFW.expressions),
-    acc:             asSet(SFW.accessories),
-    light:           asSet(SFW.lighting),
-    nsfw_expr:       asSet(NSFW.expression),
-    nsfw_expo:       asSet(NSFW.exposure),
-    nsfw_situ:       asSet(NSFW.situation),
-    nsfw_light:      asSet(NSFW.lighting),
+    age:        asSet(SFW.age),
+    gender:     asSet(SFW.gender),
+    body_basic: asSet(SFW.body_type),
+    height:     asSet(SFW.height),
+    person:     asSet(SFW.personality),
+    relation:   asSet(SFW.relationship),
+    world:      asSet(SFW.worldview),
+    tone:       asSet(SFW.speech_tone),
+
+    hair_style: asSet(SFW.hair_style),
+    eyes_shape: asSet(SFW.eyes),
+    face:       asSet(SFW.face),
+    skin_body:  asSet(SFW.skin_body),
+    art_style:  asSet(SFW.art_style),
+    outfit:     asSet(SFW.outfit),
+    acc:        asSet(SFW.accessories),
+    background: asSet(SFW.background),
+    pose:       asSet(SFW.pose_composition),
+    expr:       asSet(SFW.expressions),
+    light:      asSet(SFW.lighting),
+
+    nsfw_expr:  asSet(NSFW.expression),
+    nsfw_expo:  asSet(NSFW.exposure),
+    nsfw_situ:  asSet(NSFW.situation),
+    nsfw_light: asSet(NSFW.lighting),
   };
 
-  // ▼服色（top/bottom/dress/gown/kimono/shoes）を検出
-  const isWearColor = (t)=> /\b(top|bottom|dress|gown|kimono|shoes)\b/i.test(t)
-                         && !S.outfit.has(t);
+  // 服色タグ検出（top/bottom/dress/gown/kimono/shoes）※ outfit 本体と区別
+  const isWearColor = (t)=> /\b(top|bottom|dress|gown|kimono|shoes)\b/i.test(t) && !S.outfit.has(t);
 
-  // 便宜上の判定（色タグは " hair" / " eyes" で終わる）
-  const isHairColor = (t)=> /\bhair$/.test(t)   && !S.hair_style.has(t);
-  const isEyeColor  = (t)=> /\beyes$/.test(t)   && !S.eyes_shape.has(t);
-  const isSkinTone  = (t)=> /\bskin$/.test(t)   && !S.skin_body.has(t);
+  // 色タグの簡易判定
+  const isHairColor = (t)=> /\bhair$/.test(t) && !S.hair_style.has(t);
+  const isEyeColor  = (t)=> /\beyes$/.test(t) && !S.eyes_shape.has(t);
+  const isSkinTone  = (t)=> /\bskin$/.test(t) && !S.skin_body.has(t);
 
-  // バケツに仕分け
+  // バケツ
   const B = {
-    lora: [], name: [], hairColor: [], eyeColor: [], skin: [],
+    lora: [], name: [],
+    basic: { age:[], gender:[], body:[], height:[], person:[], relation:[], world:[], tone:[] },
+    hairColor: [], eyeColor: [], skin: [],
     hairStyle: [], eyeShape: [], face: [], body: [], art: [], outfit: [],
     wearColor: [],
     acc: [], bg: [], pose: [], expr: [], light: [],
@@ -892,47 +894,80 @@ function ensurePromptOrder(parts) {
     other: []
   };
 
+  // 仕分け
   for (const t of set) {
     if (!t) continue;
-    if (t.startsWith("<lora:") || t.includes("LoRA") || t.includes("<lyco:")) { B.lora.push(t); continue; }
-    if (t === (document.querySelector("#charName")?.value||"").trim())       { B.name.push(t); continue; }
-    if (isHairColor(t))        { B.hairColor.push(t); continue; }
-    if (isEyeColor(t))         { B.eyeColor.push(t);  continue; }
-    if (isSkinTone(t))         { B.skin.push(t);      continue; }
 
-    if (S.hair_style.has(t))   { B.hairStyle.push(t); continue; }
-    if (S.eyes_shape.has(t))   { B.eyeShape.push(t);  continue; }
-    if (S.face.has(t))         { B.face.push(t);      continue; }
-    if (S.skin_body.has(t))    { B.body.push(t);      continue; }
-    if (S.art_style.has(t))    { B.art.push(t);       continue; }
-    if (S.outfit.has(t))       { B.outfit.push(t);    continue; }
-    if (isWearColor(t))        { B.wearColor.push(t); continue; }
-    if (S.acc.has(t))          { B.acc.push(t);       continue; }
-    if (S.background.has(t))   { B.bg.push(t);        continue; }
-    if (S.pose.has(t))         { B.pose.push(t);      continue; }
-    if (S.expr.has(t))         { B.expr.push(t);      continue; }
-    if (S.light.has(t))        { B.light.push(t);     continue; }
+    // LoRA / キャラ名
+    if (t.startsWith("<lora:") || t.includes("<lyco:") || /LoRA/i.test(t)) { B.lora.push(t); continue; }
+    if (t === (document.querySelector("#charName")?.value||"").trim()) { B.name.push(t); continue; }
 
-    if (S.nsfw_expr.has(t))    { B.nsfw_expr.push(t); continue; }
-    if (S.nsfw_expo.has(t))    { B.nsfw_expo.push(t); continue; }
-    if (S.nsfw_situ.has(t))    { B.nsfw_situ.push(t); continue; }
-    if (S.nsfw_light.has(t))   { B.nsfw_light.push(t);continue; }
+    // 基本情報（先に処理）
+    if (S.age.has(t))      { B.basic.age.push(t);      continue; }
+    if (S.gender.has(t))   { B.basic.gender.push(t);   continue; }
+    if (S.body_basic.has(t)){ B.basic.body.push(t);    continue; }
+    if (S.height.has(t))   { B.basic.height.push(t);   continue; }
+    if (S.person.has(t))   { B.basic.person.push(t);   continue; }
+    if (S.relation.has(t)) { B.basic.relation.push(t); continue; }
+    if (S.world.has(t))    { B.basic.world.push(t);    continue; }
+    if (S.tone.has(t))     { B.basic.tone.push(t);     continue; }
 
+    // 色（髪/瞳/肌）
+    if (isHairColor(t)) { B.hairColor.push(t); continue; }
+    if (isEyeColor(t))  { B.eyeColor.push(t);  continue; }
+    if (isSkinTone(t))  { B.skin.push(t);      continue; }
+
+    // 外見固定
+    if (S.hair_style.has(t)) { B.hairStyle.push(t); continue; }
+    if (S.eyes_shape.has(t)) { B.eyeShape.push(t);  continue; }
+    if (S.face.has(t))       { B.face.push(t);      continue; }
+    if (S.skin_body.has(t))  { B.body.push(t);      continue; }
+    if (S.art_style.has(t))  { B.art.push(t);       continue; }
+    if (S.outfit.has(t))     { B.outfit.push(t);    continue; }
+
+    // 服色（top/bottom/dress/gown/kimono/shoes など）
+    if (isWearColor(t)) { B.wearColor.push(t); continue; }
+
+    // 小物・シチュ系
+    if (S.acc.has(t))        { B.acc.push(t);  continue; }
+    if (S.background.has(t)) { B.bg.push(t);   continue; }
+    if (S.pose.has(t))       { B.pose.push(t); continue; }
+    if (S.expr.has(t))       { B.expr.push(t); continue; }
+    if (S.light.has(t))      { B.light.push(t);continue; }
+
+    // NSFW
+    if (S.nsfw_expr.has(t))  { B.nsfw_expr.push(t);  continue; }
+    if (S.nsfw_expo.has(t))  { B.nsfw_expo.push(t);  continue; }
+    if (S.nsfw_situ.has(t))  { B.nsfw_situ.push(t);  continue; }
+    if (S.nsfw_light.has(t)) { B.nsfw_light.push(t); continue; }
+
+    // その他
     B.other.push(t);
   }
 
-  // ここで正規順に並べる（必要なら順序を編集してOK）
+  // 正規順で返す
   return [
     ...B.lora, ...B.name,
+
+    // 基本情報
     ...B.basic.age, ...B.basic.gender, ...B.basic.body, ...B.basic.height,
     ...B.basic.person, ...B.basic.relation, ...B.basic.world, ...B.basic.tone,
+
+    // 色 → 外見固定
     ...B.hairColor, ...B.eyeColor, ...B.skin,
     ...B.hairStyle, ...B.eyeShape, ...B.face, ...B.body, ...B.art, ...B.outfit,
+
+    // 服色 → アクセ
     ...B.wearColor,
     ...B.acc,
+
+    // シチュ系
     ...B.bg, ...B.pose, ...B.expr, ...B.light,
-    // NSFW は最後にまとめる（R-18/R-18Gを分けたいなら順序調整）
+
+    // NSFW
     ...B.nsfw_expr, ...B.nsfw_expo, ...B.nsfw_situ, ...B.nsfw_light,
+
+    // その他
     ...B.other
   ].filter(Boolean);
 }
