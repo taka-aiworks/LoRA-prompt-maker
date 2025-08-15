@@ -439,6 +439,22 @@
       { "tag": "spotlight", "label": "スポットライト" },
       { "tag": "overcast", "label": "曇天光" },
       { "tag": "volumetric light", "label": "ゴッドレイ" }
-    ]
+    ],
+  "outfit": [
+    { "tag": "t-shirt", "label": "Tシャツ" },
+    { "tag": "hoodie", "label": "パーカー" },
+    { "tag": "blouse", "label": "ブラウス" },
+
+    { "tag": "jeans", "label": "ジーンズ" },
+    { "tag": "shorts", "label": "ショートパンツ" },
+    { "tag": "pleated skirt", "label": "プリーツスカート" },
+
+    { "tag": "dress", "label": "ワンピース" },
+    { "tag": "kimono", "label": "着物ワンピ風" },
+
+    { "tag": "sneakers", "label": "スニーカー" },
+    { "tag": "boots", "label": "ブーツ" },
+    { "tag": "heels", "label": "ヒール" }
+  ]
   }
 }
