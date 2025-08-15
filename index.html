@@ -24,7 +24,14 @@
   <main class="container">
     <!-- 基本情報 -->
     <section id="panelBasic" class="card">
-      <h2>キャラの基本情報（LoRA安定化用・固定）</h2>
+      <div class="header-row">
+        <h2 class="card-title">キャラの基本情報（LoRA安定化用・固定）</h2>
+        <input type="file" id="importChar" accept="application/json" hidden>
+        <label for="importChar" class="btn small ghost push"
+           title="保存済みの character_preset.json を読み込む">
+          キャラ設定を読み込む
+    </label>
+
       <div class="note mini">
         髪/瞳/肌・髪型・目の形・服・<b>服カラー</b>はここで固定。学習や量産では基本的に変更しません。
       </div>
