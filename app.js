@@ -1304,11 +1304,8 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
-  getHairColorTag = initWheelWithSquare("#wheelH","#thumbH","#swH","#tagH","hair", 35, 75, 50);
-  getEyeColorTag  = initWheelWithSquare("#wheelE","#thumbE","#swE","#tagE","eyes", 210, 70, 45);
-
-/*  getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
-  getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes"); */
+  getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
+  getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes");
   getLearnAccColor  = initColorWheel("learnAcc", 0,   75, 50); 
   getAccAColor      = initColorWheel("accA",     0,   80, 50);
   getAccBColor      = initColorWheel("accB",   220,   80, 50);
@@ -1316,7 +1313,7 @@ function setupColorPickers(){
 
   initColorWheel("top",    35, 80, 55);
   initColorWheel("bottom",210, 70, 50);
-  initWheelWithSquare("#wheel_shoes","#thumb_shoes","#sw_shoes","#tag_shoes","shoes", 0, 0, 30);
-
+  initColorWheel("shoes", 0, 0, 30);
+   
   getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
