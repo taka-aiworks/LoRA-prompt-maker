@@ -110,61 +110,50 @@
         <div class="panel"><h3>髪型（1つ）</h3><div id="hairStyle" class="scroller"></div></div>
         <div class="panel"><h3>目の形（1つ）</h3><div id="eyeShape" class="scroller"></div></div>
 
-<!-- 服＋服カラー（チェックでON/OFF可能） -->
-<div class="panel">
-  <h3>服（カテゴリ別 / 複数可）</h3>
+<!-- 服（固定 / 上下 or ワンピース） -->
+<div class="panel" id="panel_outfitFixed">
+  <h3>服（固定 / 上下 or ワンピース）</h3>
 
-  <!-- 置換許可（既存のまま） -->
-  <div class="row mini" style="gap:10px;margin:0 0 8px">
-    <label class="inline"><input type="checkbox" id="allowBottomSwap"> 「ボトムス ↔ スカート」置換を許可</label>
-    <span class="mini">※ どちらか未選択時にもう一方から補完する想定</span>
+  <div class="row mini" style="gap:10px;margin:6px 0 8px">
+    <label class="inline"><input type="radio" name="outfitMode" value="separate" id="outfitModeSeparate" checked> 上下コーデ</label>
+    <label class="inline"><input type="radio" name="outfitMode" value="onepiece" id="outfitModeDress"> ワンピース</label>
+    <span class="mini">※ ワンピース選択時は下カラー無効</span>
   </div>
 
-  <div class="grid g2">
-    <!-- ① トップス -->
-    <div class="panel">
-      <h4 style="margin:0 0 6px">トップス（複数可）</h4>
-      <div id="p_outfit_top" class="scroller"></div>
-    </div>
-
-    <!-- ② ワンピース（基本情報と同じ位置へ） -->
-    <div class="panel">
-      <h4 style="margin:0 0 6px">ワンピース（複数可）</h4>
-      <div id="p_outfit_dress" class="scroller"></div>
-      <div class="mini">※ ワンピース採用行は下カラー無効</div>
-    </div>
-
-    <!-- ③ 下カテゴリ（ラジオでズボン/スカートを切替） -->
-    <div class="panel">
-      <h4 style="margin:0 0 6px">下カテゴリ</h4>
-      <div class="row mini" id="p_bottomCategoryRadios" style="gap:10px">
-        <label class="inline"><input type="radio" name="p_bottomCat" id="p_bottomCat_pants" value="pants" checked> ボトムス（ズボン）</label>
-        <label class="inline"><input type="radio" name="p_bottomCat" id="p_bottomCat_skirt" value="skirt"> スカート</label>
+  <fieldset id="fsSeparates">
+    <div class="grid g3">
+      <div class="panel">
+        <h4 style="margin:0 0 6px">トップス（1つ）</h4>
+        <div id="outfit_top" class="scroller"></div>
       </div>
 
-      <!-- ズボン候補 -->
-      <fieldset id="fsPBottom_pants" class="swap-target" style="margin-top:8px">
-        <h4 class="mini" style="margin:0 0 6px">ボトムス（ズボン・複数可）</h4>
-        <div id="p_outfit_pants" class="scroller"></div>
-      </fieldset>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">ワンピース（1つ）</h4>
+        <fieldset id="fsDress" disabled>
+          <div id="outfit_dress" class="scroller"></div>
+          <div class="mini">選択時は「下カラー」は自動で無効</div>
+        </fieldset>
+      </div>
 
-      <!-- スカート候補 -->
-      <fieldset id="fsPBottom_skirt" class="swap-target disabled" style="margin-top:8px">
-        <h4 class="mini" style="margin:0 0 6px">スカート（複数可）</h4>
-        <div id="p_outfit_skirt" class="scroller"></div>
-      </fieldset>
-    </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">下カテゴリ</h4>
+        <div class="row mini" id="bottomCategoryRadios" style="gap:10px">
+          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_pants" value="pants" checked> ボトムス（ズボン）</label>
+          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_skirt" value="skirt"> スカート</label>
+        </div>
 
-    <!-- ④ 靴 -->
-    <div class="panel">
-      <h4 style="margin:0 0 6px">靴（複数可）</h4>
-      <div id="p_outfit_shoes" class="scroller"></div>
+        <fieldset id="fsBottom_pants" class="swap-target" style="margin-top:8px">
+          <h4 class="mini" style="margin:0 0 6px">ボトムス（ズボン・1つ）</h4>
+          <div id="outfit_pants" class="scroller"></div>
+        </fieldset>
+
+        <fieldset id="fsBottom_skirt" class="swap-target disabled" style="margin-top:8px">
+          <h4 class="mini" style="margin:0 0 6px">スカート（1つ）</h4>
+          <div id="outfit_skirt" class="scroller"></div>
+        </fieldset>
+      </div>
     </div>
-  </div>
-</div>
-        
-  <!-- 以下、カラー指定はそのまま -->
-  ...（既存のカラー指定ブロックをそのまま）
+  </fieldset>
 </div>
   <!-- カラー指定（固定） -->
   <div class="card" style="margin-top:10px">
