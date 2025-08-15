@@ -139,7 +139,6 @@
       { "tag": "kyoto dialect", "label": "京都弁" }
     ],
 
-    /* ===== 外見（見た目） ===== */
     "hair_style": [
       { "tag": "long hair", "label": "長髪" },
       { "tag": "medium hair", "label": "ミディアム" },
@@ -196,8 +195,6 @@
       { "tag": "watch", "label": "腕時計" },
       { "tag": "hat", "label": "帽子" }
     ],
-
-    /* ===== 演出 ===== */
     "background": [
       { "tag": "studio background", "label": "スタジオ背景" },
       { "tag": "bedroom", "label": "ベッドルーム" },
