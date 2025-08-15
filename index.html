@@ -168,14 +168,60 @@
     <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
 
     <div class="grid g3" style="margin-top:8px">
-      <!-- トップス色…（既存） -->
-      <div class="panel" id="panel_top">…既存のまま…</div>
+      <!-- トップス色（置き換え済み） -->
+      <div class="panel" id="panel_top">
+        <div class="row mini">
+          <label class="inline"><input type="checkbox" id="use_top" checked> トップス色を使う</label>
+        </div>
+        <div class="wheel-box">
+          <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
+        </div>
+        <div class="row mini">
+          S:<input id="sat_top" type="range" min="0" max="100" value="80">
+          L:<input id="lit_top" type="range" min="0" max="100" value="55">
+        </div>
+        <div class="row mini">
+          <div id="sw_top" class="swatch"></div>
+          <span>色タグ: <code class="tag" id="tag_top">—</code></span>
+        </div>
+      </div>
 
-      <!-- 下色（ズボン or スカートのどちらを有効にしていても共通で使う） -->
-      <div class="panel" id="bottomWearPanel">…既存のまま…</div>
+      <!-- 下色（置き換え済み） -->
+      <div class="panel" id="bottomWearPanel">
+        <div class="row mini">
+          <label class="inline"><input type="checkbox" id="use_bottom" checked> 下カラーを使う（ズボン/スカート共通）</label>
+        </div>
+        <div class="wheel-box">
+          <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
+        </div>
+        <div class="row mini">
+          S:<input id="sat_bottom" type="range" min="0" max="100" value="70">
+          L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
+        </div>
+        <div class="row mini">
+          <div id="sw_bottom" class="swatch"></div>
+          <span>色タグ: <code class="tag" id="tag_bottom">—</code></span>
+        </div>
+        <div class="mini">※ ワンピース選択時は自動で無効化されます</div>
+      </div>
 
-      <!-- 靴色…（既存） -->
-      <div class="panel" id="panel_shoes">…既存のまま…</div>
+      <!-- 靴色（置き換え済み） -->
+      <div class="panel" id="panel_shoes">
+        <div class="row mini">
+          <label class="inline"><input type="checkbox" id="use_shoes" checked> 靴色を使う</label>
+        </div>
+        <div class="wheel-box">
+          <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
+        </div>
+        <div class="row mini">
+          S:<input id="sat_shoes" type="range" min="0" max="100" value="0">
+          L:<input id="lit_shoes" type="range" min="0" max="100" value="30">
+        </div>
+        <div class="row mini">
+          <div id="sw_shoes" class="swatch"></div>
+          <span>色タグ: <code class="tag" id="tag_shoes">—</code></span>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -538,5 +584,24 @@
   </main>
 
   <script src="app.js" defer></script>
+
+  <!-- 任意：下カテゴリラジオで __bottomCat を同期（あるとより直感的） -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const rp = document.getElementById('bottomCat_pants');
+      const rs = document.getElementById('bottomCat_skirt');
+      const swap = () => {
+        const pantsOn = rp?.checked;
+        document.getElementById('fsBottom_pants')?.classList.toggle('disabled', !pantsOn);
+        document.getElementById('fsBottom_skirt')?.classList.toggle('disabled', !!pantsOn);
+        if (typeof window.__bottomCat !== 'undefined') {
+          window.__bottomCat = pantsOn ? 'pants' : 'skirt';
+        }
+      };
+      rp?.addEventListener('change', swap);
+      rs?.addEventListener('change', swap);
+      swap();
+    });
+  </script>
 </body>
 </html>
