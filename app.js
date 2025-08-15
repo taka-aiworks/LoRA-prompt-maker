@@ -387,15 +387,17 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
 
 /* ========= UI生成 ========= */
 function radioList(el, list, name){
-  const items = normList(list);
-  el.innerHTML = items.map((it,i)=>{
+   if (!el) return;
+   const items = normList(list);
+   el.innerHTML = items.map((it,i)=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
     return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}" ${i===0?"checked":""}> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
   }).join("");
 }
 function checkList(el, list, name){
-  const items = normList(list);
-  el.innerHTML = items.map(it=>{
+   if (!el) return;
+   const items = normList(list);
+   el.innerHTML = items.map(it=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
     return `<label class="chip"><input type="checkbox" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
   }).join("");
@@ -426,7 +428,7 @@ function renderSFW(){
   radioList($("#bf_body"),           SFW.body_type,       "bf_body");
   radioList($("#bf_height"),         SFW.height,          "bf_height");
   radioList($("#bf_person"),         SFW.personality,     "bf_person");
-  radioList($("#bf_relationship"),   SFW.relationship,    "bf_relationship");
+  radioList($("#bf_relation"),       SFW.relationship,    "bf_relation");
   radioList($("#bf_world"),          SFW.worldview,       "bf_world");
   radioList($("#bf_tone"),           SFW.speech_tone,     "bf_tone");
 }
