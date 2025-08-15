@@ -351,6 +351,103 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   return ()=> $(tagId).textContent;
 }
 
+/* ======= 直感版HSLピッカー（Hueリング + S/Lスクエア） ======= */
+function initWheelWithSquare(wId, tId, swId, tagId, baseTag, defaultHue=35, defaultS=75, defaultL=50){
+  const wheel = $(wId), thumb = $(tId), sw=$(swId), tagEl=$(tagId);
+  if (!wheel || !thumb || !sw || !tagEl) return () => $(tagId)?.textContent || "";
+
+  // --- SLスクエア（DOMを動的追加） ---
+  // wheel の直後に 200x140 のキャンバスとサムを生成
+  const slWrap = document.createElement("div");
+  slWrap.style.position = "relative";
+  slWrap.style.width = "200px"; slWrap.style.height = "140px";
+  slWrap.style.marginTop = "8px";
+  const slCanvas = document.createElement("canvas");
+  slCanvas.width = 200; slCanvas.height = 140;
+  slCanvas.style.width="200px"; slCanvas.style.height="140px";
+  slCanvas.style.borderRadius="8px";
+  slCanvas.style.cursor="crosshair";
+  const slThumb = document.createElement("div");
+  Object.assign(slThumb.style, {
+    position:"absolute", width:"10px", height:"10px", border:"2px solid #fff",
+    borderRadius:"50%", boxShadow:"0 0 0 1px #0006", transform:"translate(-50%,-50%)",
+    pointerEvents:"none"
+  });
+  slWrap.appendChild(slCanvas); slWrap.appendChild(slThumb);
+  wheel.parentElement.insertBefore(slWrap, wheel.nextSibling);
+
+  // --- 状態 ---
+  let H = defaultHue, S = defaultS, L = defaultL;
+
+  // --- 共通描画 ---
+  function paintPreviewAndLabel(){
+    const [r,g,b] = hslToRgb(H, S, L);
+    sw.style.background = `rgb(${r},${g},${b})`;
+    tagEl.textContent = `${colorNameFromHSL(H, S, L)} ${baseTag}`;
+  }
+
+  // --- SLスクエアの塗り（Hue変更時に更新） ---
+  function paintSL(){
+    const ctx = slCanvas.getContext("2d");
+    // 横: saturation 0→100
+    const gS = ctx.createLinearGradient(0, 0, slCanvas.width, 0);
+    gS.addColorStop(0, `hsl(${H} 0% 50%)`);
+    gS.addColorStop(1, `hsl(${H} 100% 50%)`);
+    ctx.fillStyle = gS; ctx.fillRect(0, 0, slCanvas.width, slCanvas.height);
+
+    // 縦: lightness 100→0（白→透明→黒）を重ねる
+    const gL = ctx.createLinearGradient(0, 0, 0, slCanvas.height);
+    gL.addColorStop(0, "rgba(255,255,255,1)");
+    gL.addColorStop(0.5, "rgba(255,255,255,0)");
+    gL.addColorStop(0.5, "rgba(0,0,0,0)");
+    gL.addColorStop(1, "rgba(0,0,0,1)");
+    ctx.fillStyle = gL; ctx.fillRect(0, 0, slCanvas.width, slCanvas.height);
+  }
+
+  function moveSLThumb(){
+    const x = (S/100) * slCanvas.width;
+    const y = (1 - L/100) * slCanvas.height;
+    slThumb.style.left = `${x}px`;
+    slThumb.style.top  = `${y}px`;
+  }
+
+  // --- Hueリング（既存のドラッグを流用） ---
+  const onHue = (h)=>{
+    H = h; onHue.__lastHue = h;
+    paintSL(); paintPreviewAndLabel();
+  };
+  onHue.__lastHue = H;
+  addHueDrag(wheel, thumb, onHue);
+
+  // --- SLドラッグ ---
+  let dragging = false;
+  const pickSL = (clientX, clientY)=>{
+    const r = slCanvas.getBoundingClientRect();
+    let x = Math.max(0, Math.min(r.width,  clientX - r.left));
+    let y = Math.max(0, Math.min(r.height, clientY - r.top));
+    S = Math.round((x / r.width) * 100);
+    L = Math.round((1 - y / r.height) * 100);
+    moveSLThumb(); paintPreviewAndLabel();
+  };
+  slCanvas.addEventListener("pointerdown", (e)=>{ dragging = true; slCanvas.setPointerCapture(e.pointerId); pickSL(e.clientX, e.clientY); });
+  slCanvas.addEventListener("pointermove", (e)=>{ if (dragging) pickSL(e.clientX, e.clientY); });
+  slCanvas.addEventListener("pointerup",   ()=>{ dragging = false; });
+
+  // --- 初期描画（リングのつまみ位置も） ---
+  requestAnimationFrame(()=>{
+    paintSL(); moveSLThumb(); paintPreviewAndLabel();
+    const rect = wheel.getBoundingClientRect();
+    const rOuter = rect.width/2 - 7;
+    const rad = (H - 90) * Math.PI/180;
+    thumb.style.left = (rect.width/2  + rOuter*Math.cos(rad) - 7) + "px";
+    thumb.style.top  = (rect.height/2 + rOuter*Math.sin(rad) - 7) + "px";
+  });
+
+  // 取得用：タグ文字列（例: "deep blue hair"）
+  return ()=> tagEl.textContent;
+}
+
+
 /* ======= 色ホイール（アクセ） ======= */
 function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   const wheel = document.getElementById("wheel_"+idBase);
@@ -1177,9 +1274,12 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
-  getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
-  getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes");
-  getLearnAccColor  = initColorWheel("learnAcc", 0,   75, 50);
+  getHairColorTag = initWheelWithSquare("#wheelH","#thumbH","#swH","#tagH","hair", 35, 75, 50);
+  getEyeColorTag  = initWheelWithSquare("#wheelE","#thumbE","#swE","#tagE","eyes", 210, 70, 45);
+
+/*  getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
+  getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes"); */
+  getLearnAccColor  = initColorWheel("learnAcc", 0,   75, 50); 
   getAccAColor      = initColorWheel("accA",     0,   80, 50);
   getAccBColor      = initColorWheel("accB",   220,   80, 50);
   getAccCColor      = initColorWheel("accC",   130,   80, 50);
