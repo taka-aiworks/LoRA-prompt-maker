@@ -423,12 +423,12 @@ function renderSFW(){
   // ★ 基本情報（ID / name をHTMLに合わせる）
   radioList($("#bf_age"),            SFW.age,             "bf_age");
   radioList($("#bf_gender"),         SFW.gender,          "bf_gender");
-  radioList($("#bf_body_type"),      SFW.body_type,       "bf_body_type");
+  radioList($("#bf_body"),           SFW.body_type,       "bf_body");
   radioList($("#bf_height"),         SFW.height,          "bf_height");
-  radioList($("#bf_personality"),    SFW.personality,     "bf_personality");
+  radioList($("#bf_person"),         SFW.personality,     "bf_person");
   radioList($("#bf_relationship"),   SFW.relationship,    "bf_relationship");
   radioList($("#bf_world"),          SFW.worldview,       "bf_world");
-  radioList($("#bf_speech_style"),   SFW.speech_tone,     "bf_speech_style");
+  radioList($("#bf_tone"),           SFW.speech_tone,     "bf_tone");
 }
 
 /* ========= タブ切替 ========= */
@@ -739,9 +739,9 @@ function assembleFixedLearning(){
   arr.push($("#tagSkin").textContent);
 
   // 基本の単一選択要素（name を修正）
-  ["hairStyle","eyeShape","face","skinBody","artStyle","outfit",
-   "bf_age","bf_gender","bf_body_type","bf_height",
-   "bf_personality","bf_relationship","bf_world","bf_speech_style"].forEach(n=>{
+   ["hairStyle","eyeShape","face","skinBody","artStyle","outfit",
+   "bf_age","bf_gender","bf_body","bf_height",
+   "bf_person","bf_relation","bf_world","bf_tone"].forEach(n=>{
     const v=document.querySelector(`input[name="${n}"]:checked`)?.value; if(v) arr.push(v);
   });
 
