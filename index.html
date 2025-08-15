@@ -215,6 +215,7 @@
     </div><!-- .grid -->
   </div><!-- .card -->
 </div><!-- .panel -->
+      </div><!-- ← grid g3 を閉じる -->
       <!-- 形質：顔/体/画風（必要なら固定に） -->
       <div class="grid g3">
         <div class="panel"><h3>顔の特徴（1つ）</h3><div id="face" class="scroller"></div></div>
@@ -462,48 +463,6 @@
   </div>
   <div class="mini" style="margin-top:6px">※ 未選択スロットは無視</div>
 </div>
-          <h3 style="margin-top:10px">アクセ（3スロット・色指定）</h3>
-          <div class="grid g3">
-            <div class="panel">
-              <div class="mini">アクセ A</div>
-              <select id="p_accA"></select>
-              <div class="wheel-box" style="margin-top:6px">
-                <div id="wheel_accA" class="wheel"></div><div id="thumb_accA" class="thumb"></div>
-              </div>
-              <div class="row mini">
-                S:<input id="sat_accA" type="range" min="0" max="100" value="80">
-                L:<input id="lit_accA" type="range" min="0" max="100" value="50">
-              </div>
-              <div class="row mini"><div id="sw_accA" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accA">red</code></span></div>
-            </div>
-            <details>
-              <summary class="mini"><span class="caret">▶</span> アクセ B</summary>
-              <div class="panel" style="margin-top:6px">
-                <select id="p_accB"></select>
-                <div class="wheel-box" style="margin-top:6px">
-                  <div id="wheel_accB" class="wheel"></div><div id="thumb_accB" class="thumb"></div>
-                </div>
-                <div class="row mini">S:<input id="sat_accB" type="range" min="0" max="100" value="80">
-                  L:<input id="lit_accB" type="range" min="0" max="100" value="50"></div>
-                <div class="row mini"><div id="sw_accB" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accB">blue</code></span></div>
-              </div>
-            </details>
-            <details>
-              <summary class="mini"><span class="caret">▶</span> アクセ C</summary>
-              <div class="panel" style="margin-top:6px">
-                <select id="p_accC"></select>
-                <div class="wheel-box" style="margin-top:6px">
-                  <div id="wheel_accC" class="wheel"></div><div id="thumb_accC" class="thumb"></div>
-                </div>
-                <div class="row mini">S:<input id="sat_accC" type="range" min="0" max="100" value="80">
-                  L:<input id="lit_accC" type="range" min="0" max="100" value="50"></div>
-                <div class="row mini"><div id="sw_accC" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accC">green</code></span></div>
-              </div>
-            </details>
-          </div>
-          <div class="mini" style="margin-top:6px">※ 未選択スロットは無視</div>
-        </div>
-
         <div class="panel">
           <h3>背景（複数可）</h3><div id="p_bg" class="scroller"></div>
           <h3 style="margin-top:10px">ポーズ・構図</h3><div id="p_pose" class="scroller"></div>
