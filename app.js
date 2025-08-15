@@ -168,22 +168,42 @@ function xyzToRgb(X,Y,Z){
 function hexFromLab(L,a,b){ const [X,Y,Z]=labToXyz(L,a,b); const [r,g,b2]=xyzToRgb(X,Y,Z);
   return `#${[r,g,b2].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
 }
-const SKIN_LAB = [[95,0,8],[88,6,12],[78,10,18],[65,15,20],[50,12,15],[38,8,10]];
+const SKIN_LAB = [
+  //    L,  a,  b   ← 明るい……→暗い（最後はかなりディープ）
+  [96,  0,  6],   // porcelain
+  [88,  4, 10],   // very fair
+  [78,  8, 16],   // fair-light
+  [66, 13, 20],   // medium
+  [56, 15, 22],   // tan
+  [46, 14, 20],   // brown
+  [34, 12, 18],   // dark brown
+  [20, 10, 16],   // very dark / deep
+  [14,  8, 12],   // near-ebony（ほぼ黒に近い深いトーン）
+];
+const SKIN_GAMMA_DARK = 1.25; // 数字↑で暗側を強調（1.15～1.35あたりが使いやすい）
+
 function toneToHex(v){
-  const t=v/100, seg=t*(SKIN_LAB.length-1);
-  const i=Math.min(SKIN_LAB.length-2, Math.floor(seg)), k=seg-i;
-  const L = SKIN_LAB[i][0]*(1-k)+SKIN_LAB[i+1][0]*k;
-  const A = SKIN_LAB[i][1]*(1-k)+SKIN_LAB[i+1][1]*k;
-  const B = SKIN_LAB[i][2]*(1-k)+SKIN_LAB[i+1][2]*k;
-  return hexFromLab(L,A,B);
+  // v: 0..100（UIのスライダ値）
+  const raw = Math.max(0, Math.min(100, v)) / 100;
+  const t   = Math.pow(raw, SKIN_GAMMA_DARK);   // 暗い側にグッと寄せる
+  const seg = t * (SKIN_LAB.length - 1);
+  const i = Math.min(SKIN_LAB.length - 2, Math.floor(seg));
+  const k = seg - i;
+
+  const L = SKIN_LAB[i][0] * (1-k) + SKIN_LAB[i+1][0] * k;
+  const A = SKIN_LAB[i][1] * (1-k) + SKIN_LAB[i+1][1] * k;
+  const B = SKIN_LAB[i][2] * (1-k) + SKIN_LAB[i+1][2] * k;
+  return hexFromLab(L, A, B);
 }
 function toneToTag(v){
-  if(v<=15) return "very fair skin";
-  if(v<=35) return "fair skin";
-  if(v<=55) return "light skin";
-  if(v<=75) return "tan skin";
-  if(v<=90) return "dark skin";
-  return "very dark skin";
+  if (v <= 10) return "porcelain skin";
+  if (v <= 25) return "very fair skin";
+  if (v <= 40) return "fair / light skin";
+  if (v <= 55) return "medium skin";
+  if (v <= 70) return "tan skin";
+  if (v <= 85) return "brown skin";
+  if (v <= 95) return "dark brown skin";
+  return "deep / ebony skin";
 }
 
 // === 色名ユーティリティ（アクセ & 髪/瞳で共用可） ===
@@ -721,8 +741,18 @@ function bindNSFWToggles(){
 function paintSkin(){
   const v = +($("#skinTone").value||0);
   const hex = toneToHex(v), tag = toneToTag(v);
-  $("#swSkin").style.background = hex;
-  $("#tagSkin").textContent = tag;
+  const sw = $("#swSkin"), label = $("#tagSkin");
+
+  sw.style.background = hex;
+  label.textContent = tag;
+
+  // 文字色を自動で黒/白に
+  const r = parseInt(hex.slice(1,3),16);
+  const g = parseInt(hex.slice(3,5),16);
+  const b = parseInt(hex.slice(5,7),16);
+  const yiq = (r*299 + g*587 + b*114) / 1000; // 簡易輝度
+  const textColor = yiq < 128 ? "#fff" : "#000";
+  label.style.color = textColor;
 }
 
 /* ========= アクセ色相環 ========= */
