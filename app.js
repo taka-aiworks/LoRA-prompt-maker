@@ -1316,7 +1316,7 @@ function setupColorPickers(){
 
   initColorWheel("top",    35, 80, 55);
   initColorWheel("bottom",210, 70, 50);
-  initColorWheel("shoes",   0,  0, 30);
+  initWheelWithSquare("#wheel_shoes","#thumb_shoes","#sw_shoes","#tag_shoes","shoes", 0, 0, 30);
 
   getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
