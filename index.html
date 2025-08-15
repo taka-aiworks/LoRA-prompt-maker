@@ -111,16 +111,50 @@
         <div class="panel"><h3>目の形（1つ）</h3><div id="eyeShape" class="scroller"></div></div>
 
 <!-- 服＋服カラー（チェックでON/OFF可能） -->
-<div class="panel">
-  <h3>服（1つ固定）</h3>
-  <div id="outfit" class="scroller"></div>
+<div class="panel" id="panel_outfitFixed">
+  <h3>服（固定 / 上下 or ワンピース）</h3>
+
+  <!-- 切替：上下コーデ / ワンピース -->
+  <div class="row mini" style="gap:10px;margin:6px 0 8px">
+    <label class="inline"><input type="radio" name="outfitMode" value="separate" id="outfitModeSeparate" checked> 上下コーデ</label>
+    <label class="inline"><input type="radio" name="outfitMode" value="onepiece" id="outfitModeDress"> ワンピース</label>
+    <span class="mini">※ ワンピース選択時は下カラー無効</span>
+  </div>
+
+  <!-- 上下コーデ：トップス / パンツ / スカート（どちらか一方を想定） -->
+  <fieldset id="fsSeparates">
+    <div class="grid g3">
+      <div class="panel">
+        <h4 style="margin:0 0 6px">トップス（1つ）</h4>
+        <div id="outfit_top" class="scroller"></div>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">ボトムス（ズボン・1つ）</h4>
+        <div id="outfit_pants" class="scroller"></div>
+        <div class="mini">例: jeans / trousers / cargo pants など</div>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">スカート（1つ）</h4>
+        <div id="outfit_skirt" class="scroller"></div>
+        <div class="mini">※ パンツ／スカートはどちらか一方の想定</div>
+      </div>
+    </div>
+  </fieldset>
+
+  <!-- ワンピース系（1つ） -->
+  <fieldset id="fsDress" disabled>
+    <div class="panel" style="margin-top:10px">
+      <h4 style="margin:0 0 6px">ワンピース（1つ）</h4>
+      <div id="outfit_dress" class="scroller"></div>
+      <div class="mini">選択時は「下カラー」は自動で無効</div>
+    </div>
+  </fieldset>
 
   <div class="card" style="margin-top:10px">
     <h4 style="margin:0 0 6px">服カラー（固定）</h4>
     <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
 
     <div class="grid g3" style="margin-top:8px">
-      
       <!-- トップス -->
       <div class="panel" id="panel_top">
         <div class="header-row">
@@ -140,7 +174,7 @@
         </div>
       </div>
 
-      <!-- ボトムス -->
+      <!-- ボトムス（パンツ or スカートの下段扱い） -->
       <div class="panel" id="bottomWearPanel">
         <div class="header-row">
           <div class="mini"><b>ボトムス色</b></div>
@@ -178,11 +212,9 @@
           <span>色タグ: <code class="tag" id="tag_shoes">—</code></span>
         </div>
       </div>
-
     </div><!-- .grid -->
   </div><!-- .card -->
 </div><!-- .panel -->
-
       <!-- 形質：顔/体/画風（必要なら固定に） -->
       <div class="grid g3">
         <div class="panel"><h3>顔の特徴（1つ）</h3><div id="face" class="scroller"></div></div>
@@ -348,27 +380,88 @@
 
       <div class="grid g3">
         <div class="panel">
-          <h3>服（複数可）</h3>
-          <div id="p_outfit" class="scroller"></div>
+  <h3>服（カテゴリ別 / 複数可）</h3>
 
-          <div class="card" style="margin-top:10px">
-            <h4 style="margin:0 0 6px">服 基本色（任意 / 1色）</h4>
-            <div class="mini">未指定ならランダム色 or 無色。ワンピースは全体に適用、上下分かれは上のみ適用。</div>
-            <div class="panel" style="margin-top:6px">
-              <div class="wheel-box">
-                <div id="wheel_outfitBase" class="wheel"></div><div id="thumb_outfitBase" class="thumb"></div>
-              </div>
-              <div class="row mini">
-                S:<input id="sat_outfitBase" type="range" min="0" max="100" value="80">
-                L:<input id="lit_outfitBase" type="range" min="0" max="100" value="50">
-              </div>
-              <div class="row mini">
-                <div id="sw_outfitBase" class="swatch"></div>
-                <span>色タグ: <code class="tag" id="tag_outfitBase">—</code></span>
-              </div>
-            </div>
-          </div>
+  <div class="grid g2">
+    <div class="panel">
+      <h4 style="margin:0 0 6px">トップス（複数可）</h4>
+      <div id="p_outfit_top" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h4 style="margin:0 0 6px">ボトムス（ズボン・複数可）</h4>
+      <div id="p_outfit_pants" class="scroller"></div>
+      <div class="mini">例: jeans / trousers / cargo pants など</div>
+    </div>
+    <div class="panel">
+      <h4 style="margin:0 0 6px">スカート（複数可）</h4>
+      <div id="p_outfit_skirt" class="scroller"></div>
+    </div>
+    <div class="panel">
+      <h4 style="margin:0 0 6px">ワンピース（複数可）</h4>
+      <div id="p_outfit_dress" class="scroller"></div>
+      <div class="mini">※ ワンピース採用行は下カラー無効</div>
+    </div>
+  </div>
 
+  <div class="card" style="margin-top:10px">
+    <h4 style="margin:0 0 6px">服 基本色（任意 / 1色）</h4>
+    <div class="mini">未指定ならランダム色 or 無色。ワンピースは全体に適用、上下分かれは上のみ適用。</div>
+    <div class="panel" style="margin-top:6px">
+      <div class="wheel-box">
+        <div id="wheel_outfitBase" class="wheel"></div><div id="thumb_outfitBase" class="thumb"></div>
+      </div>
+      <div class="row mini">
+        S:<input id="sat_outfitBase" type="range" min="0" max="100" value="80">
+        L:<input id="lit_outfitBase" type="range" min="0" max="100" value="50">
+      </div>
+      <div class="row mini">
+        <div id="sw_outfitBase" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_outfitBase">—</code></span>
+      </div>
+    </div>
+  </div>
+
+  <h3 style="margin-top:10px">アクセ（3スロット・色指定）</h3>
+  <div class="grid g3">
+    <div class="panel">
+      <div class="mini">アクセ A</div>
+      <select id="p_accA"></select>
+      <div class="wheel-box" style="margin-top:6px">
+        <div id="wheel_accA" class="wheel"></div><div id="thumb_accA" class="thumb"></div>
+      </div>
+      <div class="row mini">
+        S:<input id="sat_accA" type="range" min="0" max="100" value="80">
+        L:<input id="lit_accA" type="range" min="0" max="100" value="50">
+      </div>
+      <div class="row mini"><div id="sw_accA" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accA">red</code></span></div>
+    </div>
+    <details>
+      <summary class="mini"><span class="caret">▶</span> アクセ B</summary>
+      <div class="panel" style="margin-top:6px">
+        <select id="p_accB"></select>
+        <div class="wheel-box" style="margin-top:6px">
+          <div id="wheel_accB" class="wheel"></div><div id="thumb_accB" class="thumb"></div>
+        </div>
+        <div class="row mini">S:<input id="sat_accB" type="range" min="0" max="100" value="80">
+          L:<input id="lit_accB" type="range" min="0" max="100" value="50"></div>
+        <div class="row mini"><div id="sw_accB" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accB">blue</code></span></div>
+      </div>
+    </details>
+    <details>
+      <summary class="mini"><span class="caret">▶</span> アクセ C</summary>
+      <div class="panel" style="margin-top:6px">
+        <select id="p_accC"></select>
+        <div class="wheel-box" style="margin-top:6px">
+          <div id="wheel_accC" class="wheel"></div><div id="thumb_accC" class="thumb"></div>
+        </div>
+        <div class="row mini">S:<input id="sat_accC" type="range" min="0" max="100" value="80">
+          L:<input id="lit_accC" type="range" min="0" max="100" value="50"></div>
+        <div class="row mini"><div id="sw_accC" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accC">green</code></span></div>
+      </div>
+    </details>
+  </div>
+  <div class="mini" style="margin-top:6px">※ 未選択スロットは無視</div>
+</div>
           <h3 style="margin-top:10px">アクセ（3スロット・色指定）</h3>
           <div class="grid g3">
             <div class="panel">
