@@ -619,19 +619,33 @@ function renderSFW(){
   radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
 }
 
+let __bottomCat = "pants"; // 既定はパンツ
+function bindBottomCategoryGuess(){
+  const pan = document.getElementById("outfit_pants");
+  const skl = document.getElementById("outfit_skirt");
+  pan && pan.addEventListener("click", ()=> __bottomCat = "pants");
+  skl && skl.addEventListener("click", ()=> __bottomCat = "skirt");
+}
+
 function getBasicSelectedOutfit(){
   const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
   if (mode === "onepiece") {
     const d = getOne("outfit_dress");
     return { mode, top:null, bottom:null, dress:d || "" };
   }
-  // separate
+  // separate：直近で触られたカテゴリを優先し、無ければ“選べている方”
   const top = getOne("outfit_top") || "";
-  // HTML 側にある「ボトムス/スカート切替」を読む（id はサンプル。実装してなければ「選択済みの方を採用」でOK）
-  const catElSk = document.querySelector("#bottomCat_skirt");
-  const cat = (catElSk && catElSk.checked) ? "skirt" : "pants";
-  const bottom = getOne(cat === "skirt" ? "outfit_skirt" : "outfit_pants") || "";
-  return { mode, top, bottom, dress:null, bottomCat:cat };
+
+  const pantsVal = getOne("outfit_pants") || "";
+  const skirtVal = getOne("outfit_skirt") || "";
+
+  let bottom = "";
+  if (pantsVal && skirtVal){
+    bottom = (__bottomCat === "skirt") ? skirtVal : pantsVal;
+  } else {
+    bottom = skirtVal || pantsVal; // どちらかだけ選ばれている場合
+  }
+  return { mode, top, bottom, dress:null, bottomCat: (bottom===skirtVal ? "skirt" : "pants") };
 }
 
 /* ========= タブ切替 ========= */
@@ -1144,16 +1158,30 @@ function readAccessorySlots(){
   return [pack(A,Ac), pack(B,Bc), pack(C,Cc)].filter(Boolean);
 }
 
+/* ① 量産用：カテゴリ別 outfit を読む */
+function readProductionOutfits(){
+  return {
+    top:   getMany("p_outfit_top"),
+    pants: getMany("p_outfit_pants"),
+    skirt: getMany("p_outfit_skirt"),
+    dress: getMany("p_outfit_dress"),
+  };
+}
+
+/* ② 置き換え版：buildBatchProduction */
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
   const neg   = ($("#p_neg").value||"").trim();
-  const outfits = getMany("p_outfit");
-  const bgs  = getMany("p_bg");
-  const poses= getMany("p_pose");
-  const exprs= getMany("p_expr");
+
+  // ← 旧: const outfits = getMany("p_outfit");
+  const O = readProductionOutfits();  // top / pants / skirt / dress を取得
+
+  const bgs   = getMany("p_bg");
+  const poses = getMany("p_pose");
+  const exprs = getMany("p_expr");
   const lights= getMany("p_light");
-  const acc  = readAccessorySlots();
+  const acc   = readAccessorySlots();
 
   const nsfwOn = $("#nsfwProd").checked;
   let nsfwAdd = [];
@@ -1168,25 +1196,49 @@ function buildBatchProduction(n){
 
   const baseSeed = seedFromName($("#charName").value||"", 0);
   const out=[]; let guard=0;
+
   while(out.length<n && guard<n*400){
     guard++;
-    const o = [];
-    if(outfits.length){
-      const rawOutfit = pick(outfits);
-      const colored   = maybeColorizeOutfit(rawOutfit);
-      o.push(colored);
+
+    // ---- 服の決定（ワンピ or 上下） ----
+    const parts = [];
+
+    // ワンピースが選ばれていれば 35% くらいの確率でワンピ採用
+    if (O.dress.length && Math.random() < 0.35){
+      const raw = pick(O.dress);
+      parts.push(maybeColorizeOutfit(raw));
+    } else {
+      // 上下コーデ：トップス
+      if (O.top.length){
+        parts.push(maybeColorizeOutfit(pick(O.top)));
+      }
+      // ボトム：パンツ or スカートのどちらか（両方選択されていたらランダムに片方）
+      let bottomPool = [];
+      if (O.pants.length && O.skirt.length){
+        bottomPool = (Math.random() < 0.5) ? O.pants : O.skirt;
+      } else if (O.pants.length){
+        bottomPool = O.pants;
+      } else if (O.skirt.length){
+        bottomPool = O.skirt;
+      }
+      if (bottomPool.length){
+        parts.push(maybeColorizeOutfit(pick(bottomPool)));
+      }
     }
-    if(acc.length)     o.push(...acc);
-    if(bgs.length)     o.push(pick(bgs));
-    if(poses.length)   o.push(pick(poses));
-    if(exprs.length)   o.push(pick(exprs));
-    if(lights.length)  o.push(...lights);
-    if(nsfwAdd.length) o.push(...nsfwAdd);
 
-    let parts = uniq([...fixed, ...o]).filter(Boolean);
-    parts = applyNudePriority(parts);
+    // ---- アクセ・背景・ポーズ・表情・ライティング・NSFW追加 ----
+    if (acc.length)     parts.push(...acc);
+    if (bgs.length)     parts.push(pick(bgs));
+    if (poses.length)   parts.push(pick(poses));
+    if (exprs.length)   parts.push(pick(exprs));
+    if (lights.length)  parts.push(...lights);
+    if (nsfwAdd.length) parts.push(...nsfwAdd);
 
-    const prompt = ensurePromptOrder(parts).join(", ");
+    // 固定タグ + ヌード優先 + 並び替え
+    let all = uniq([...fixed, ...parts]).filter(Boolean);
+    all = applyNudePriority(all);
+    const prompt = ensurePromptOrder(all).join(", ");
+
     const seed = seedMode==="fixed" ? baseSeed : seedFromName($("#charName").value||"", out.length+1);
     const key = `${prompt}|${seed}`;
     if(out.some(x=>x.key===key)) continue;
@@ -1353,6 +1405,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   bindLearnBatch();
   bindProduction();
   bindSettings();
+  bindBottomCategoryGuess();
 
   renderSFW(); renderNSFWProduction(); renderNSFWLearning(); fillAccessorySlots();
 
