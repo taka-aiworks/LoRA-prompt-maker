@@ -349,3 +349,4 @@ legend { display: none; }
 
 /* 無効グループの視覚だけ保つ（任意） */
 fieldset:disabled { opacity: .55; pointer-events: none; }
+.disabled { opacity:.45; pointer-events:none; filter:grayscale(30%); }
