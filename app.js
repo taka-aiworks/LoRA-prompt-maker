@@ -969,7 +969,7 @@ function buildBatchProduction(n){
     if(bgs.length)     o.push(pick(bgs));
     if(poses.length)   o.push(pick(poses));
     if(exprs.length)   o.push(pick(exprs));
-    if(light)          o.push(light);
+    if(lights.length)  o.push(...lights);
     if(nsfwAdd.length) o.push(...nsfwAdd);
 
     let parts = uniq([...fixed, ...o]).filter(Boolean);
