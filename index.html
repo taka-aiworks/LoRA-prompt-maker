@@ -616,39 +616,49 @@
     rs?.addEventListener('change', swap);
     swap();
   });
-</script>
-  <script>
+</script><script>
 document.addEventListener('DOMContentLoaded', () => {
   const $ = s => document.querySelector(s);
   const panelOf = id => document.getElementById(id)?.closest('.panel');
 
-  const applyOutfitMode = () => {
-    const isOnepiece = $('#outfitModeDress')?.checked;
+  const getIsOnepiece = () =>
+    document.querySelector('input[name="outfitMode"]:checked')?.value === 'onepiece';
 
-    // ワンピースの有効/無効（fieldset の disabled 切替＋見た目）
+  const setDisabled = (el, on) => {
+    if (!el) return;
+    el.classList.toggle('disabled', !!on);
+    // 内部操作も確実に止めたい場合は入力をdisable
+    el.querySelectorAll('input,select,button,textarea').forEach(i => i.disabled = !!on);
+  };
+
+  const applyOutfitMode = () => {
+    const isOnepiece = getIsOnepiece();
+
+    // ワンピース fieldset の有効/無効
     const fsDress = document.getElementById('fsDress');
     if (fsDress) {
       fsDress.disabled = !isOnepiece;
       fsDress.classList.toggle('disabled', !isOnepiece);
     }
 
-    // トップスと下カテゴリのパネルを一括でグレーアウト
-    panelOf('outfit_top')?.classList.toggle('disabled', !!isOnepiece);
-    // 下カテゴリ（ボトム/スカート切替ブロック全体）
+    // トップス・下カテゴリのパネル
+    setDisabled(panelOf('outfit_top'), isOnepiece);
     const bottomPanel = $('#bottomCategoryRadios')?.closest('.panel');
-    bottomPanel?.classList?.toggle('disabled', !!isOnepiece);
+    setDisabled(bottomPanel, isOnepiece);
 
-    // 下カラーのパネルも無効化（ワンピの時）
-    const bottomWearPanel = document.getElementById('bottomWearPanel');
-    bottomWearPanel?.classList?.toggle('disabled', !!isOnepiece);
+    // 下カラーのパネル
+    setDisabled(document.getElementById('bottomWearPanel'), isOnepiece);
   };
 
-  // ラジオに連動
-  $('#outfitModeSeparate')?.addEventListener('change', applyOutfitMode);
-  $('#outfitModeDress')?.addEventListener('change', applyOutfitMode);
+  // ラジオ連動（change と input の両方を拾う）
+  document.querySelectorAll('input[name="outfitMode"]').forEach(r => {
+    r.addEventListener('change', applyOutfitMode);
+    r.addEventListener('input', applyOutfitMode);
+  });
 
-  // 初期反映
+  // 初期反映 + bfcache からの復帰にも対応
   applyOutfitMode();
+  window.addEventListener('pageshow', applyOutfitMode);
 });
 </script>
 </body>
