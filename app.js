@@ -97,7 +97,8 @@ function categorizeOutfit(list){
   const pants = L.filter(t=> has(t, /\b(jeans|pants|trousers|shorts|cargo pants|leggings|overalls|bermuda shorts)\b/i));
   const skirt = L.filter(t=> has(t, /\b(skirt|pleated skirt|long skirt|hakama)\b/i));
   const dress = L.filter(t=> has(t, /\b(dress|one[-\s]?piece|sundress|gown|kimono|yukata|cheongsam|qipao|kimono dress|lolita dress)\b/i));
-  return { top, pants, skirt, dress };
+  const shoes = L.filter(t=> has(t, /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i)); // ← 追加
+  return { top, pants, skirt, dress, shoes }; // ← 追加
 }
 
 function normNSFW(ns) {
@@ -601,6 +602,7 @@ function renderSFW(){
   radioList($("#outfit_pants"),  C.pants, "outfit_pants");
   radioList($("#outfit_skirt"),  C.skirt, "outfit_skirt");
   radioList($("#outfit_dress"),  C.dress, "outfit_dress");
+  checkList($("#p_outfit_shoes"), C.shoes, "p_outfit_shoes");
 
   // 量産側（カテゴリ別のチェック群）
   checkList($("#p_outfit_top"),   C.top,   "p_outfit_top");
@@ -1165,6 +1167,7 @@ function readProductionOutfits(){
     pants: getMany("p_outfit_pants"),
     skirt: getMany("p_outfit_skirt"),
     dress: getMany("p_outfit_dress"),
+    shoes: getMany("p_outfit_shoes"),
   };
 }
 
