@@ -505,9 +505,10 @@ syncBottomForOutfit();
   syncBottomForOutfit();
 }
 
-function isOnePieceOutfitTag(tag){
-  return /\b(dress|one[-\s]?piece|gown|kimono|yukata|cheongsam|qipao)\b/i.test(tag || "");
-}
+ function isOnePieceOutfitTag(tag){
+   return /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress)\b/i
+     .test(tag || "");
+ }
 
 function getLearningWearColorParts(sel){
   // sel: {mode, top, bottom, dress}
@@ -1207,7 +1208,7 @@ function pairWearColors(parts){
 
   const replacePair = (label, noun) => {
     if (!noun) return;
-    const re = new RegExp(`^(.+?)\\s+${label}$`, "i"); // ex) "orange top"
+    const re = new RegExp(`^(.+?)\\s+(?:${label})$`, "i"); // ex) "orange top" / "sky blue dress" etc.
     const colorTag = [...P].find(t => re.test(String(t)));
     if (colorTag) {
       P.delete(colorTag); P.delete(noun);
