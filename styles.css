@@ -21,14 +21,48 @@ html, body {
 h1, h2, h3 { margin: 0 0 8px; }
 a { color: var(--brand); text-decoration: none; }
 
-/* コンテナ */
+/* ========================
+   レイアウト / コンテナ
+   ======================== */
+
+/* 画面が広くても読みやすい上限幅＋可変パディング */
 .container {
-  max-width: 1200px;
+  max-width: 1400px;                 /* ← 1200→1400に拡張。好みで調整可 */
   margin: 0 auto;
-  padding: 16px;
+  padding-inline: clamp(12px, 2vw, 24px);
+  padding-block: 16px;
 }
 
-/* ヘッダー */
+/* 汎用グリッド */
+.grid { display: grid; gap: 12px; }
+
+/* 既存の固定カラムユーティリティ（そのまま使えます） */
+.g2 { grid-template-columns: repeat(2, 1fr); }
+.g3 { grid-template-columns: repeat(3, 1fr); }
+.g4 { grid-template-columns: repeat(4, 1fr); }
+
+/* 新：自動カラム（広い画面でも崩れにくい） */
+.grid.auto {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  align-content: start;
+}
+
+/* 背の高いカードを2カラム占有させたい時に付ける */
+@media (min-width: 1200px) {
+  .span-2 { grid-column: span 2; }
+}
+
+@media (max-width: 1024px) {
+  .g3, .g2 { grid-template-columns: 1fr; }
+  .g4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .g4 { grid-template-columns: 1fr; }
+}
+
+/* ========================
+   ヘッダー / タブ / ボタン
+   ======================== */
 .header {
   position: sticky;
   top: 0;
@@ -43,11 +77,7 @@ a { color: var(--brand); text-decoration: none; }
   justify-content: space-between;
   padding: 10px 16px;
 }
-.header-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+.header-row { display: flex; align-items: center; gap: 8px; }
 .header-row .card-title { margin: 0; }
 .header-row .push { margin-left: auto; }
 @media (max-width: 640px) {
@@ -55,7 +85,6 @@ a { color: var(--brand); text-decoration: none; }
   .header-row .push { margin-left: 0; }
 }
 
-/* タブバー */
 .tabbar { display: flex; gap: 8px; }
 .tab {
   padding: 8px 12px;
@@ -69,7 +98,6 @@ a { color: var(--brand); text-decoration: none; }
   background: #172036;
 }
 
-/* ボタン */
 .btn {
   appearance: none;
   border: 0;
@@ -85,26 +113,16 @@ a { color: var(--brand); text-decoration: none; }
 .btn.ok { background: linear-gradient(180deg, #65d77c, #43b96f); }
 .btn.bad { background: linear-gradient(180deg, #ff7b7b, #ff5454); }
 
-/* グリッド */
-.grid { display: grid; gap: 12px; }
-.g2 { grid-template-columns: repeat(2, 1fr); }
-.g3 { grid-template-columns: repeat(3, 1fr); }
-.g4 { grid-template-columns: repeat(4, 1fr); }
-@media (max-width: 1024px) {
-  .g3, .g2 { grid-template-columns: 1fr; }
-  .g4 { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 640px) {
-  .g4 { grid-template-columns: 1fr; }
-}
-
-/* カード & パネル */
+/* ========================
+   カード / パネル
+   ======================== */
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 14px;
   margin: 14px 0;
+  min-width: 0;            /* ← はみ出し防止（chipが多くてもOK） */
 }
 .panel {
   border: 1px dashed #283244;
@@ -117,7 +135,9 @@ a { color: var(--brand); text-decoration: none; }
   margin-top: 10px;
 }
 
-/* フォーム要素 */
+/* ========================
+   フォーム / リスト
+   ======================== */
 label.inline {
   display: inline-flex;
   align-items: center;
@@ -136,7 +156,6 @@ select {
   padding: 10px;
 }
 
-/* スクロールパネル */
 .scroller {
   max-height: 190px;
   overflow: auto;
@@ -146,7 +165,6 @@ select {
   background: #0f141d;
 }
 
-/* チップ */
 .chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chip {
   display: inline-flex;
@@ -221,7 +239,9 @@ code.tag {
   color: #d9e6ff;
 }
 
-/* 色ホイール */
+/* ========================
+   色ホイール
+   ======================== */
 .wheel-box { position: relative; width: 180px; height: 180px; margin-bottom: 6px; }
 .wheel {
   position: absolute;
@@ -302,7 +322,7 @@ details[open] summary .caret { transform: rotate(90deg); }
   margin-left: 6px;
 }
 .badge.warn { background: #1b1420; border-color: #4a2a3a; color: #ffb6c1; }
-.badge.ok { background: #132019; border-color: #294b38; color: #9be7b3; }
+.badge.ok   { background: #132019; border-color: #294b38; color: #9be7b3; }
 .note {
   margin: 8px 0;
   padding: 10px;
@@ -313,36 +333,44 @@ details[open] summary .caret { transform: rotate(90deg); }
 }
 .note .mini { opacity: .9; }
 
-/* どちらのクラスでも“グレー＆操作不可”にする */
-.is-disabled,
-.swap-target.disabled {
+/* ========================
+   有効/無効 表現の統一
+   ======================== */
+
+/* 見た目のグレーアウトはこのクラス1本に統一 */
+.is-disabled {
   opacity: .5;
-  pointer-events: none;
 }
 
-/* fieldset 側は disabled 属性でも拾う */
-fieldset.disabled,
-fieldset:disabled {
-  opacity: .5;
-  pointer-events: none;
-}
-
-/* パネルは薄く見せるだけでクリックは殺さない */
+/* パネルは見た目を落とす＋操作制御（チェックボックスだけは押せる） */
 .panel.is-disabled {
   opacity: .5;
 }
-
-/* 操作を無効化したいのは“スライダやホイール”だけ */
 .panel.is-disabled .wheel-box,
-.panel.is-disabled input[type="range"] {
+.panel.is-disabled input[type="range"],
+.panel.is-disabled select,
+.panel.is-disabled input[type="text"] {
   pointer-events: none;
   filter: grayscale(80%);
 }
-
-/* ← チェックボックスは常に押せるように */
 .panel.is-disabled input[type="checkbox"] {
-  pointer-events: auto;
+  pointer-events: auto;   /* ← チェックは常に戻せる */
 }
+
+/* 機能としての無効化は fieldset[disabled] を使うが、見た目は変えない */
+fieldset { border: 0; margin: 0; padding: 0; }
+fieldset:disabled {
+  pointer-events: none;   /* 入力は止める */
+  opacity: 1;             /* ← ここがキモ：見た目は .is-disabled に任せる */
+}
+
+/* Safari 対策 */
+fieldset, fieldset:disabled {
+  -webkit-appearance: none;
+  appearance: none;
+  outline: 0;
+}
+legend { display: none; }
 
 /* 服カラー用ホイールサイズ調整 */
 .panel .wheel-box { width: 170px; height: 170px; }
@@ -352,24 +380,3 @@ fieldset:disabled {
 @media (max-width: 640px) {
   .panel .wheel-box { width: 140px; height: 140px; }
 }
-
-/* fieldset のデフォルト枠線をリセット */
-fieldset {
-  border: 0;
-  margin: 0;
-  padding: 0;
-}
-
-/* iOS/Safari で念のため */
-fieldset, fieldset:disabled {
-  -webkit-appearance: none;
-  appearance: none;
-  outline: 0;
-}
-
-/* legend を使っていないなら消す */
-legend { display: none; }
-
-/* 無効グループの視覚だけ保つ（任意） */
-fieldset:disabled { opacity: .55; pointer-events: none; }
-.disabled { opacity:.45; pointer-events:none; filter:grayscale(30%); }
