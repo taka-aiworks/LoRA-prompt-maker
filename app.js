@@ -1526,6 +1526,8 @@ function initAll(){
   bindGASTools();
   bindBottomCategoryGuess();
 
+  initHairEyeAndAccWheels();   // 髪/瞳/アクセ（learn/accA/accB/accC）
+
   loadDefaultDicts().then(()=>{
     renderSFW();
     fillAccessorySlots();
