@@ -1558,8 +1558,7 @@ function initAll(){
     renderSFW();
     fillAccessorySlots();
     renderNSFWLearning();
-    renderNSFWProduction();
-    bindWearToggles();  // トグルだけ使う場合
+    renderNSFWProduction();initHairEyeAndAccWheels(); // ← 髪/瞳/アクセのピッカーとトグル連動をまとめて初期化
 
     // 色系
     // 基本情報タブの「服カラー（固定）」3つを初期化
