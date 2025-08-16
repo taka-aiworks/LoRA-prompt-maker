@@ -159,6 +159,31 @@ function mergeIntoNSFW(json) {
   };
 }
 
+// ▼ 追加：下カテゴリ（パンツ/スカート）の fieldset を切り替える
+function bindBottomCategoryRadios(){
+  const rPants = document.getElementById('bottomCat_pants');
+  const rSkirt = document.getElementById('bottomCat_skirt');
+  const fsP = document.getElementById('fsBottom_pants');
+  const fsS = document.getElementById('fsBottom_skirt');
+
+  const swap = () => {
+    const isSkirt = !!rSkirt?.checked;
+    // 見た目（グレーアウト）
+    fsP && fsP.classList.toggle('disabled',  isSkirt);
+    fsS && fsS.classList.toggle('disabled', !isSkirt);
+    // 入力そのものを切替（fieldset は disabled プロパティが効く）
+    if (fsP) fsP.disabled = isSkirt;
+    if (fsS) fsS.disabled = !isSkirt;
+    // どちらを“下”として読むかの内部状態も更新
+    __bottomCat = isSkirt ? 'skirt' : 'pants';
+  };
+
+  rPants?.addEventListener('change', swap);
+  rSkirt?.addEventListener('change', swap);
+  swap(); // 初期反映
+}
+
+
 /* ========= カラーユーティリティ ========= */
 function hslToRgb(h,s,l){
   s/=100; l/=100;
@@ -1525,6 +1550,7 @@ function initAll(){
   bindProduction();
   bindGASTools();
   bindBottomCategoryGuess();
+  bindBottomCategoryRadios();
 
   initHairEyeAndAccWheels();   // 髪/瞳/アクセ（learn/accA/accB/accC）
 
