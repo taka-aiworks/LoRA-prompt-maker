@@ -543,4 +543,31 @@ fieldset { border: 0; margin: 0; padding: 0; }
 fieldset:disabled { pointer-events: none; opacity: 1; }
 legend { display: none; }
 
-/* ===== ここまで差し替え ===== */
+/* 服カラー（固定・量産）どちらも同じ大きさに統一して枠内に収める */
+#grid_fixed_colors .panel,
+#prodColorCard .panel { overflow: hidden; } /* 罫線から出さない */
+
+#grid_fixed_colors .panel .wheel-box,
+#prodColorCard  .panel .wheel-box {
+  width: 180px !important;
+  height: 180px !important;
+  margin: 8px auto 10px !important; /* 中央寄せ */
+}
+
+/* 服（固定）3ブロックを画面幅に応じて自動折り返し */
+#panel_outfitFixed .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+}
+
+/* 服リストの縦を広げて“中身のはみ出し”を防止 */
+#panel_outfitFixed .scroller { max-height: 460px; }
+@media (min-width: 1600px) {
+  #panel_outfitFixed .scroller { max-height: 520px; }
+}
+
+/* アクセA/B/C：セレクト→ホイール→S/L の順に縦積みで揃える */
+#panelProduction .panel select + .wheel-box { margin-top: 6px; }
+#panelProduction .panel .row.mini { display: block; margin-bottom: 8px; }
+
