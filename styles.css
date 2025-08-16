@@ -390,14 +390,6 @@ fieldset, fieldset:disabled {
 }
 legend { display: none; }
 
-/* 服カラー用ホイールサイズ調整 */
-.panel .wheel-box { width: 170px; height: 170px; }
-@media (max-width: 1024px) {
-  .panel .wheel-box { width: 160px; height: 160px; }
-}
-@media (max-width: 640px) {
-  .panel .wheel-box { width: 140px; height: 140px; }
-}
 
 /* ====== Ultra-wide layout（選択肢の枠を広げる）====== */
 /* コンテナを広くしてカラムを“最小幅指定付き”で拡張 */
@@ -533,21 +525,6 @@ legend { display: none; }
   #grid_fixed_colors .panel .wheel-box {
     width: min(320px, 92%);
   }
-}
-
-/* 髪型／目の形／服の“選択肢の枠”を広げる */
-@media (min-width: 1280px) {
-  #grid_shape {
-    display: grid;
-    grid-template-columns:
-      minmax(480px, 1fr)   /* 髪型 */
-      minmax(480px, 1fr)   /* 目の形 */
-      minmax(640px, 1.2fr);/* 服（広め） */
-    gap: 16px;
-    align-items: start;
-  }
-  #grid_shape .scroller { max-height: 320px; }
-  #panel_outfitFixed .scroller { max-height: 360px; }
 }
 
 /* grid 直下のパネルは最小幅0（長いタグでも折り返せる） */
