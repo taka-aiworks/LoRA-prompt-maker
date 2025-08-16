@@ -282,10 +282,13 @@ function getWearColorTag(idBase){
 
 // 追加：部位の有効/無効を見た目＆入力に反映
 function updateWearPanelEnabled(idBase){
-  const panel = (idBase === "bottom")
-    ? document.getElementById("bottomWearPanel")
-    : document.getElementById("panel_"+idBase);
-  const use   = document.getElementById("use_"+idBase);
+     const panel = (idBase === "bottom")
+     ? (document.getElementById("fsBottomColor") || document.getElementById("bottomWearPanel"))
+     : document.getElementById("panel_"+idBase);
+     const use   = (idBase === "bottom")
+     ? (document.getElementById("useBottomColor") || document.getElementById("use_bottom"))
+     : document.getElementById("use_"+idBase);
+
   const disabled = !!(use && !use.checked);
 
   if (panel) panel.classList.toggle("is-disabled", disabled);
@@ -300,8 +303,11 @@ function updateWearPanelEnabled(idBase){
 
 // 追加：チェックボックスのバインド
 function bindWearToggles(){
-  ["top","bottom","shoes"].forEach(idBase=>{
-    const cb = document.getElementById("use_"+idBase);
+   ["top","bottom","shoes"].forEach(idBase=>{
+     const cb = (idBase === "bottom")
+       ? (document.getElementById("useBottomColor") || document.getElementById("use_bottom"))
+       : document.getElementById("use_"+idBase);
+
     if (!cb) return;
     cb.addEventListener("change", ()=> updateWearPanelEnabled(idBase));
     updateWearPanelEnabled(idBase);
@@ -309,7 +315,7 @@ function bindWearToggles(){
 
   const syncBottomForOutfit = ()=>{
     const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
-    const cb = document.getElementById("use_bottom");
+    const cb = document.getElementById("useBottomColor") || document.getElementById("use_bottom");
     if (mode === "onepiece") { if (cb) cb.checked = false; }
     updateWearPanelEnabled("bottom");
   };
