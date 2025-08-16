@@ -159,28 +159,39 @@ function mergeIntoNSFW(json) {
   };
 }
 
-// ▼ 追加：下カテゴリ（パンツ/スカート）の fieldset を切り替える
+// ▼ 下カテゴリ（パンツ/スカート）切替：見た目＆実際のdisabledを同期
 function bindBottomCategoryRadios(){
   const rPants = document.getElementById('bottomCat_pants');
   const rSkirt = document.getElementById('bottomCat_skirt');
+
   const fsP = document.getElementById('fsBottom_pants');
   const fsS = document.getElementById('fsBottom_skirt');
 
+  // パネル（見出しを含む枠全体）にもグレーをかける
+  const panelP = fsP?.closest('.panel') || null;
+  const panelS = fsS?.closest('.panel') || null;
+
   const swap = () => {
     const isSkirt = !!rSkirt?.checked;
+
     // 見た目（グレーアウト）
-    fsP && fsP.classList.toggle('is-disabled',  isSkirt);
-    fsS && fsS.classList.toggle('is-disabled', !isSkirt);
-    // 入力そのものを切替（fieldset は disabled プロパティが効く）
+    [fsP, panelP].forEach(el => el && el.classList.toggle('is-disabled',  isSkirt));
+    [fsS, panelS].forEach(el => el && el.classList.toggle('is-disabled', !isSkirt));
+
+    // 入力停止（実際に無効化）
     if (fsP) fsP.disabled = isSkirt;
     if (fsS) fsS.disabled = !isSkirt;
-    // どちらを“下”として読むかの内部状態も更新
-    __bottomCat = isSkirt ? 'skirt' : 'pants';
+
+    // 内部の「どちらを下として読むか」も更新しているなら
+    if (typeof __bottomCat !== 'undefined') {
+      __bottomCat = isSkirt ? 'skirt' : 'pants';
+    }
   };
 
   rPants?.addEventListener('change', swap);
   rSkirt?.addEventListener('change', swap);
-  swap(); // 初期反映
+
+  swap(); // 初期反映（既定：パンツ側が有効、スカート側がグレーアウト）
 }
 
 
