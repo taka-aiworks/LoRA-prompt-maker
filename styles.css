@@ -240,9 +240,14 @@ code.tag {
 }
 
 /* ========================
-   色ホイール
+   色ホイール（共通）
    ======================== */
-.wheel-box { position: relative; width: 180px; height: 180px; margin-bottom: 6px; }
+.wheel-box {
+  position: relative;
+  width: 180px;
+  height: 180px;            /* ← 共通は固定。髪/瞳/学習アクセ等はこちらを使う */
+  margin: 6px 0 8px;
+}
 .wheel {
   position: absolute;
   inset: 0;
@@ -284,6 +289,7 @@ code.tag {
   border: 1px solid var(--line);
   background: #333;
 }
+
 
 /* セパレーター */
 hr.sep {
@@ -424,29 +430,90 @@ legend { display: none; }
   }
 }
 
-/* ====== 服カラー：枠を広げて色相環のはみ出し防止 ====== */
-/* ===== ここから差し替え ===== */
-
-/* 服カラー用ホイールは各パネル内で正方形を保って拡大縮小 */
+/* ===== 服カラー（固定）のホイールを“枠内で可変”にする ===== */
+/* パネルの罫線からはみ出さないように、内側パディング分を差し引いた可変幅に */
 #grid_fixed_colors {
   display: grid;
-  grid-template-columns: repeat(3, minmax(360px, 1fr)); /* 枠そのものを広げる */
+  grid-template-columns: repeat(3, minmax(360px, 1fr));  /* ← 枠自体を広げる */
   gap: 16px;
 }
-
-/* パネルは切らない（S/Lが消える原因を除去） */
-#grid_fixed_colors .panel { overflow: visible; }
-
-/* ホイールはパネル幅にフィット＆中央寄せ。正方形維持 */
+#grid_fixed_colors .panel { overflow: hidden; }          /* 罫線からはみ出さない */
 #grid_fixed_colors .panel .wheel-box {
-  width: min(280px, 90%);
+  width: clamp(180px, calc(100% - 40px), 300px);         /* 余白(=20px×2)を差し引き */
+  aspect-ratio: 1 / 1;                                   /* 正円維持 */
+  height: auto;
+  margin: 10px auto 8px;                                 /* 中央寄せ */
+}
+
+/* ===== 量産モードの“服カラー”ホイールも同様に復活＆可変 ===== */
+#prodColorCard .panel { overflow: hidden; }
+#prodColorCard .panel .wheel-box {
+  width: clamp(180px, calc(100% - 40px), 300px);
   aspect-ratio: 1 / 1;
-  height: auto;                /* 明示 */
+  height: auto;
   margin: 10px auto 8px;
 }
 
-/* 既存の “.panel .wheel-box { width/height: … }” は無効化 */
-.panel .wheel-box { width: auto; height: auto; }
+/* ===== 量産モードのアクセ：ラベルとホイールのずれ修正 ===== */
+#panelProduction .panel select + .wheel-box {
+  margin-top: 8px;                 /* ラベル/セレクトの直下にホイール */
+}
+#panelProduction .panel .row.mini { align-items: center; }
+
+/* ===== 服（固定）の選択 UI：全画面時は折り返し ===== */
+/* トップス/ワンピ/下カテゴリの3ブロックがはみ出す幅では自動で2列 or 1列へ */
+#panel_outfitFixed .grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  gap: 12px;
+}
+@media (max-width: 1280px) {
+  #panel_outfitFixed .grid { grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+}
+@media (max-width: 900px) {
+  #panel_outfitFixed .grid { grid-template-columns: 1fr; }
+}
+
+/* ===== 髪型/目/服（3カラム）の“選択肢の枠”を広げる ===== */
+@media (min-width: 1280px) {
+  .container { max-width: 1600px; }
+  #grid_shape {
+    display: grid;
+    grid-template-columns:
+      minmax(480px, 1fr)      /* 髪型 */
+      minmax(480px, 1fr)      /* 目の形 */
+      minmax(640px, 1.2fr);   /* 服（広め） */
+    gap: 16px;
+    align-items: start;
+  }
+  #grid_shape .scroller { max-height: 320px; }
+  #panel_outfitFixed .scroller { max-height: 360px; }
+}
+@media (min-width: 1700px) {
+  .container { max-width: 1760px; }
+  #grid_shape {
+    grid-template-columns:
+      minmax(520px, 1fr)
+      minmax(520px, 1fr)
+      minmax(680px, 1.3fr);
+  }
+}
+
+/* ===== 共通の縮小（タブレット以下） ===== */
+@media (max-width: 1024px) {
+  #grid_fixed_colors { grid-template-columns: 1fr; }
+  #grid_fixed_colors .panel .wheel-box,
+  #prodColorCard  .panel .wheel-box { width: clamp(160px, 60vw, 240px); }
+}
+
+/* ===== 既存の“ホイール固定サイズ”は髪/瞳/学習アクセに適用 ===== */
+/* 服カラー系で上書きするので、ここは残す */
+@media (max-width: 1024px) {
+  .panel .wheel-box { width: 160px; height: 160px; }
+}
+@media (max-width: 640px) {
+  .panel .wheel-box { width: 140px; height: 140px; }
+}
 
 /* 狭い時は自動で少し小さく */
 @media (max-width: 1024px) {
