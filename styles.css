@@ -643,3 +643,15 @@ legend { display: none; }
   height: 180px !important;
   margin: 10px 0 12px !important; /* 左寄せ */
 }
+
+/* 量産モード：最初の「服（カテゴリ別）」パネルを全幅に */
+@media (min-width: 1024px) {
+  #panelProduction > .grid.g3 > .panel:first-child {
+    grid-column: 1 / -1;   /* ← 右の空白を潰して全幅化 */
+  }
+
+  /* 中の g2 を可変カラムに（2 → 3〜5列へ広がる） */
+  #panelProduction > .grid.g3 > .panel:first-child .grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
