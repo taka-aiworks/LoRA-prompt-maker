@@ -1140,43 +1140,93 @@ function getNeg(){
   return uniq([...base.split(",").map(s=>s.trim()), ...g]).join(", ");
 }
 
+// 置き換え: assembleFixedLearning
 function assembleFixedLearning(){
-  const arr=[];
-  arr.push($("#loraTag").value.trim());
-  arr.push($("#charName").value.trim());
-  arr.push(getHairColorTag && getHairColorTag());
-  arr.push(getEyeColorTag && getEyeColorTag());
-  arr.push($("#tagSkin").textContent);
+  const out = [];
 
-  // 基本の単一選択要素
-  ["hairStyle","eyeShape","face","skinBody","artStyle",
-   "bf_age","bf_gender","bf_body","bf_height",
-   "bf_person","bf_relation","bf_world","bf_tone"].forEach(n=>{
-    const v=document.querySelector(`input[name="${n}"]:checked`)?.value; if(v) arr.push(v);
+  // 0) LoRA / キャラ名
+  out.push($("#loraTag").value.trim());
+  out.push($("#charName").value.trim());
+
+  // 1) 人となり（SFW基礎）
+  ["bf_age","bf_gender","bf_body","bf_height","bf_person","bf_relation","bf_world","bf_tone"]
+    .forEach(n => {
+      const v = document.querySelector(`input[name="${n}"]:checked`)?.value;
+      if (v) out.push(v);
+    });
+
+  // 2) 色（髪/瞳/肌）
+  out.push(getHairColorTag && getHairColorTag());
+  out.push(getEyeColorTag && getEyeColorTag());
+  out.push($("#tagSkin").textContent);
+
+  // 3) 形（髪型/目の形/顔/体/画風）
+  ["hairStyle","eyeShape","face","skinBody","artStyle"].forEach(n=>{
+    const v=document.querySelector(`input[name="${n}"]:checked`)?.value;
+    if (v) out.push(v);
   });
 
-  // 服（カテゴリ対応）
+  // 4) 服（カテゴリ考慮）
   const sel = getBasicSelectedOutfit();
   if (sel.mode === "onepiece") {
-    if (sel.dress) arr.push(sel.dress);
+    if (sel.dress) out.push(sel.dress);
   } else {
-    if (sel.top)    arr.push(sel.top);
-    if (sel.bottom) arr.push(sel.bottom);
+    if (sel.top)    out.push(sel.top);
+    if (sel.bottom) out.push(sel.bottom);
   }
 
-  // 服色（top/bottom/shoes）
-  arr.push(...getLearningWearColorParts(sel));
+  // 5) 服カラー（top/bottom/dress/shoes は後でペア化）
+  out.push(...getLearningWearColorParts(sel)); // ex) "orange top", "sky blue bottom", "gray shoes"
 
-  // アクセ（恒常1種）
+  // 6) 恒常アクセ（色付きで）
   const acc = $("#learn_acc")?.value || "";
-  if (acc) arr.push(`${getLearnAccColor && getLearnAccColor()} ${acc}`);
+  if (acc) out.push(`${getLearnAccColor && getLearnAccColor()} ${acc}`);
 
-  // 手動固定
+  // 7) 手動固定
   const fixedManual = $("#fixedManual").value.split(",").map(s=>s.trim()).filter(Boolean);
-  arr.push(...fixedManual);
+  out.push(...fixedManual);
 
-  return uniq(arr).filter(Boolean);
+  return uniq(out).filter(Boolean);
 }
+
+// 追加: 服色と服名をペア化
+function pairWearColors(parts){
+  const P = new Set(parts.filter(Boolean));
+  const take = (re)=> [...P].find(t=> re.test(String(t)));
+
+  // 服名推定
+  const topRe     = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt)\b/i;
+  const bottomRe  = /\b(skirt|pleated skirt|long skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda shorts)\b/i;
+  const dressRe   = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress)\b/i;
+  const shoesRe   = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i;
+
+  const top    = take(topRe);
+  const bottom = take(bottomRe);
+  const dress  = take(dressRe);
+  const shoes  = take(shoesRe);
+
+  const replacePair = (label, noun) => {
+    if (!noun) return;
+    const re = new RegExp(`^(.+?)\\s+${label}$`, "i"); // ex) "orange top"
+    const colorTag = [...P].find(t => re.test(String(t)));
+    if (colorTag) {
+      P.delete(colorTag); P.delete(noun);
+      const color = String(colorTag).replace(re, "$1");
+      P.add(`${color} ${noun}`);
+    }
+  };
+
+  if (dress) {
+    replacePair("dress|gown|kimono", dress); // ワンピは“top/bottom”色より優先
+  } else {
+    if (top)    replacePair("top", top);
+    if (bottom) replacePair("bottom", bottom);
+  }
+  if (shoes) replacePair("shoes", shoes);
+
+  return [...P];
+}
+
 function getSelectedNSFW_Learn(){
   if (!$("#nsfwLearn").checked) return [];
   const pickeds = [
@@ -1194,6 +1244,7 @@ function buildOneLearning(){
   const b = pick(BG), p = pick(PO), e=pick(EX), l = LI.length ? pick(LI) : "";
   let parts = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
   parts = applyNudePriority(parts);
+  parts = pairWearColors(parts);
   const pos = ensurePromptOrder(parts);
   const seed = seedFromName($("#charName").value||"", 0);
   return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
@@ -1207,9 +1258,11 @@ function buildBatchLearning(n){
   return out;
 }
 
-/* === 追加: プロンプト並べ替え（正規順） ===*/
+// 置き換え: ensurePromptOrder
 function ensurePromptOrder(parts) {
   const set = new Set(parts.filter(Boolean));
+
+  // 所属マップ
   const asSet = (arr) => new Set((arr||[]).map(x => (typeof x==='string'? x : x.tag)));
   const S = {
     age:        asSet(SFW.age),
@@ -1238,74 +1291,94 @@ function ensurePromptOrder(parts) {
     nsfw_situ:  asSet(NSFW.situation),
     nsfw_light: asSet(NSFW.lighting),
   };
-  const isWearColor = (t)=> /\b(top|bottom|dress|gown|kimono|shoes)\b/i.test(t) && !S.outfit.has(t);
+
   const isHairColor = (t)=> /\bhair$/.test(t) && !S.hair_style.has(t);
   const isEyeColor  = (t)=> /\beyes$/.test(t) && !S.eyes_shape.has(t);
   const isSkinTone  = (t)=> /\bskin$/.test(t) && !S.skin_body.has(t);
 
-  const B = {
-    lora: [], name: [],
-    basic: { age:[], gender:[], body:[], height:[], person:[], relation:[], world:[], tone:[] },
-    hairColor: [], eyeColor: [], skin: [],
-    hairStyle: [], eyeShape: [], face: [], body: [], art: [], outfit: [],
-    wearColor: [],
-    acc: [], bg: [], pose: [], expr: [], light: [],
-    nsfw_expr: [], nsfw_expo: [], nsfw_situ: [], nsfw_light: [],
-    other: []
+  const buckets = {
+    lora:[], name:[],
+    // 人となり
+    b_age:[], b_gender:[], b_body:[], b_height:[], b_person:[], b_relation:[], b_world:[], b_tone:[],
+    // 色
+    c_hair:[], c_eye:[], c_skin:[],
+    // 形
+    s_hair:[], s_eye:[], s_face:[], s_body:[], s_art:[],
+    // 服・アクセ
+    wear:[], acc:[],
+    // シーン
+    bg:[], pose:[], expr:[], light:[],
+    // NSFW
+    n_expr:[], n_expo:[], n_situ:[], n_light:[],
+    other:[]
   };
+
+  const charName = ($("#charName")?.value || "").trim();
 
   for (const t of set) {
     if (!t) continue;
-    if (t.startsWith("<lora:") || t.includes("<lyco:") || /LoRA/i.test(t)) { B.lora.push(t); continue; }
-    if (t === (document.querySelector("#charName")?.value||"").trim()) { B.name.push(t); continue; }
+    if (t.startsWith("<lora:") || /\b(?:LoRA|<lyco:)/i.test(t)) { buckets.lora.push(t); continue; }
+    if (charName && t === charName) { buckets.name.push(t); continue; }
 
-    if (S.age.has(t))      { B.basic.age.push(t);      continue; }
-    if (S.gender.has(t))   { B.basic.gender.push(t);   continue; }
-    if (S.body_basic.has(t)){ B.basic.body.push(t);    continue; }
-    if (S.height.has(t))   { B.basic.height.push(t);   continue; }
-    if (S.person.has(t))   { B.basic.person.push(t);   continue; }
-    if (S.relation.has(t)) { B.basic.relation.push(t); continue; }
-    if (S.world.has(t))    { B.basic.world.push(t);    continue; }
-    if (S.tone.has(t))     { B.basic.tone.push(t);     continue; }
+    // 人となり
+    if (S.age.has(t))      { buckets.b_age.push(t); continue; }
+    if (S.gender.has(t))   { buckets.b_gender.push(t); continue; }
+    if (S.body_basic.has(t)){ buckets.b_body.push(t); continue; }
+    if (S.height.has(t))   { buckets.b_height.push(t); continue; }
+    if (S.person.has(t))   { buckets.b_person.push(t); continue; }
+    if (S.relation.has(t)) { buckets.b_relation.push(t); continue; }
+    if (S.world.has(t))    { buckets.b_world.push(t); continue; }
+    if (S.tone.has(t))     { buckets.b_tone.push(t); continue; }
 
-    if (isHairColor(t)) { B.hairColor.push(t); continue; }
-    if (isEyeColor(t))  { B.eyeColor.push(t);  continue; }
-    if (isSkinTone(t))  { B.skin.push(t);      continue; }
+    // 色
+    if (isHairColor(t)) { buckets.c_hair.push(t); continue; }
+    if (isEyeColor(t))  { buckets.c_eye.push(t);  continue; }
+    if (isSkinTone(t))  { buckets.c_skin.push(t); continue; }
 
-    if (S.hair_style.has(t)) { B.hairStyle.push(t); continue; }
-    if (S.eyes_shape.has(t)) { B.eyeShape.push(t);  continue; }
-    if (S.face.has(t))       { B.face.push(t);      continue; }
-    if (S.skin_body.has(t))  { B.body.push(t);      continue; }
-    if (S.art_style.has(t))  { B.art.push(t);       continue; }
-    if (S.outfit.has(t))     { B.outfit.push(t);    continue; }
+    // 形
+    if (S.hair_style.has(t)) { buckets.s_hair.push(t); continue; }
+    if (S.eyes_shape.has(t)) { buckets.s_eye.push(t);  continue; }
+    if (S.face.has(t))       { buckets.s_face.push(t); continue; }
+    if (S.skin_body.has(t))  { buckets.s_body.push(t); continue; }
+    if (S.art_style.has(t))  { buckets.s_art.push(t);  continue; }
+   
+   // 服・アクセ（色付き服も outfit に寄せる想定）
+   const WEAR_NAME_RE = /\b(?:t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt|skirt|pleated skirt|long skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda shorts|dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita dress|shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i;
+   if (S.outfit.has(t) || WEAR_NAME_RE.test(t)) { buckets.wear.push(t); continue; }
+   if (S.acc.has(t)) { buckets.acc.push(t); continue; }
 
-    if (isWearColor(t)) { B.wearColor.push(t); continue; }
+    // シーン
+    if (S.background.has(t)) { buckets.bg.push(t);   continue; }
+    if (S.pose.has(t))       { buckets.pose.push(t); continue; }
+    if (S.expr.has(t))       { buckets.expr.push(t); continue; }
+    if (S.light.has(t))      { buckets.light.push(t);continue; }
 
-    if (S.acc.has(t))        { B.acc.push(t);  continue; }
-    if (S.background.has(t)) { B.bg.push(t);   continue; }
-    if (S.pose.has(t))       { B.pose.push(t); continue; }
-    if (S.expr.has(t))       { B.expr.push(t); continue; }
-    if (S.light.has(t))      { B.light.push(t);continue; }
+    // NSFW
+    if (S.nsfw_expr.has(t))  { buckets.n_expr.push(t);  continue; }
+    if (S.nsfw_expo.has(t))  { buckets.n_expo.push(t);  continue; }
+    if (S.nsfw_situ.has(t))  { buckets.n_situ.push(t);  continue; }
+    if (S.nsfw_light.has(t)) { buckets.n_light.push(t); continue; }
 
-    if (S.nsfw_expr.has(t))  { B.nsfw_expr.push(t);  continue; }
-    if (S.nsfw_expo.has(t))  { B.nsfw_expo.push(t);  continue; }
-    if (S.nsfw_situ.has(t))  { B.nsfw_situ.push(t);  continue; }
-    if (S.nsfw_light.has(t)) { B.nsfw_light.push(t); continue; }
-
-    B.other.push(t);
+    buckets.other.push(t);
   }
 
   return [
-    ...B.lora, ...B.name,
-    ...B.basic.age, ...B.basic.gender, ...B.basic.body, ...B.basic.height,
-    ...B.basic.person, ...B.basic.relation, ...B.basic.world, ...B.basic.tone,
-    ...B.hairColor, ...B.eyeColor, ...B.skin,
-    ...B.hairStyle, ...B.eyeShape, ...B.face, ...B.body, ...B.art, ...B.outfit,
-    ...B.wearColor,
-    ...B.acc,
-    ...B.bg, ...B.pose, ...B.expr, ...B.light,
-    ...B.nsfw_expr, ...B.nsfw_expo, ...B.nsfw_situ, ...B.nsfw_light,
-    ...B.other
+    ...buckets.lora, ...buckets.name,
+    // 人となり
+    ...buckets.b_age, ...buckets.b_gender, ...buckets.b_body, ...buckets.b_height,
+    ...buckets.b_person, ...buckets.b_relation, ...buckets.b_world, ...buckets.b_tone,
+    // 色
+    ...buckets.c_hair, ...buckets.c_eye, ...buckets.c_skin,
+    // 形
+    ...buckets.s_hair, ...buckets.s_eye, ...buckets.s_face, ...buckets.s_body, ...buckets.s_art,
+    // 服・アクセ
+    ...buckets.wear, ...buckets.acc,
+    // シーン
+    ...buckets.bg, ...buckets.pose, ...buckets.expr, ...buckets.light,
+    // NSFW
+    ...buckets.n_expr, ...buckets.n_expo, ...buckets.n_situ, ...buckets.n_light,
+    // その他
+    ...buckets.other
   ].filter(Boolean);
 }
 
@@ -1446,6 +1519,7 @@ function buildBatchProduction(n){
     // 固定タグ → ヌード優先 → 並び替え
     let all = uniq([...fixed, ...parts]).filter(Boolean);
     all = applyNudePriority(all);
+    all = pairWearColors(all); 
     const prompt = ensurePromptOrder(all).join(", ");
 
     // seed
