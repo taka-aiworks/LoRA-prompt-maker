@@ -315,7 +315,7 @@ function getWearColorTag(idBase){
 // 追加：部位の有効/無効を見た目＆入力に反映
 function updateWearPanelEnabled(idBase){
    const panel = (idBase === "bottom")
-     ? document.getElementById("fsBottomColor")
+     ? document.getElementById("panel_bottom")
      : document.getElementById("panel_"+idBase);
    const use   = (idBase === "bottom")
      ? document.getElementById("useBottomColor")
