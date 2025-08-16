@@ -1437,7 +1437,7 @@ function bindSettings(){
   $("#btnResetSettings")?.addEventListener("click", ()=>{ resetSettings(); loadSettings(); });
 }
 
-/* === カラーピッカー初期化（アイドル時） === */
+/* === カラーピッカー初期化（アイドル時） === 
 function setupColorPickers(){
   getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
   getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes");
@@ -1456,6 +1456,7 @@ function setupColorPickers(){
    
   getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
+*/
 /* ===== ここから追記：総合初期化 ===== */
 function initHairEyeAndAccWheels(){
    // ★ 髪/瞳：Hueリング + S/Lスクエア版で初期化
