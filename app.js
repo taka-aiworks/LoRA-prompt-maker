@@ -314,12 +314,13 @@ function getWearColorTag(idBase){
 
 // 追加：部位の有効/無効を見た目＆入力に反映
 function updateWearPanelEnabled(idBase){
-     const panel = (idBase === "bottom")
-     ? (document.getElementById("fsBottomColor")
+   const panel = (idBase === "bottom")
+     ? document.getElementById("fsBottomColor")
      : document.getElementById("panel_"+idBase);
-     const use   = (idBase === "bottom")
-     ? (document.getElementById("useBottomColor")
-     : document.getElementById("use_"+idBase);
+   const use   = (idBase === "bottom")
+     ? document.getElementById("useBottomColor")
+    : document.getElementById("use_"+idBase);
+
 
   const disabled = !!(use && !use.checked);
 
@@ -332,9 +333,9 @@ function updateWearPanelEnabled(idBase){
   if (lit) lit.disabled = disabled;
 
   // 末尾付近に追記（disabledでもpointerは戻す）
-  const cb = (idBase === "bottom")
-    ? (document.getElementById("useBottomColor")
-    : document.getElementById("use_" + idBase);
+   const cb = (idBase === "bottom")
+     ? document.getElementById("useBottomColor")
+     : document.getElementById("use_" + idBase);
   if (cb) {
     cb.disabled = false; // 常に再チェックできる
 }
@@ -345,9 +346,10 @@ function updateWearPanelEnabled(idBase){
 function bindWearToggles(){
   // 既存：チェックボックス → パネル有効/無効
   ["top","bottom","shoes"].forEach(idBase=>{
-    const cb = (idBase === "bottom")
-      ? (document.getElementById("useBottomColor")
-      : document.getElementById("use_"+idBase);
+     const cb = (idBase === "bottom")
+     ? document.getElementById("useBottomColor")
+     : document.getElementById("use_"+idBase);
+
     if (!cb) return;
     cb.addEventListener("change", ()=> updateWearPanelEnabled(idBase));
     updateWearPanelEnabled(idBase);
@@ -377,7 +379,7 @@ function bindWearToggles(){
   const autoEnableBottomColor = ()=>{
     const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
     if (mode !== "separate") return;
-    const cb = document.getElementById("useBottomColor") || document.getElementById("use_bottom");
+    const cb = document.getElementById("useBottomColor");
     if (cb && !cb.checked) {
       cb.checked = true;
       updateWearPanelEnabled("bottom");
@@ -1546,6 +1548,9 @@ function initNSFWStatusBadge(){
 }
 
 function initAll(){
+  if (window.__LPM_INITED) return;
+  window.__LPM_INITED = true;
+
   loadSettings();
   initTabs();
   bindDictIO();
