@@ -640,24 +640,12 @@
 
   <script src="app.js" defer></script>
 
-  <!-- 任意：下カテゴリラジオで __bottomCat を同期（あるとより直感的） -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const rp = document.getElementById('bottomCat_pants');
-      const rs = document.getElementById('bottomCat_skirt');
-      const swap = () => {
-        const pantsOn = rp?.checked;
-        document.getElementById('fsBottom_pants')?.classList.toggle('disabled', !pantsOn);
-        document.getElementById('fsBottom_skirt')?.classList.toggle('disabled', !!pantsOn);
-        if (typeof window.__bottomCat !== 'undefined') {
-          window.__bottomCat = pantsOn ? 'pants' : 'skirt';
-        }
-      };
-      rp?.addEventListener('change', swap);
-      rs?.addEventListener('change', swap);
-      swap();
-    });
-  </script>
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof bindWearToggles === 'function') bindWearToggles();
+});
+</script>
+  
 <script>
   // 量産モード用：下カテゴリ（ズボン/スカート）切替
   document.addEventListener('DOMContentLoaded', () => {
@@ -683,11 +671,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const getIsOnepiece = () =>
     document.querySelector('input[name="outfitMode"]:checked')?.value === 'onepiece';
 
-  const setDisabled = (el, on) => {
+  const setPanelDisabled = (el, on) => {
     if (!el) return;
-    el.classList.toggle('disabled', !!on);
-    // 内部操作も確実に止めたい場合は入力をdisable
-    el.querySelectorAll('input,select,button,textarea').forEach(i => i.disabled = !!on);
+    // 見た目は app.js に合わせて is-disabled を使う
+    el.classList.toggle('is-disabled', !!on);
+    // 入力の enable/disable は bindWearToggles()/updateWearPanelEnabled が面倒を見る
   };
 
   const applyOutfitMode = () => {
@@ -701,13 +689,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // トップス・下カテゴリのパネル
-    setDisabled(panelOf('outfit_top'), isOnepiece);
+    setPanelDisabled(panelOf('outfit_top'), isOnepiece);
     const bottomPanel = $('#bottomCategoryRadios')?.closest('.panel');
-    setDisabled(bottomPanel, isOnepiece);
-
-    // 下カラーのパネル
-    setDisabled(document.getElementById('bottomWearPanel'), isOnepiece);
-  };
+    setPanelDisabled(bottomPanel, isOnepiece);
+    setPanelDisabled(document.getElementById('bottomWearPanel'), isOnepiece);
+    };
 
   // ラジオ連動（change と input の両方を拾う）
   document.querySelectorAll('input[name="outfitMode"]').forEach(r => {
@@ -720,15 +706,16 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('pageshow', applyOutfitMode);
 });
 </script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-  // ここはあなたの既存ヘルパを使って初期化する
-  // 例: initColorWheel(wheelId, thumbId, swatchId, tagId, satId, litId)
-  initColorWheel('wheel_p_top',    'thumb_p_top',    'sw_p_top',    'tag_p_top',    'sat_p_top',    'lit_p_top');
-  initColorWheel('wheel_p_bottom', 'thumb_p_bottom', 'sw_p_bottom', 'tag_p_bottom', 'sat_p_bottom', 'lit_p_bottom');
-  initColorWheel('wheel_p_shoes',  'thumb_p_shoes',  'sw_p_shoes',  'tag_p_shoes',  'sat_p_shoes',  'lit_p_shoes');
+  // idBase で呼ぶ：p_top / p_bottom / p_shoes
+  // initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50)
+  initColorWheel("p_top",    35, 80, 55);
+  initColorWheel("p_bottom",210, 70, 50);
+  initColorWheel("p_shoes",   0,  0, 30);
 
-  // 生成側から参照しやすいように公開（任意）
+  // 量産用 色タグの取り出しヘルパ
   window.__prodColor = {
     get top()    { return document.getElementById('p_use_top').checked    ? document.getElementById('tag_p_top')?.textContent?.trim()    : null; },
     get bottom() { return document.getElementById('p_use_bottom').checked ? document.getElementById('tag_p_bottom')?.textContent?.trim() : null; },
@@ -736,6 +723,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 });
 </script>
-  
+
 </body>
 </html>
