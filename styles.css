@@ -635,3 +635,9 @@ legend { display: none; }
 #panel_outfitFixed { overflow: hidden; }
 #panel_outfitFixed .scroller { max-width: 100%; overflow-x: hidden; }
 
+/* 色相環はすべて左寄せに統一 */
+#grid_fixed_colors .panel .wheel-box,
+#prodColorCard .panel .wheel-box,
+#accCard .wheel-box {
+  margin: 10px 0 12px !important;  /* ← 左右 0。中央寄せの auto を上書き */
+}
