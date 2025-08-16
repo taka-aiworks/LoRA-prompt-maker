@@ -457,17 +457,28 @@ legend { display: none; }
 }
 
 /* ===== 服（固定）の選択 UI：全画面時は折り返し ===== */
-/* トップス/ワンピ/下カテゴリの3ブロックがはみ出す幅では自動で2列 or 1列へ */
+/* 服（固定）3ブロックを画面幅に応じて確実に折り返す */
 #panel_outfitFixed .grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(320px, 1fr));
+  grid-template-columns: repeat(3, minmax(380px, 1fr)); /* ← 最小幅を少し広げて3列を強制 */
   gap: 12px;
+  align-items: start;                                   /* パネルの頭を揃える */
 }
-@media (max-width: 1280px) {
-  #panel_outfitFixed .grid { grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+#panel_outfitFixed .grid > .panel { min-width: 0; }     /* 長いチップでも折り返せる */
+
+@media (max-width: 1440px) {
+  #panel_outfitFixed .grid {
+    grid-template-columns: repeat(2, minmax(380px, 1fr)); /* 2列 */
+  }
 }
-@media (max-width: 900px) {
-  #panel_outfitFixed .grid { grid-template-columns: 1fr; }
+@media (max-width: 980px) {
+  #panel_outfitFixed .grid { grid-template-columns: 1fr; } /* 1列 */
+}
+
+/* 服リストの縦を少しだけ広げる（はみ出し防止） */
+#panel_outfitFixed .scroller { max-height: 460px; }
+@media (min-width: 1600px) {
+  #panel_outfitFixed .scroller { max-height: 520px; }
 }
 
 /* ===== 髪型/目/服（3カラム）の“選択肢の枠”を広げる ===== */
