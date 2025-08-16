@@ -1458,6 +1458,10 @@ function setupColorPickers(){
 }
 /* ===== ここから追記：総合初期化 ===== */
 function initHairEyeAndAccWheels(){
+   // ★ 髪/瞳：Hueリング + S/Lスクエア版で初期化
+  getHairColorTag = initWheelWithSquare('#wheelH', '#thumbH', '#swH', '#tagH', 'hair', 35, 75, 50);
+  getEyeColorTag  = initWheelWithSquare('#wheelE', '#thumbE', '#swE', '#tagE', 'eyes', 210, 80, 55);
+
   // 学習アクセ
   getLearnAccColor = initColorWheel('learnAcc', 0, 75, 50);
 
