@@ -298,6 +298,14 @@ function updateWearPanelEnabled(idBase){
   const lit = document.getElementById("lit_"+idBase);
   if (sat) sat.disabled = disabled;
   if (lit) lit.disabled = disabled;
+
+  // 末尾付近に追記（disabledでもpointerは戻す）
+  const cb = (idBase === "bottom")
+    ? (document.getElementById("useBottomColor") || document.getElementById("use_bottom"))
+    : document.getElementById("use_" + idBase);
+  if (cb) {
+    cb.disabled = false; // 常に再チェックできる
+}
 }
 
 
