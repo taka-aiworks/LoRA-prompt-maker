@@ -179,7 +179,7 @@ function bindBottomCategoryRadios(){
 
 // 直近カテゴリを記録（関数スコープ変数 & 参照用に window にも）
      __bottomCat = isSkirt ? 'skirt' : 'pants';
-     window.__bottomCat = __bottomCat;    }
+     window.__bottomCat = __bottomCat;
   };
 
   rPants?.addEventListener('change', swap);
@@ -189,6 +189,84 @@ function bindBottomCategoryRadios(){
   window.__applyBottomCatSwap = swap;
 
   swap(); // 初期反映（パンツ既定→スカート側を無効）
+}
+
+// ===== 1枚テスト: 必須チェック =====
+function listMissingForOneTest() {
+  const miss = [];
+
+  // 名前（seed固定用）
+  const name = ($("#charName")?.value || "").trim();
+  if (!name) miss.push("キャラ名");
+
+  // 色タグ（髪・瞳・肌）
+  const hairTag = ($("#tagH")?.textContent || "").trim();
+  const eyeTag  = ($("#tagE")?.textContent || "").trim();
+  const skinTag = ($("#tagSkin")?.textContent || "").trim();
+  if (!hairTag) miss.push("髪色");
+  if (!eyeTag)  miss.push("瞳色");
+  if (!skinTag) miss.push("肌トーン");
+
+  // 形状1択（髪型・目の形）
+  if (!getOne("hairStyle")) miss.push("髪型");
+  if (!getOne("eyeShape"))  miss.push("目の形");
+
+  // 体型/顔/画風は“推奨”だが未選択でも出力は可能にしたいなら下の3行はコメントアウト
+  if (!getOne("skinBody"))  miss.push("体型");
+  if (!getOne("face"))      miss.push("顔の特徴");
+  if (!getOne("artStyle"))  miss.push("画風");
+
+  // 服（ワンピ or 上下）
+  const sel = getBasicSelectedOutfit(); // 既存関数
+  if (sel.mode === "onepiece") {
+    if (!sel.dress) miss.push("ワンピース");
+  } else {
+    if (!sel.top)    miss.push("トップス");
+    if (!sel.bottom) miss.push(sel.bottomCat === "skirt" ? "スカート" : "ボトムス");
+  }
+
+  // 1枚テストで使う差分（背景/ポーズ/表情）
+  if (getMany("bg").length   === 0) miss.push("背景（最低1つ）");
+  if (getMany("pose").length === 0) miss.push("ポーズ（最低1つ）");
+  if (getMany("expr").length === 0) miss.push("表情（最低1つ）");
+
+  return miss;
+}
+function isBasicReadyForOneTest(){ return listMissingForOneTest().length === 0; }
+
+function updateOneTestReady(){
+  const btn = $("#btnOneLearn");
+  if (!btn) return;
+  const miss = listMissingForOneTest();
+  const ok = miss.length === 0;
+  btn.disabled = !ok;
+  btn.classList.toggle("disabled", !ok);
+  btn.title = ok ? "" : ("不足: " + miss.join(" / "));
+}
+
+// ===== 1枚テスト: 生成 & 描画 =====
+let __lastOneTestRows = []; // フォーマット切替再描画用
+
+function runOneTest() {
+  const lack = listMissingForOneTest();
+  if (lack.length) { toast("1枚テスト 未入力: " + lack.join(" / ")); return; }
+
+  const one = buildOneLearning(); // 既存（BG/PO/EXが無いとerrorを返す）
+  if (one?.error) { toast(one.error); return; }
+
+  // 既存レンダラを使って、1枚テスト用テーブル/テキストへ
+  __lastOneTestRows = [one];
+  renderLearnTableTo("#tblLearnTest tbody", __lastOneTestRows);
+  // #fmtLearn の選択に従ってテキスト化（第3引数はセレクトID）
+  renderLearnTextTo("#outLearnTest", __lastOneTestRows, "fmtLearn");
+}
+
+function copyOneTestText(){
+  const el = $("#outLearnTest");
+  if (!el) return;
+  const txt = el.textContent || "";
+  if (!txt) { toast("コピーするテキストがありません"); return; }
+  navigator.clipboard.writeText(txt).then(()=> toast("コピーしました"));
 }
 
 /* ========= カラーユーティリティ ========= */
@@ -1466,7 +1544,8 @@ async function loadDefaultDicts(){
 function bindLearnTest(){
   let __lastOneLearn = null;
 
-  $("#btnOneLearn")?.addEventListener("click", ()=>{
+  /*
+   $("#btnOneLearn")?.addEventListener("click", ()=>{
     const one = buildOneLearning();
     if(one.error){ toast(one.error); return; }
     __lastOneLearn = one;
@@ -1485,6 +1564,7 @@ function bindLearnTest(){
         document.execCommand("copy"); s.removeAllRanges(); d.remove(); toast("プロンプトのみコピーしました");
       });
   });
+  */
 }
 
 function bindLearnBatch(){
@@ -1630,3 +1710,41 @@ function initAll(){
 }
 
 document.addEventListener('DOMContentLoaded', initAll);
+
+function bindOneTestUI(){
+  // クリック
+  $("#btnOneLearn")?.addEventListener("click", runOneTest);
+  $("#btnCopyLearnTest")?.addEventListener("click", copyOneTestText);
+
+  // フォーマット変更時に再整形
+  $("#fmtLearn")?.addEventListener("change", ()=>{
+    if (__lastOneTestRows.length) renderLearnTextTo("#outLearnTest", __lastOneTestRows, "fmtLearn");
+  });
+
+  // 入力監視：基本情報一式が更新されたら判定を更新
+  const watchSelectors = [
+    "#charName", "#tagH", "#tagE", "#tagSkin",
+    'input[name="hairStyle"]','input[name="eyeShape"]','input[name="face"]','input[name="skinBody"]','input[name="artStyle"]',
+    'input[name="outfitMode"]','input[name="outfit_top"]','input[name="outfit_pants"]','input[name="outfit_skirt"]','input[name="outfit_dress"]',
+    'input[name="bg"]','input[name="pose"]','input[name="expr"]',
+    "#use_top","#useBottomColor","#use_shoes",
+    "#sat_top","#lit_top","#sat_bottom","#lit_bottom","#sat_shoes","#lit_shoes",
+  ];
+
+  // 変化を広めに捕捉（input/change/DOM変化）
+  watchSelectors.forEach(sel=>{
+    $$(sel).forEach(el=>{
+      el.addEventListener("change", updateOneTestReady);
+      el.addEventListener("input",  updateOneTestReady);
+    });
+  });
+
+  // 初回判定
+  updateOneTestReady();
+}
+
+// 既存の初期化の最後にこれを呼ぶ
+document.addEventListener("DOMContentLoaded", ()=>{
+  // ...既存の init / bind 系...
+  bindOneTestUI();
+});
