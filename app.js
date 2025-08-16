@@ -169,8 +169,8 @@ function bindBottomCategoryRadios(){
   const swap = () => {
     const isSkirt = !!rSkirt?.checked;
     // 見た目（グレーアウト）
-    fsP && fsP.classList.toggle('disabled',  isSkirt);
-    fsS && fsS.classList.toggle('disabled', !isSkirt);
+    fsP && fsP.classList.toggle('is-disabled',  isSkirt);
+    fsS && fsS.classList.toggle('is-disabled', !isSkirt);
     // 入力そのものを切替（fieldset は disabled プロパティが効く）
     if (fsP) fsP.disabled = isSkirt;
     if (fsS) fsS.disabled = !isSkirt;
