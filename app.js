@@ -355,25 +355,61 @@ function bindWearToggles(){
     updateWearPanelEnabled(idBase);
   });
 
-  // outfitモードが onepiece の時はボトム色OFF
-  const syncBottomForOutfit = ()=>{
-    const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
-    const cb = document.getElementById("useBottomColor");
-    if (!cb) return;
-    if (mode === "onepiece") {
-      cb.checked = false;
-      updateWearPanelEnabled("bottom");
-    } else {
-      // separate に戻したら、下のどちらかが選ばれてる時は自動ON
-      const pantsSel = document.querySelector('input[name="outfit_pants"]:checked');
-      const skirtSel = document.querySelector('input[name="outfit_skirt"]:checked');
-      if ((pantsSel || skirtSel) && !cb.checked) {
-        cb.checked = true;
-        updateWearPanelEnabled("bottom");
-      }
-    }
+// outfitモードに応じて、ワンピ/上下のUIと「下カラー」チェックを同期させる
+const syncBottomForOutfit = ()=>{
+  const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
+
+  // ワンピの fieldset（最初は HTML 側で disabled になってる）
+  const fsDress = document.getElementById('fsDress');
+
+  // トップスと下カテゴリの「見た目用パネル」
+  const topPanel    = document.getElementById('outfit_top')?.closest('.panel');
+  const bottomPanel = document.getElementById('bottomCategoryRadios')?.closest('.panel');
+
+  // パネル内の input を一括 enable/disable するヘルパ
+  const setInputsDisabled = (root, on) => {
+    if (!root) return;
+    root.querySelectorAll('input, select, button').forEach(el => { el.disabled = !!on; });
+    root.classList.toggle('is-disabled', !!on); // 見た目のグレーアウト
   };
-  $$('input[name="outfitMode"]').forEach(el=> el.addEventListener("change", syncBottomForOutfit));
+
+  // ----- モード別の切り替え -----
+  if (mode === "onepiece") {
+    // ワンピ選択可
+    if (fsDress) fsDress.disabled = false;
+
+    // 上下は触れないように（ラジオが効かない＝ここで止めてOK）
+    setInputsDisabled(topPanel,    true);
+    setInputsDisabled(bottomPanel, true);
+
+    // 「下カラー」を自動OFF
+    const cb = document.getElementById("useBottomColor");
+    if (cb) { cb.checked = false; updateWearPanelEnabled("bottom"); }
+
+  } else {
+    // separate：ワンピを無効化
+    if (fsDress) fsDress.disabled = true;
+
+    // 上下を再び有効化
+    setInputsDisabled(topPanel,    false);
+    setInputsDisabled(bottomPanel, false);
+
+    // もしどちらかの“下”が選ばれてたら、下カラーを自動ON
+    const cb = document.getElementById("useBottomColor");
+    const pantsSel = document.querySelector('input[name="outfit_pants"]:checked');
+    const skirtSel = document.querySelector('input[name="outfit_skirt"]:checked');
+    if (cb && (pantsSel || skirtSel) && !cb.checked) {
+      cb.checked = true;
+      updateWearPanelEnabled("bottom");
+    }
+  }
+};
+
+// 既存のバインドでOK（差し替え後もこのまま使う）
+$$('input[name="outfitMode"]').forEach(el=> el.addEventListener("change", syncBottomForOutfit));
+
+// 初期反映（ページ読み込み時に一度実行）
+syncBottomForOutfit();
 
   // ★ パンツ/スカート選択に連動してボトム色を自動ON
   const autoEnableBottomColor = ()=>{
