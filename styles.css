@@ -337,6 +337,18 @@ details[open] summary .caret { transform: rotate(90deg); }
    有効/無効 表現の統一
    ======================== */
 
+/* .disabled は“見た目だけ”にする（クリックは殺さない） */
+.disabled {
+  opacity: .5;
+  filter: grayscale(30%);
+  pointer-events: auto !important;   /* ← これが肝 */
+}
+
+/* 念のため：パネルを is-disabled にしても“モード切替ラジオ”は触れる */
+#panel_outfitFixed input[name="outfitMode"] {
+  pointer-events: auto;
+}
+
 /* 見た目のグレーアウトはこのクラス1本に統一 */
 .is-disabled {
   opacity: .5;
