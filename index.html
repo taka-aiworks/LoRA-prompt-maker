@@ -652,6 +652,7 @@
   <script src="app.js" defer></script>
   
 <script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const $ = s => document.querySelector(s);
   const panelOf = id => document.getElementById(id)?.closest('.panel');
@@ -661,38 +662,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setPanelDisabled = (el, on) => {
     if (!el) return;
-    // 見た目は app.js に合わせて is-disabled を使う
-    el.classList.toggle('is-disabled', !!on);
-    // 入力の enable/disable は bindWearToggles()/updateWearPanelEnabled が面倒を見る
+    el.classList.toggle('is-disabled', !!on);  // 見た目のグレーアウト
   };
 
   const applyOutfitMode = () => {
     const isOnepiece = getIsOnepiece();
 
-    // ワンピース fieldset の有効/無効
+    // ワンピースのfieldsetは on の時だけ有効化
     const fsDress = document.getElementById('fsDress');
     if (fsDress) {
       fsDress.disabled = !isOnepiece;
-      fsDress.classList.toggle('disabled', !isOnepiece);
     }
 
-    // トップス・下カテゴリのパネル
+    // ← ここが抜けてた：トップスのパネルもワンピース時はグレーアウト
+    setPanelDisabled(panelOf('outfit_top'), isOnepiece);
+
+    // 下カテゴリのパネルもグレーアウト
     const bottomPanel = $('#bottomCategoryRadios')?.closest('.panel');
     setPanelDisabled(bottomPanel, isOnepiece);
-    setPanelDisabled(document.getElementById('bottomWearPanel'), isOnepiece);
-    };
 
-  // ラジオ連動（change と input の両方を拾う）
+    // セパレート全体は入力停止（見た目は上のis-disabledで担保）
+    const fsSeparates = document.getElementById('fsSeparates');
+    if (fsSeparates) fsSeparates.disabled = isOnepiece;
+
+    // 使っていないIDへの参照は削除（bottomWearPanel は存在しない）
+    // setPanelDisabled(document.getElementById('bottomWearPanel'), isOnepiece); ←削除
+  };
+
   document.querySelectorAll('input[name="outfitMode"]').forEach(r => {
     r.addEventListener('change', applyOutfitMode);
     r.addEventListener('input', applyOutfitMode);
   });
 
-  // 初期反映 + bfcache からの復帰にも対応
   applyOutfitMode();
   window.addEventListener('pageshow', applyOutfitMode);
 });
 </script>
-
 </body>
 </html>
