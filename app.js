@@ -1463,30 +1463,6 @@ function bindProduction(){
   });
 }
 
-function bindSettings(){
-  $("#btnSaveSettings")?.addEventListener("click", ()=>{ saveSettings(); toast("設定を保存しました"); });
-  $("#btnResetSettings")?.addEventListener("click", ()=>{ resetSettings(); loadSettings(); });
-}
-
-/* === カラーピッカー初期化（アイドル時） === */
-function setupColorPickers(){
-  getHairColorTag   = initWheel("#wheelH","#thumbH","#satH","#litH","#swH","#tagH","hair");
-  getEyeColorTag    = initWheel("#wheelE","#thumbE","#satE","#litE","#swE","#tagE","eyes");
-  getLearnAccColor  = initColorWheel("learnAcc", 0,   75, 50); 
-  getAccAColor      = initColorWheel("accA",     0,   80, 50);
-  getAccBColor      = initColorWheel("accB",   220,   80, 50);
-  getAccCColor      = initColorWheel("accC",   130,   80, 50);
-
-  initColorWheel("top",    35, 80, 55);
-  initColorWheel("bottom",210, 70, 50);
-  initColorWheel("shoes", 0, 0, 30);
-  // 量産（p_）側のホイールも初期化（タグ #tag_p_* に色名が入る）
-  initColorWheel("p_top",    35, 80, 55);
-  initColorWheel("p_bottom",210, 70, 50);
-  initColorWheel("p_shoes",   0,  0, 30);
-   
-  getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
-}
 /* ===== ここから追記：総合初期化 ===== */
 function initHairEyeAndAccWheels(){
   // --- 髪/瞳（スクエア付きHSLピッカー） ---
