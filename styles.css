@@ -511,16 +511,6 @@ legend { display: none; }
   .panel .wheel-box { width: 140px; height: 140px; }
 }
 
-/* 狭い時は自動で少し小さく */
-@media (max-width: 1024px) {
-  #grid_fixed_colors {
-    grid-template-columns: 1fr;        /* 3→1列に落とす */
-  }
-  #grid_fixed_colors .panel .wheel-box {
-    width: min(220px, 92%);
-  }
-}
-
 /* 超ワイドでさらに広げる */
 @media (min-width: 1600px) {
   #grid_fixed_colors {
