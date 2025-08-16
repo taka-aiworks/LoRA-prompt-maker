@@ -297,12 +297,7 @@ function updateWearPanelEnabled(idBase){
   if (lit) lit.disabled = disabled;
 }
 
-// 1行ぶんを組み立てる時
-const colorTop    = window.__prodColor.top;    // 例 "red"
-const colorBottom = window.__prodColor.bottom; // 例 "navy"
-const colorShoes  = window.__prodColor.shoes;
 
-const usesDress = pickedItems.includes('dress'); // その行でドレスを採用したか
 
 if (colorTop)    promptParts.push(colorTop);         // トップ色タグ
 if (!usesDress && colorBottom) promptParts.push(colorBottom); // ワンピースなら下色は付けない
