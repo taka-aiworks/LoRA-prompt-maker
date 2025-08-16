@@ -313,12 +313,21 @@ details[open] summary .caret { transform: rotate(90deg); }
 }
 .note .mini { opacity: .9; }
 
-/* 無効状態 */
-.is-disabled,
-#bottomWearPanel.is-disabled {
-  opacity: .45;
-  filter: grayscale(.3);
+/* パネルは薄く見せるだけでクリックは殺さない */
+.panel.is-disabled {
+  opacity: .5;
+}
+
+/* 操作を無効化したいのは“スライダやホイール”だけ */
+.panel.is-disabled .wheel-box,
+.panel.is-disabled input[type="range"] {
   pointer-events: none;
+  filter: grayscale(80%);
+}
+
+/* ← チェックボックスは常に押せるように */
+.panel.is-disabled input[type="checkbox"] {
+  pointer-events: auto;
 }
 
 /* 服カラー用ホイールサイズ調整 */
