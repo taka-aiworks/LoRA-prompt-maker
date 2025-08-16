@@ -311,23 +311,54 @@ function updateWearPanelEnabled(idBase){
 
 // 追加：チェックボックスのバインド
 function bindWearToggles(){
-   ["top","bottom","shoes"].forEach(idBase=>{
-     const cb = (idBase === "bottom")
-       ? (document.getElementById("useBottomColor") || document.getElementById("use_bottom"))
-       : document.getElementById("use_"+idBase);
-
+  // 既存：チェックボックス → パネル有効/無効
+  ["top","bottom","shoes"].forEach(idBase=>{
+    const cb = (idBase === "bottom")
+      ? (document.getElementById("useBottomColor") || document.getElementById("use_bottom"))
+      : document.getElementById("use_"+idBase);
     if (!cb) return;
     cb.addEventListener("change", ()=> updateWearPanelEnabled(idBase));
     updateWearPanelEnabled(idBase);
   });
 
+  // outfitモードが onepiece の時はボトム色OFF
   const syncBottomForOutfit = ()=>{
     const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
     const cb = document.getElementById("useBottomColor") || document.getElementById("use_bottom");
-    if (mode === "onepiece") { if (cb) cb.checked = false; }
-    updateWearPanelEnabled("bottom");
+    if (!cb) return;
+    if (mode === "onepiece") {
+      cb.checked = false;
+      updateWearPanelEnabled("bottom");
+    } else {
+      // separate に戻したら、下のどちらかが選ばれてる時は自動ON
+      const pantsSel = document.querySelector('input[name="outfit_pants"]:checked');
+      const skirtSel = document.querySelector('input[name="outfit_skirt"]:checked');
+      if ((pantsSel || skirtSel) && !cb.checked) {
+        cb.checked = true;
+        updateWearPanelEnabled("bottom");
+      }
+    }
   };
   $$('input[name="outfitMode"]').forEach(el=> el.addEventListener("change", syncBottomForOutfit));
+
+  // ★ パンツ/スカート選択に連動してボトム色を自動ON
+  const autoEnableBottomColor = ()=>{
+    const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
+    if (mode !== "separate") return;
+    const cb = document.getElementById("useBottomColor") || document.getElementById("use_bottom");
+    if (cb && !cb.checked) {
+      cb.checked = true;
+      updateWearPanelEnabled("bottom");
+    }
+  };
+  // ラップ要素でも、内側のラジオでも OK なように両方へバインド
+  ["outfit_pants","outfit_skirt"].forEach(id=>{
+    document.getElementById(id)?.addEventListener("change", autoEnableBottomColor);
+  });
+  $$('input[name="outfit_pants"]').forEach(r=> r.addEventListener("change", autoEnableBottomColor));
+  $$('input[name="outfit_skirt"]').forEach(r=> r.addEventListener("change", autoEnableBottomColor));
+
+  // 初期同期
   syncBottomForOutfit();
 }
 
@@ -1458,27 +1489,35 @@ function setupColorPickers(){
 }
 /* ===== ここから追記：総合初期化 ===== */
 function initHairEyeAndAccWheels(){
-   // ★ 髪/瞳：Hueリング + S/Lスクエア版で初期化
-  getHairColorTag = initWheelWithSquare('#wheelH', '#thumbH', '#swH', '#tagH', 'hair', 35, 75, 50);
-  getEyeColorTag  = initWheelWithSquare('#wheelE', '#thumbE', '#swE', '#tagE', 'eyes', 210, 80, 55);
+  // --- 髪/瞳（スクエア付きHSLピッカー） ---
+  // 既定色はお好みで
+  getHairColorTag = initWheelWithSquare(
+    "#wheelH", "#thumbH", "#swH", "#tagH", "hair",
+    35, 75, 50
+  );
+  getEyeColorTag = initWheelWithSquare(
+    "#wheelE", "#thumbE", "#swE", "#tagE", "eyes",
+    210, 60, 50
+  );
 
-  // 学習アクセ
-  getLearnAccColor = initColorWheel('learnAcc', 0, 75, 50);
+  // 旧S/L行は非表示（スクエアで操作するため）
+  ["satH","litH","satE","litE"].forEach(id=>{
+    const row = document.getElementById(id)?.closest(".row");
+    if (row) row.style.display = "none";
+  });
 
-  // 量産アクセ A/B/C
-  getAccAColor = initColorWheel('accA', 0, 80, 50);
-  getAccBColor = initColorWheel('accB', 200, 80, 50);
-  getAccCColor = initColorWheel('accC', 120, 80, 50);
+  // --- 学習アクセ & 量産アクセ A/B/C ---
+  getLearnAccColor = initColorWheel("learnAcc", 0,   75, 50);
+  getAccAColor     = initColorWheel("accA",     0,   80, 50);
+  getAccBColor     = initColorWheel("accB",   200,   80, 50);
+  getAccCColor     = initColorWheel("accC",   120,   80, 50);
 
-  // 服の学習用（top/bottom/shoes）のON/OFF UIを反映
+  // --- ベース服色（任意。使うUIがあるなら） ---
+  getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
+
+  // --- 服色ON/OFFの連動 ---
   bindWearToggles();
-// 髪/瞳の旧S/L行は非表示（スクエアで操作するため）
-['satH','litH','satE','litE'].forEach(id=>{
-  const row = document.getElementById(id)?.closest('.row');
-  if (row) row.style.display = 'none';
-});
 }
-
 function initSkinTone(){
   const s = document.getElementById('skinTone');
   if (s) {
