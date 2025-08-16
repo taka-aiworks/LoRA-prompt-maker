@@ -211,27 +211,18 @@ function listMissingForOneTest() {
   if (!getOne("hairStyle")) miss.push("髪型");
   if (!getOne("eyeShape"))  miss.push("目の形");
 
-  // 体型/顔/画風は“推奨”だが未選択でも出力は可能にしたいなら下の3行はコメントアウト
-  if (!getOne("skinBody"))  miss.push("体型");
-  if (!getOne("face"))      miss.push("顔の特徴");
-  if (!getOne("artStyle"))  miss.push("画風");
+  // 推奨（任意に変更）
+  if (!getOne("skinBody"))  miss.push("体型（任意）");
+  if (!getOne("face"))      miss.push("顔の特徴（任意）");
+  if (!getOne("artStyle"))  miss.push("画風（任意）");
 
-  // 服（ワンピ or 上下）
-  const sel = getBasicSelectedOutfit(); // 既存関数
-  if (sel.mode === "onepiece") {
-    if (!sel.dress) miss.push("ワンピース");
-  } else {
-    if (!sel.top)    miss.push("トップス");
-    if (!sel.bottom) miss.push(sel.bottomCat === "skirt" ? "スカート" : "ボトムス");
-  }
+  // 服は“任意”にする（未選択ならプロンプトに入らないだけ）
+  // const sel = getBasicSelectedOutfit(); ← 必須チェックを削除
+  // ★ 背景/ポーズ/表情は“必須にしない”のでチェック削除
 
-  // 1枚テストで使う差分（背景/ポーズ/表情）
-  if (getMany("bg").length   === 0) miss.push("背景（最低1つ）");
-  if (getMany("pose").length === 0) miss.push("ポーズ（最低1つ）");
-  if (getMany("expr").length === 0) miss.push("表情（最低1つ）");
-
-  return miss;
+  return miss.filter(x => !/（任意）$/.test(x)); // 任意は不足扱いにしない
 }
+
 function isBasicReadyForOneTest(){ return listMissingForOneTest().length === 0; }
 
 function updateOneTestReady(){
@@ -1199,7 +1190,6 @@ function getSelectedNSFW_Learn(){
 function buildOneLearning(){
   const fixed = assembleFixedLearning();
   const BG = getMany("bg"), PO=getMany("pose"), EX=getMany("expr"), LI=getMany("lightLearn");
-  if(BG.length===0 || PO.length===0 || EX.length===0) return {error:"背景・ポーズ・表情は最低1つずつ選択してください。"};
   const addon = getSelectedNSFW_Learn();
   const b = pick(BG), p = pick(PO), e=pick(EX), l = LI.length ? pick(LI) : "";
   let parts = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
