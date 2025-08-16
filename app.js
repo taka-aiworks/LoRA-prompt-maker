@@ -1236,7 +1236,8 @@ function getSelectedNSFW_Learn(){
   ];
   return uniq(pickeds);
 }
-function buildOneLearning(){
+
+function buildOneLearning(extraSeed = 0){
   const fixed = assembleFixedLearning();
   const BG = getMany("bg"), PO=getMany("pose"), EX=getMany("expr"), LI=getMany("lightLearn");
   const addon = getSelectedNSFW_Learn();
@@ -1245,14 +1246,27 @@ function buildOneLearning(){
   parts = applyNudePriority(parts);
   parts = pairWearColors(parts);
   const pos = ensurePromptOrder(parts);
-  const seed = seedFromName($("#charName").value||"", 0);
+  const seed = seedFromName($("#charName").value||"", extraSeed); // ←ここでズラす
   return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
 }
+
 function buildBatchLearning(n){
-  const used=new Set(), out=[]; let guard=0;
-  while(out.length<n && guard < n*300){
-    guard++; const o = buildOneLearning(); if(o.error){ return {error:o.error}; }
-    const key = o.pos.join("|"); if(used.has(key)) continue; used.add(key); out.push(o);
+  const used = new Set();
+  const out = [];
+  let guard = 0;
+
+  // まずはユニークで頑張る
+  while (out.length < n && guard < n * 300){
+    guard++;
+    const o = buildOneLearning(out.length + 1); // 行番号で seed 変化
+    const key = o.pos.join("|");
+    if (used.has(key)) continue;
+    used.add(key);
+    out.push(o);
+  }
+  // ユニークが尽きたら重複許容で埋め切る（seed は全部違う）
+  while (out.length < n){
+    out.push(buildOneLearning(out.length + 1));
   }
   return out;
 }
@@ -1444,7 +1458,6 @@ function buildBatchProduction(n){
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
   const neg   = ($("#p_neg").value||"").trim();
 
-  // カテゴリ別の服
   const O = readProductionOutfits();  // {top, pants, skirt, dress, shoes}
 
   const bgs    = getMany("p_bg");
@@ -1453,7 +1466,6 @@ function buildBatchProduction(n){
   const lights = getMany("p_light");
   const acc    = readAccessorySlots();
 
-  // NSFW
   const nsfwOn = $("#nsfwProd").checked;
   const nsfwAdd = nsfwOn ? uniq([
     ...getMany("nsfwP_expr"),
@@ -1462,7 +1474,6 @@ function buildBatchProduction(n){
     ...getMany("nsfwP_light")
   ]) : [];
 
-  // 量産カラー（p_ホイール）— チェックONかつタグが入ってる時だけ採用
   const PC = {
     top:    getProdWearColorTag("top"),
     bottom: getProdWearColorTag("bottom"),
@@ -1471,43 +1482,31 @@ function buildBatchProduction(n){
 
   const baseSeed = seedFromName($("#charName").value||"", 0);
   const out = [];
+  const seen = new Set();
   let guard = 0;
 
-  while (out.length < n && guard < n * 400) {
-    guard++;
-
+  const makeOne = (i)=>{
     const parts = [];
     let usedDress = false;
 
-    // ---- 服の決定（ワンピ or 上下）----
     if (O.dress.length && Math.random() < 0.35) {
-      parts.push(pick(O.dress));   // 服名は素のまま
+      parts.push(pick(O.dress));
       usedDress = true;
     } else {
       if (O.top.length) parts.push(pick(O.top));
-      // bottom は pants / skirt のどちらかから
       let bottomPool = [];
-      if (O.pants.length && O.skirt.length) {
-        bottomPool = (Math.random() < 0.5) ? O.pants : O.skirt;
-      } else if (O.pants.length) {
-        bottomPool = O.pants;
-      } else if (O.skirt.length) {
-        bottomPool = O.skirt;
-      }
+      if (O.pants.length && O.skirt.length) bottomPool = (Math.random() < 0.5) ? O.pants : O.skirt;
+      else if (O.pants.length) bottomPool = O.pants;
+      else if (O.skirt.length) bottomPool = O.skirt;
       if (bottomPool.length) parts.push(pick(bottomPool));
     }
 
-    // 靴（任意）
-    if (O.shoes && O.shoes.length) {
-      parts.push(pick(O.shoes));
-    }
+    if (O.shoes && O.shoes.length) parts.push(pick(O.shoes));
 
-    // ---- ★ ここで量産カラーを注入 ----
     if (PC.top)    parts.push(`${PC.top} top`);
-    if (!usedDress && PC.bottom) parts.push(`${PC.bottom} bottom`); // ワンピ時は下色なし
+    if (!usedDress && PC.bottom) parts.push(`${PC.bottom} bottom`);
     if (PC.shoes)  parts.push(`${PC.shoes} shoes`);
 
-    // ---- その他（アクセ・背景・ポーズ・表情・ライティング・NSFW）----
     if (acc.length)    parts.push(...acc);
     if (bgs.length)    parts.push(pick(bgs));
     if (poses.length)  parts.push(pick(poses));
@@ -1515,23 +1514,27 @@ function buildBatchProduction(n){
     if (lights.length) parts.push(pick(lights));
     if (nsfwAdd.length)parts.push(...nsfwAdd);
 
-    // 固定タグ → ヌード優先 → 並び替え
     let all = uniq([...fixed, ...parts]).filter(Boolean);
     all = applyNudePriority(all);
-    all = pairWearColors(all); 
+    all = pairWearColors(all);
     const prompt = ensurePromptOrder(all).join(", ");
 
-    // seed
-    const seed = (seedMode === "fixed")
-      ? baseSeed
-      : seedFromName($("#charName").value||"", out.length + 1);
+    const seed = (seedMode === "fixed") ? baseSeed : seedFromName($("#charName").value||"", i);
+    return { key: `${prompt}|${seed}`, seed, prompt, neg };
+  };
 
-    const key = `${prompt}|${seed}`;
-    if (out.some(x => x.key === key)) continue;
-
-    out.push({ key, seed, prompt, neg });
+  // ユニーク優先
+  while (out.length < n && guard < n * 400) {
+    guard++;
+    const r = makeOne(out.length + 1);
+    if (seen.has(r.key)) continue;
+    seen.add(r.key);
+    out.push(r);
   }
-
+  // ここからフォールバック：重複を許して埋め切る
+  while (out.length < n) {
+    out.push(makeOne(out.length + 1));
+  }
   return out;
 }
 
