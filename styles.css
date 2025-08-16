@@ -582,3 +582,21 @@ legend { display: none; }
 #panelProduction .panel select + .wheel-box { margin-top: 6px; }
 #panelProduction .panel .row.mini { display: block; margin-bottom: 8px; }
 
+/* 服カラー（固定・量産）の“罫線の枠”を広げる */
+#grid_fixed_colors .panel,
+#prodColorCard .panel {
+  padding: 18px 24px 26px;   /* ← 上右左より下を深めに */
+  min-height: 300px;         /* ← ホイール＋S/L＋タグ分の高さを確保 */
+  overflow: visible;         /* 念のため：内側を切らない */
+  box-sizing: border-box;
+}
+
+/* ホイールの大きさはそのまま（例：180×180）でOK */
+#grid_fixed_colors .panel .wheel-box,
+#prodColorCard  .panel .wheel-box {
+  width: 180px;
+  height: 180px;
+  margin: 10px auto 12px;    /* 中央寄せ＋下に余白 */
+}
+
+
