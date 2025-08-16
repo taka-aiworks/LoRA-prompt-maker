@@ -1537,17 +1537,21 @@ function initAll(){
   bindGASTools();
   bindBottomCategoryGuess();
 
-  // 内蔵辞書ロード → UI生成
   loadDefaultDicts().then(()=>{
     renderSFW();
     fillAccessorySlots();
     renderNSFWLearning();
     renderNSFWProduction();
-    initHairEyeAndAccWheels();
+
+    // 色系
+    initHairEyeAndAccWheels();   // 髪/瞳/アクセ（learn/accA/accB/accC）
+    initColorWheel("p_top",    35, 80, 55); // ← 追加
+    initColorWheel("p_bottom",210, 70, 50); // ← 追加
+    initColorWheel("p_shoes",   0,  0, 30); // ← 追加
+
     initSkinTone();
     initNSFWStatusBadge();
   });
 }
 
-// ページ読み込み完了後に起動
 document.addEventListener('DOMContentLoaded', initAll);
