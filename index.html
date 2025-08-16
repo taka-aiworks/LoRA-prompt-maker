@@ -85,24 +85,37 @@
 </div>
       
       <!-- 色：髪/瞳/肌 -->
-      <div class="grid g3">
-        <div class="panel">
-          <h3>髪色</h3>
-          <div class="wheel-box"><div id="wheelH" class="wheel"></div><div id="thumbH" class="thumb"></div></div>
-        <div class="row mini"><div id="swH" class="swatch"></div><span>タグ: <code class="tag" id="tagH">brown hair</code></span></div>
-        </div>
-        <div class="panel">
-          <h3>瞳色</h3>
-          <div class="wheel-box"><div id="wheelE" class="wheel"></div><div id="thumbE" class="thumb"></div></div>
-          <div class="row mini"><div id="swE" class="swatch"></div><span>タグ: <code class="tag" id="tagE">blue eyes</code></span></div>
-        </div>
-        <div class="panel">
-          <h3>肌トーン</h3>
-          <input id="skinTone" type="range" min="0" max="100" value="30">
-          <div class="row mini"><div id="swSkin" class="swatch"></div><span>タグ: <code class="tag" id="tagSkin">fair skin</code></span></div>
-        </div>
-      </div>
+<div class="grid g3">
+  <div class="panel">
+    <h3>髪色</h3>
+    <div class="wheel-box">
+      <div id="wheelH" class="wheel"></div><div id="thumbH" class="thumb"></div>
+    </div>
+    <label class="row mini">S: <input id="satH" type="range" min="0" max="100" value="70">
+      L: <input id="litH" type="range" min="0" max="100" value="45"></label>
+    <div class="row mini"><div id="swH" class="swatch"></div>
+      <span>タグ: <code class="tag" id="tagH">brown hair</code></span></div>
+  </div>
 
+  <div class="panel">
+    <h3>瞳色</h3>
+    <div class="wheel-box">
+      <div id="wheelE" class="wheel"></div><div id="thumbE" class="thumb"></div>
+    </div>
+    <label class="row mini">S: <input id="satE" type="range" min="0" max="100" value="80">
+      L: <input id="litE" type="range" min="0" max="100" value="55"></label>
+    <div class="row mini"><div id="swE" class="swatch"></div>
+      <span>タグ: <code class="tag" id="tagE">blue eyes</code></span></div>
+  </div>
+
+  <div class="panel">
+    <h3>肌トーン</h3>
+    <input id="skinTone" type="range" min="0" max="100" value="30">
+    <div class="row mini"><div id="swSkin" class="swatch"></div>
+      <span>タグ: <code class="tag" id="tagSkin">fair skin</code></span></div>
+  </div>
+</div>
+  
       <!-- 形状：髪型/目の形/服 -->
       <div class="grid g3">
         <div class="panel"><h3>髪型（1つ）</h3><div id="hairStyle" class="scroller"></div></div>
