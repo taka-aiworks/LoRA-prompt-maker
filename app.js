@@ -1182,82 +1182,90 @@ function readProductionOutfits(){
   };
 }
 
-/* ② 置き換え版：buildBatchProduction */
+/* ② 置き換え版：buildBatchProduction（丸ごと差し替え） */
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
   const neg   = ($("#p_neg").value||"").trim();
 
-  // ← 旧: const outfits = getMany("p_outfit");
-  const O = readProductionOutfits();  // top / pants / skirt / dress を取得
+  // カテゴリ別の服
+  const O = readProductionOutfits();  // {top, pants, skirt, dress, shoes}
 
-  const bgs   = getMany("p_bg");
-  const poses = getMany("p_pose");
-  const exprs = getMany("p_expr");
-  const lights= getMany("p_light");
-  const acc   = readAccessorySlots();
+  const bgs    = getMany("p_bg");
+  const poses  = getMany("p_pose");
+  const exprs  = getMany("p_expr");
+  const lights = getMany("p_light");
+  const acc    = readAccessorySlots();
 
+  // NSFW
   const nsfwOn = $("#nsfwProd").checked;
-  let nsfwAdd = [];
-  if (nsfwOn){
-    nsfwAdd = uniq([
-      ...getMany("nsfwP_expr"),
-      ...getMany("nsfwP_expo"),
-      ...getMany("nsfwP_situ"),
-      ...getMany("nsfwP_light")
-    ]);
-  }
+  const nsfwAdd = nsfwOn ? uniq([
+    ...getMany("nsfwP_expr"),
+    ...getMany("nsfwP_expo"),
+    ...getMany("nsfwP_situ"),
+    ...getMany("nsfwP_light")
+  ]) : [];
+
+  // 量産カラー（p_ホイール）— window.__prodColor に入ってる想定
+  const PC = window.__prodColor || { top:null, bottom:null, shoes:null };
 
   const baseSeed = seedFromName($("#charName").value||"", 0);
-  const out=[]; let guard=0;
+  const out = [];
+  let guard = 0;
 
-  while(out.length<n && guard<n*400){
+  while (out.length < n && guard < n * 400) {
     guard++;
 
-    // ---- 服の決定（ワンピ or 上下） ----
     const parts = [];
+    let usedDress = false;
 
-    // ワンピースが選ばれていれば 35% くらいの確率でワンピ採用
-    if (O.dress.length && Math.random() < 0.35){
-      const raw = pick(O.dress);
-      parts.push(maybeColorizeOutfit(raw));
+    // ---- 服の決定（ワンピ or 上下）----
+    if (O.dress.length && Math.random() < 0.35) {
+      parts.push(pick(O.dress));   // 服名は素のまま
+      usedDress = true;
     } else {
-      // 上下コーデ：トップス
-      if (O.top.length){
-        parts.push(maybeColorizeOutfit(pick(O.top)));
-      }
-      // ボトム：パンツ or スカートのどちらか（両方選択されていたらランダムに片方）
+      if (O.top.length) parts.push(pick(O.top));
+      // bottom は pants / skirt のどちらかから
       let bottomPool = [];
-      if (O.pants.length && O.skirt.length){
+      if (O.pants.length && O.skirt.length) {
         bottomPool = (Math.random() < 0.5) ? O.pants : O.skirt;
-      } else if (O.pants.length){
+      } else if (O.pants.length) {
         bottomPool = O.pants;
-      } else if (O.skirt.length){
+      } else if (O.skirt.length) {
         bottomPool = O.skirt;
       }
-      if (bottomPool.length){
-        parts.push(maybeColorizeOutfit(pick(bottomPool)));
-      }
+      if (bottomPool.length) parts.push(pick(bottomPool));
     }
 
-    // ---- アクセ・背景・ポーズ・表情・ライティング・NSFW追加 ----
-    if (acc.length)     parts.push(...acc);
-    if (bgs.length)     parts.push(pick(bgs));
-    if (poses.length)   parts.push(pick(poses));
-    if (exprs.length)   parts.push(pick(exprs));
-    if (lights.length)  parts.push(...lights);
-    if (nsfwAdd.length) parts.push(...nsfwAdd);
+    // ---- ★ ここで量産カラーを注入 ----
+    if (PC.top)    parts.push(`${PC.top} top`);
+    if (!usedDress && PC.bottom) parts.push(`${PC.bottom} bottom`); // ワンピ行では下色を付けない
+    if (PC.shoes)  parts.push(`${PC.shoes} shoes`);
 
-    // 固定タグ + ヌード優先 + 並び替え
+    // ---- その他（アクセ・背景・ポーズ・表情・ライティング・NSFW）----
+    if (acc.length)    parts.push(...acc);
+    if (bgs.length)    parts.push(pick(bgs));
+    if (poses.length)  parts.push(pick(poses));
+    if (exprs.length)  parts.push(pick(exprs));
+    if (lights.length) parts.push(...lights);
+    if (nsfwAdd.length)parts.push(...nsfwAdd);
+
+    // 固定タグ → ヌード優先 → 並び替え
     let all = uniq([...fixed, ...parts]).filter(Boolean);
     all = applyNudePriority(all);
     const prompt = ensurePromptOrder(all).join(", ");
 
-    const seed = seedMode==="fixed" ? baseSeed : seedFromName($("#charName").value||"", out.length+1);
+    // seed
+    const seed = (seedMode === "fixed")
+      ? baseSeed
+      : seedFromName($("#charName").value||"", out.length + 1);
+
     const key = `${prompt}|${seed}`;
-    if(out.some(x=>x.key===key)) continue;
-    out.push({key, seed, prompt, neg});
+    if (out.some(x => x.key === key)) continue;
+
+    out.push({ key, seed, prompt, neg });
   }
+
   return out;
 }
 
