@@ -506,10 +506,6 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   return ()=> $(tagId).textContent;
 }
 
-/* ======= 直感版HSLピッカー（Hueリング + S/Lスクエア） ======= */
-function initWheelWithSquare(wId, tId, swId, tagId, baseTag, defaultHue=35, defaultS=75, defaultL=50){
-  const wheel = $(wId), thumb = $(tId), sw=$(swId), tagEl=$(tagId);
-  if (!wheel || !thumb || !sw || !tagEl) return () => $(tagId)?.textContent || "";
 
   // --- SLスクエア（DOMを動的追加） ---
   // wheel の直後に 200x140 のキャンバスとサムを生成
