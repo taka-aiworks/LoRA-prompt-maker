@@ -177,10 +177,9 @@ function bindBottomCategoryRadios(){
     if (fsP) fsP.disabled = isSkirt;
     if (fsS) fsS.disabled = !isSkirt;
 
-    // 直近カテゴリを記録（下の読み取りに使ってるなら）
-    if (typeof window.__bottomCat !== 'undefined') {
-      window.__bottomCat = isSkirt ? 'skirt' : 'pants';
-    }
+// 直近カテゴリを記録（関数スコープ変数 & 参照用に window にも）
+     __bottomCat = isSkirt ? 'skirt' : 'pants';
+     window.__bottomCat = __bottomCat;    }
   };
 
   rPants?.addEventListener('change', swap);
