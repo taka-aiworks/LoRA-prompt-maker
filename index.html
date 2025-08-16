@@ -328,17 +328,6 @@
       </div>
 
       <div class="panel">
-        <h3>固定タグ / ネガティブ / 18禁</h3>
-        <label>固定タグ（全行に付与）</label>
-        <textarea id="fixedManual" rows="3" placeholder="masterpiece, best quality, solo, 1girl"></textarea>
-        <label style="margin-top:10px">ネガティブ（全行）</label>
-        <textarea id="negGlobal" rows="3" placeholder="lowres, blurry, bad anatomy, extra fingers"></textarea>
-        <div class="row mini">
-        <label>
-          <input type="checkbox" id="useDefaultNeg" checked>
-            デフォルトのネガティブプロンプトを使う
-        </label>
-        </div>
         <div class="row" style="margin-top:8px">
           <label class="inline"><input type="checkbox" id="nsfwLearn"> 18禁ON</label>
           <span class="mini">（手動選択のみ）</span>
@@ -358,7 +347,18 @@
           </div>
           <div class="mini" style="margin-top:6px">※ リストはレベル上限の範囲で表示されます</div>
         </div>
+        <h3>固定タグ / ネガティブ / 18禁</h3>
+        <label>固定タグ（全行に付与）</label>
+        <textarea id="fixedManual" rows="3" placeholder="masterpiece, best quality, solo, 1girl"></textarea>
+        <label style="margin-top:10px">ネガティブ（全行）</label>
+        <textarea id="negGlobal" rows="3" placeholder="lowres, blurry, bad anatomy, extra fingers"></textarea>
+        <div class="row mini">
+        <label>
+          <input type="checkbox" id="useDefaultNeg" checked>
+            デフォルトのネガティブプロンプトを使う
+        </label>
       </div>
+    </div>
 
       <div class="card" id="learnBatchCard">
         <div class="row">
