@@ -158,7 +158,7 @@ function mergeIntoNSFW(json) {
     lighting:   dedupeByTag([...(NSFW.lighting||[]),   ...src.lighting]),
   };
 }
-
+let __bottomCat = "pants"; // 既定はパンツ
 // ▼ 下カテゴリ（パンツ/スカート）切替：fieldset だけで制御
 function bindBottomCategoryRadios(){
   const rPants = document.getElementById('bottomCat_pants');
@@ -815,7 +815,6 @@ function renderSFW(){
   radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
 }
 
-let __bottomCat = "pants"; // 既定はパンツ
 function bindBottomCategoryGuess(){
   const pan = document.getElementById("outfit_pants");
   const skl = document.getElementById("outfit_skirt");
