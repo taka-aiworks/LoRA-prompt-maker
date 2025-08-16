@@ -447,10 +447,14 @@ legend { display: none; }
 }
 
 /* ===== 量産モードのアクセ：ラベルとホイールのずれ修正 ===== */
-#panelProduction .panel select + .wheel-box {
-  margin-top: 8px;                 /* ラベル/セレクトの直下にホイール */
+#panelProduction .panel .row.mini {
+  display: block;              /* ← 横並びをやめて縦に積む */
+  margin-bottom: 8px;          /* 下に余白を確保 */
 }
-#panelProduction .panel .row.mini { align-items: center; }
+
+#panelProduction .panel select + .wheel-box {
+  margin-top: 6px;             /* セレクトの直下にホイール */
+}
 
 /* ===== 服（固定）の選択 UI：全画面時は折り返し ===== */
 /* トップス/ワンピ/下カテゴリの3ブロックがはみ出す幅では自動で2列 or 1列へ */
