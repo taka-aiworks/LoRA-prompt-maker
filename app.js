@@ -297,9 +297,13 @@ function colorNameFromHSL(h, s, l) {
 function getWearColorTag(idBase){
   // idBase: "top" | "bottom" | "shoes"
   let use = document.getElementById("use_"+idBase);
-  if (idBase === "bottom") {
+  /*if (idBase === "bottom") {
     use = document.getElementById("useBottomColor") || document.getElementById("use_bottom");
   }
+  */
+  if (idBase === "bottom") use = document.getElementById("useBottomColor");
+
+   
   if (use && !use.checked) return "";
 
   const t = document.getElementById("tag_"+idBase);
@@ -473,7 +477,7 @@ function addHueDrag(wheelEl, thumbEl, onHueChange){
   return setThumb;
 }
 
-/* ======= 色ホイール（髪/瞳） ======= */
+/* ======= 色ホイール（髪/瞳） ======= 
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
   let hue = 35;
@@ -499,6 +503,7 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   });
   return ()=> $(tagId).textContent;
 }
+*/
 
 /* ======= 直感版HSLピッカー（Hueリング + S/Lスクエア） ======= */
 function initWheelWithSquare(wId, tId, swId, tagId, baseTag, defaultHue=35, defaultS=75, defaultL=50){
@@ -1501,11 +1506,12 @@ function initHairEyeAndAccWheels(){
     210, 60, 50
   );
 
-  // 旧S/L行は非表示（スクエアで操作するため）
+  /* 旧S/L行は非表示（スクエアで操作するため）
   ["satH","litH","satE","litE"].forEach(id=>{
     const row = document.getElementById(id)?.closest(".row");
     if (row) row.style.display = "none";
   });
+  */
 
   // --- 学習アクセ & 量産アクセ A/B/C ---
   getLearnAccColor = initColorWheel("learnAcc", 0,   75, 50);
