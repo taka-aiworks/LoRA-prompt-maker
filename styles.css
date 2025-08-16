@@ -380,3 +380,55 @@ legend { display: none; }
 @media (max-width: 640px) {
   .panel .wheel-box { width: 140px; height: 140px; }
 }
+
+/* ===== 追記：全画面レイアウトと色相環のはみ出し対策 ===== */
+
+/* さらに広いキャンバスを使う */
+@media (min-width: 1280px) {
+  .container { max-width: 1480px; }
+}
+
+/* 髪型・目・服の3列をゆったり（1.2 / 1.2 / 1.6） */
+@media (min-width: 1280px) {
+  #grid_shape {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.6fr);
+    gap: 12px;
+  }
+  /* 一覧性UP：選択リストの縦を広げる */
+  #grid_shape .scroller { max-height: 280px; }
+  #panel_outfitFixed .scroller { max-height: 320px; }
+}
+
+/* 服カラー（固定）の3面は等幅・オーバーフロー防止 */
+#grid_fixed_colors {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+/* パネル内のはみ出し物を切る（ホイールなど） */
+.panel { overflow: hidden; }
+
+/* grid 直下のパネルは最小幅0に（長いタグでも折り返せる） */
+.grid > .panel { min-width: 0; }
+
+/* タグは1行で（幅計算が安定） */
+.row.mini code.tag { white-space: nowrap; }
+
+/* ---- 色相環のサイズ調整 ---- */
+/* 服カラーのホイールはパネル幅に収まる可変サイズ＋中央寄せ */
+#grid_fixed_colors .panel .wheel-box {
+  width:  clamp(140px, 26vw, 170px) !important;
+  height: clamp(140px, 26vw, 170px) !important;
+  margin: 6px auto;
+}
+
+/* さらに超ワイドならリストをもう少し高く */
+@media (min-width: 1600px) {
+  #grid_shape .scroller { max-height: 320px; }
+  #panel_outfitFixed .scroller { max-height: 360px; }
+}
+
