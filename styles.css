@@ -379,7 +379,7 @@ details[open] summary .caret { transform: rotate(90deg); }
 fieldset { border: 0; margin: 0; padding: 0; }
 fieldset:disabled {
   pointer-events: none;   /* 入力は止める */
-  opacity: 1;             /* ← ここがキモ：見た目は .is-disabled に任せる */
+  opacity: inherit;             /* ← ここがキモ：見た目は .is-disabled に任せる */
 }
 
 /* Safari 対策 */
