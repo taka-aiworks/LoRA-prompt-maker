@@ -271,8 +271,11 @@ function colorNameFromHSL(h, s, l) {
 /* ========= 服色ユーティリティ（学習） ========= */
 function getWearColorTag(idBase){
   // idBase: "top" | "bottom" | "shoes"
-  const use = document.getElementById("use_"+idBase);
-  if (use && !use.checked) return "";               // ← チェックOFFなら無効
+  let use = document.getElementById("use_"+idBase);
+  if (idBase === "bottom") {
+    use = document.getElementById("useBottomColor") || document.getElementById("use_bottom");
+  }
+  if (use && !use.checked) return "";
 
   const t = document.getElementById("tag_"+idBase);
   if (!t) return "";
@@ -352,9 +355,6 @@ function bindWearToggles(){
     }
   };
   // ラップ要素でも、内側のラジオでも OK なように両方へバインド
-  ["outfit_pants","outfit_skirt"].forEach(id=>{
-    document.getElementById(id)?.addEventListener("change", autoEnableBottomColor);
-  });
   $$('input[name="outfit_pants"]').forEach(r=> r.addEventListener("change", autoEnableBottomColor));
   $$('input[name="outfit_skirt"]').forEach(r=> r.addEventListener("change", autoEnableBottomColor));
 
