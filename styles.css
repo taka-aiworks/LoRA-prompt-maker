@@ -313,6 +313,20 @@ details[open] summary .caret { transform: rotate(90deg); }
 }
 .note .mini { opacity: .9; }
 
+/* どちらのクラスでも“グレー＆操作不可”にする */
+.is-disabled,
+.swap-target.disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* fieldset 側は disabled 属性でも拾う */
+fieldset.disabled,
+fieldset:disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
 /* パネルは薄く見せるだけでクリックは殺さない */
 .panel.is-disabled {
   opacity: .5;
