@@ -425,35 +425,84 @@ legend { display: none; }
 }
 
 /* ====== 服カラー：枠を広げて色相環のはみ出し防止 ====== */
-/* 3面の各パネルに最小幅を与える（= 枠そのものが広がる） */
+/* ===== ここから差し替え ===== */
+
+/* 服カラー用ホイールは各パネル内で正方形を保って拡大縮小 */
 #grid_fixed_colors {
   display: grid;
-  grid-template-columns: repeat(3, minmax(360px, 1fr));
+  grid-template-columns: repeat(3, minmax(360px, 1fr)); /* 枠そのものを広げる */
   gap: 16px;
 }
 
-/* パネルの中身がはみ出すのを確実に止める */
-#grid_fixed_colors .panel { overflow: hidden; }
+/* パネルは切らない（S/Lが消える原因を除去） */
+#grid_fixed_colors .panel { overflow: visible; }
 
-/* 色相環は“パネル幅に合わせて”可変。calc で左右パディング分を差し引く */
+/* ホイールはパネル幅にフィット＆中央寄せ。正方形維持 */
 #grid_fixed_colors .panel .wheel-box {
-  width:  min(220px, calc(100% - 40px));
-  height: min(220px, calc(100% - 40px));
-  margin: 8px auto 10px;
+  width: min(280px, 90%);
+  aspect-ratio: 1 / 1;
+  height: auto;                /* 明示 */
+  margin: 10px auto 8px;
 }
 
+/* 既存の “.panel .wheel-box { width/height: … }” は無効化 */
+.panel .wheel-box { width: auto; height: auto; }
+
+/* 狭い時は自動で少し小さく */
+@media (max-width: 1024px) {
+  #grid_fixed_colors {
+    grid-template-columns: 1fr;        /* 3→1列に落とす */
+  }
+  #grid_fixed_colors .panel .wheel-box {
+    width: min(220px, 92%);
+  }
+}
+
+/* 超ワイドでさらに広げる */
 @media (min-width: 1600px) {
   #grid_fixed_colors {
     grid-template-columns: repeat(3, minmax(420px, 1fr));
   }
   #grid_fixed_colors .panel .wheel-box {
-    width:  min(240px, calc(100% - 40px));
-    height: min(240px, calc(100% - 40px));
+    width: min(320px, 92%);
   }
 }
 
-/* grid 直下の .panel は最小幅0で内側の計算を安定化（長いタグでも折り返せる） */
+/* 髪型／目の形／服の“選択肢の枠”を広げる */
+@media (min-width: 1280px) {
+  #grid_shape {
+    display: grid;
+    grid-template-columns:
+      minmax(480px, 1fr)   /* 髪型 */
+      minmax(480px, 1fr)   /* 目の形 */
+      minmax(640px, 1.2fr);/* 服（広め） */
+    gap: 16px;
+    align-items: start;
+  }
+  #grid_shape .scroller { max-height: 320px; }
+  #panel_outfitFixed .scroller { max-height: 360px; }
+}
+
+/* grid 直下のパネルは最小幅0（長いタグでも折り返せる） */
 .grid > .panel { min-width: 0; }
 
-/* タグは1行で。横幅が十分になったので見切れ防止のみ維持 */
+/* タグは1行（幅計算を安定化） */
 .row.mini code.tag { white-space: nowrap; }
+
+/* 見た目のグレーアウト：is-disabled に集約（チェックは常に押せる） */
+.is-disabled { opacity: .5; }
+.panel.is-disabled .wheel-box,
+.panel.is-disabled input[type="range"],
+.panel.is-disabled select,
+.panel.is-disabled input[type="text"] {
+  pointer-events: none;
+  filter: grayscale(80%);
+}
+.panel.is-disabled input[type="checkbox"] { pointer-events: auto; }
+
+/* fieldsetは機能的に無効化するが、見た目は変えない */
+fieldset { border: 0; margin: 0; padding: 0; }
+fieldset:disabled { pointer-events: none; opacity: 1; }
+legend { display: none; }
+
+/* ===== ここまで差し替え ===== */
