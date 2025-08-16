@@ -236,12 +236,8 @@
       { "tag": "thin eyebrows", "label": "細い眉" }
     ],
     "skin_body": [
-      { "tag": "fair skin", "label": "色白肌" },
-      { "tag": "light skin", "label": "明るめの肌" },
-      { "tag": "tan skin", "label": "小麦肌" },
-      { "tag": "dark skin", "label": "褐色肌" },
       { "tag": "freckles", "label": "そばかす" },
-      { "tag": "rosy skin", "label": "血色よい肌" },
+      { "tag": "rosy complexion", "label": "血色よい肌" },
       { "tag": "cool undertone", "label": "寒色寄りの肌" },
       { "tag": "warm undertone", "label": "暖色寄りの肌" },
       { "tag": "scar", "label": "傷跡" },
