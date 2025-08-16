@@ -1220,12 +1220,13 @@ function buildBatchProduction(n){
     ...getMany("nsfwP_light")
   ]) : [];
 
-   // 量産カラー（p_ホイール）— チェックONかつタグが入ってる時だけ採用
-    const PC = {
-      top:    getProdWearColorTag("top"),
-      bottom: getProdWearColorTag("bottom"),
-      shoes:  getProdWearColorTag("shoes"),
+  // 量産カラー（p_ホイール）— チェックONかつタグが入ってる時だけ採用
+  const PC = {
+    top:    getProdWearColorTag("top"),
+    bottom: getProdWearColorTag("bottom"),
+    shoes:  getProdWearColorTag("shoes"),
   };
+
   const baseSeed = seedFromName($("#charName").value||"", 0);
   const out = [];
   let guard = 0;
@@ -1254,15 +1255,14 @@ function buildBatchProduction(n){
       if (bottomPool.length) parts.push(pick(bottomPool));
     }
 
-     // 靴（任意）：選択がある時は名詞も1つ採用
+    // 靴（任意）
     if (O.shoes && O.shoes.length) {
       parts.push(pick(O.shoes));
     }
 
-
     // ---- ★ ここで量産カラーを注入 ----
     if (PC.top)    parts.push(`${PC.top} top`);
-    if (!usedDress && PC.bottom) parts.push(`${PC.bottom} bottom`); // ワンピ行では下色を付けない
+    if (!usedDress && PC.bottom) parts.push(`${PC.bottom} bottom`); // ワンピ時は下色なし
     if (PC.shoes)  parts.push(`${PC.shoes} shoes`);
 
     // ---- その他（アクセ・背景・ポーズ・表情・ライティング・NSFW）----
@@ -1436,39 +1436,6 @@ function bindSettings(){
   $("#btnSaveSettings")?.addEventListener("click", ()=>{ saveSettings(); toast("設定を保存しました"); });
   $("#btnResetSettings")?.addEventListener("click", ()=>{ resetSettings(); loadSettings(); });
 }
-
-
-/* ========= 初期化 ========= */
-window.addEventListener("DOMContentLoaded", async ()=>{
-  loadSettings();
-  initTabs();
-  bindDictIO();
-  bindCharIO();
-  bindNSFWToggles();
-  bindGASTools();
-  bindLearnTest();
-  bindLearnBatch();
-  bindProduction();
-  bindSettings();
-  bindBottomCategoryGuess();
-
-  renderSFW(); renderNSFWProduction(); renderNSFWLearning(); fillAccessorySlots();
-
-  $("#skinTone")?.addEventListener("input", paintSkin);
-  paintSkin();
-
-  await loadDefaultDicts();
-
-  // ✅ 新トグルだけ使う
-  bindWearToggles();
-
-  // ✅ NSFW表示の初期＆イベント
-  $("#nsfwState").textContent = "OFF";
-  $("#nsfwLearn")?.addEventListener("change",
-    e=> $("#nsfwState").textContent = e.target.checked ? "ON（学習）" : "OFF");
-  $("#nsfwProd")?.addEventListener("change",
-    e=> $("#nsfwState").textContent = e.target.checked ? "ON（量産）" : "OFF");
-});
 
 /* === カラーピッカー初期化（アイドル時） === */
 function setupColorPickers(){
