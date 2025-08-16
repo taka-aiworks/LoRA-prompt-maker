@@ -655,3 +655,9 @@ legend { display: none; }
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   }
 }
+
+/* 基本情報の服パネルを独立段落っぽく見せる */
+#panelBasic .panel.clothes-block {
+  grid-column: 1 / -1;   /* 全幅 */
+  margin-top: 1.5rem;    /* 髪・目から少し余白 */
+}
