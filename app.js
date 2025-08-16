@@ -484,8 +484,6 @@ const syncBottomForOutfit = ()=>{
 // 既存のバインドでOK（差し替え後もこのまま使う）
 $$('input[name="outfitMode"]').forEach(el=> el.addEventListener("change", syncBottomForOutfit));
 
-// 初期反映（ページ読み込み時に一度実行）
-syncBottomForOutfit();
 
   // ★ パンツ/スカート選択に連動してボトム色を自動ON
   const autoEnableBottomColor = ()=>{
@@ -1218,7 +1216,7 @@ function pairWearColors(parts){
   };
 
   if (dress) {
-    replacePair("dress|gown|kimono", dress); // ワンピは“top/bottom”色より優先
+    replacePair("dress|gown|kimono|yukata|qipao|cheongsam", dress);
   } else {
     if (top)    replacePair("top", top);
     if (bottom) replacePair("bottom", bottom);
@@ -1514,7 +1512,7 @@ function buildBatchProduction(n){
     if (bgs.length)    parts.push(pick(bgs));
     if (poses.length)  parts.push(pick(poses));
     if (exprs.length)  parts.push(pick(exprs));
-    if (lights.length) parts.push(...lights);
+    if (lights.length) parts.push(pick(lights));
     if (nsfwAdd.length)parts.push(...nsfwAdd);
 
     // 固定タグ → ヌード優先 → 並び替え
