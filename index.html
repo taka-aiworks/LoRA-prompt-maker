@@ -658,7 +658,7 @@
       swap();
     });
   </script>
-  <script>
+<script>
   // 量産モード用：下カテゴリ（ズボン/スカート）切替
   document.addEventListener('DOMContentLoaded', () => {
     const rp = document.getElementById('p_bottomCat_pants');
@@ -667,14 +667,15 @@
       const pantsOn = rp?.checked;
       document.getElementById('fsPBottom_pants')?.classList.toggle('disabled', !pantsOn);
       document.getElementById('fsPBottom_skirt')?.classList.toggle('disabled', !!pantsOn);
-      // 任意：外部から参照したい場合
       window.__p_bottomCat = pantsOn ? 'pants' : 'skirt';
     };
     rp?.addEventListener('change', swap);
     rs?.addEventListener('change', swap);
     swap();
   });
-</script><script>
+</script>
+  
+<script>
 document.addEventListener('DOMContentLoaded', () => {
   const $ = s => document.querySelector(s);
   const panelOf = id => document.getElementById(id)?.closest('.panel');
