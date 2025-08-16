@@ -159,41 +159,38 @@ function mergeIntoNSFW(json) {
   };
 }
 
-// ▼ 下カテゴリ（パンツ/スカート）切替：見た目＆実際のdisabledを同期
+// ▼ 下カテゴリ（パンツ/スカート）切替：fieldset だけで制御
 function bindBottomCategoryRadios(){
   const rPants = document.getElementById('bottomCat_pants');
   const rSkirt = document.getElementById('bottomCat_skirt');
-
   const fsP = document.getElementById('fsBottom_pants');
   const fsS = document.getElementById('fsBottom_skirt');
-
-  // パネル（見出しを含む枠全体）にもグレーをかける
-  const panelP = fsP?.closest('.panel') || null;
-  const panelS = fsS?.closest('.panel') || null;
 
   const swap = () => {
     const isSkirt = !!rSkirt?.checked;
 
-    // 見た目（グレーアウト）
-    [fsP, panelP].forEach(el => el && el.classList.toggle('is-disabled',  isSkirt));
-    [fsS, panelS].forEach(el => el && el.classList.toggle('is-disabled', !isSkirt));
+    // 見た目は fieldset 自身だけグレーアウト（親パネルは触らない）
+    fsP?.classList.toggle('is-disabled',  isSkirt);
+    fsS?.classList.toggle('is-disabled', !isSkirt);
 
-    // 入力停止（実際に無効化）
+    // 実際の入力停止も fieldset だけ
     if (fsP) fsP.disabled = isSkirt;
     if (fsS) fsS.disabled = !isSkirt;
 
-    // 内部の「どちらを下として読むか」も更新しているなら
-    if (typeof __bottomCat !== 'undefined') {
-      __bottomCat = isSkirt ? 'skirt' : 'pants';
+    // 直近カテゴリを記録（下の読み取りに使ってるなら）
+    if (typeof window.__bottomCat !== 'undefined') {
+      window.__bottomCat = isSkirt ? 'skirt' : 'pants';
     }
   };
 
   rPants?.addEventListener('change', swap);
   rSkirt?.addEventListener('change', swap);
 
-  swap(); // 初期反映（既定：パンツ側が有効、スカート側がグレーアウト）
-}
+  // 他からも再適用できるように公開
+  window.__applyBottomCatSwap = swap;
 
+  swap(); // 初期反映（パンツ既定→スカート側を無効）
+}
 
 /* ========= カラーユーティリティ ========= */
 function hslToRgb(h,s,l){
@@ -370,42 +367,43 @@ function bindWearToggles(){
 const syncBottomForOutfit = ()=>{
   const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
 
-  // ワンピの fieldset（最初は HTML 側で disabled になってる）
   const fsDress = document.getElementById('fsDress');
-
-  // トップスと下カテゴリの「見た目用パネル」
   const topPanel    = document.getElementById('outfit_top')?.closest('.panel');
   const bottomPanel = document.getElementById('bottomCategoryRadios')?.closest('.panel');
 
-  // パネル内の input を一括 enable/disable するヘルパ
+  // 入力を一括で止める/戻すヘルパ（※ 使うのは onepiece の時だけ）
   const setInputsDisabled = (root, on) => {
     if (!root) return;
     root.querySelectorAll('input, select, button').forEach(el => { el.disabled = !!on; });
-    root.classList.toggle('is-disabled', !!on); // 見た目のグレーアウト
+    root.classList.toggle('is-disabled', !!on);
   };
 
-  // ----- モード別の切り替え -----
   if (mode === "onepiece") {
-    // ワンピ選択可
-    if (fsDress) fsDress.disabled = false;
+    if (fsDress) fsDress.disabled = false;   // ワンピ選択可
+    setInputsDisabled(topPanel,    true);    // 上下は触れない
+    setInputsDisabled(bottomPanel, true);    // 下カテゴリも触れない
 
-    // 上下は触れないように（ラジオが効かない＝ここで止めてOK）
-    setInputsDisabled(topPanel,    true);
-    setInputsDisabled(bottomPanel, true);
-
-    // 「下カラー」を自動OFF
+    // 下カラーを自動OFF
     const cb = document.getElementById("useBottomColor");
     if (cb) { cb.checked = false; updateWearPanelEnabled("bottom"); }
 
   } else {
-    // separate：ワンピを無効化
-    if (fsDress) fsDress.disabled = true;
+    // separate：
+    if (fsDress) fsDress.disabled = true;    // ワンピを無効化
+    // 見た目だけ有効化（内部の input は触らない：fieldset の有効/無効は swap に任せる）
+    topPanel?.classList.remove('is-disabled');
+    bottomPanel?.classList.remove('is-disabled');
 
-    // 上下を再び有効化
-    setInputsDisabled(topPanel,    false);
-    setInputsDisabled(bottomPanel, false);
+    // カテゴリラジオは必ず押せるように
+    const rP = document.getElementById('bottomCat_pants');
+    const rS = document.getElementById('bottomCat_skirt');
+    if (rP) rP.disabled = false;
+    if (rS) rS.disabled = false;
 
-    // もしどちらかの“下”が選ばれてたら、下カラーを自動ON
+    // 現在の選択に従って fieldset の enable/disable を再適用
+    if (typeof window.__applyBottomCatSwap === 'function') window.__applyBottomCatSwap();
+
+    // どちらかの“下”が選ばれてたら、下カラーを自動ON（既存ロジック）
     const cb = document.getElementById("useBottomColor");
     const pantsSel = document.querySelector('input[name="outfit_pants"]:checked');
     const skirtSel = document.querySelector('input[name="outfit_skirt"]:checked');
@@ -415,7 +413,6 @@ const syncBottomForOutfit = ()=>{
     }
   }
 };
-
 // 既存のバインドでOK（差し替え後もこのまま使う）
 $$('input[name="outfitMode"]').forEach(el=> el.addEventListener("change", syncBottomForOutfit));
 
