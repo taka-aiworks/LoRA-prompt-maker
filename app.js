@@ -1005,6 +1005,8 @@ async function postCSVtoGAS(kind, csv, meta = {}){
   }
 }
 function bindGASTools(){
+   document.getElementById("btnSaveSettings")?.addEventListener("click", saveSettings);
+   document.getElementById("btnResetSettings")?.addEventListener("click", resetSettings);
   $("#btnTestGAS")?.addEventListener("click", async ()=>{
     saveSettings();
     const url = Settings.gasUrl?.trim();
