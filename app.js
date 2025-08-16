@@ -1534,6 +1534,12 @@ function initAll(){
 
     // 色系
     initHairEyeAndAccWheels();   // 髪/瞳/アクセ（learn/accA/accB/accC）
+    // 基本情報タブの「服カラー（固定）」3つを初期化
+     initColorWheel("top",    35, 80, 55);
+     initColorWheel("bottom",210, 70, 50); 
+     initColorWheel("shoes",   0,  0, 30);
+
+     // 生産タブ（量産の基本色）
     initColorWheel("p_top",    35, 80, 55); // ← 追加
     initColorWheel("p_bottom",210, 70, 50); // ← 追加
     initColorWheel("p_shoes",   0,  0, 30); // ← 追加
