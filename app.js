@@ -261,7 +261,7 @@ function copyOneTestText(){
 }
 
 // 固定で常に入れたいネガティブ（必要になったらここに増やす）
-const DEFAULT_NEG = "extra fingers, blurry, lowres, bad anatomy";
+const DEFAULT_NEG = "extra fingers, blurry, lowres, bad anatomy, bad hands, bad feet, text, watermark";
 
 // チェックボックスのON/OFFを読む（要素が無ければtrue扱い＝互換）
 function isDefaultNegOn() {
