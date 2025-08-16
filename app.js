@@ -298,11 +298,6 @@ function updateWearPanelEnabled(idBase){
 }
 
 
-
-if (colorTop)    promptParts.push(colorTop);         // トップ色タグ
-if (!usesDress && colorBottom) promptParts.push(colorBottom); // ワンピースなら下色は付けない
-if (colorShoes)  promptParts.push(colorShoes);       // 靴色タグ
-
 // 追加：チェックボックスのバインド
 function bindWearToggles(){
   ["top","bottom","shoes"].forEach(idBase=>{
@@ -1201,9 +1196,12 @@ function buildBatchProduction(n){
     ...getMany("nsfwP_light")
   ]) : [];
 
-  // 量産カラー（p_ホイール）— window.__prodColor に入ってる想定
-  const PC = window.__prodColor || { top:null, bottom:null, shoes:null };
-
+   // 量産カラー（p_ホイール）— チェックONかつタグが入ってる時だけ採用
+   const PC = {
+     top:    getWearColorTag("top"),
+     bottom: getWearColorTag("bottom"),
+     shoes:  getWearColorTag("shoes"),
+   };
   const baseSeed = seedFromName($("#charName").value||"", 0);
   const out = [];
   let guard = 0;
@@ -1231,6 +1229,12 @@ function buildBatchProduction(n){
       }
       if (bottomPool.length) parts.push(pick(bottomPool));
     }
+
+     // 靴（任意）：選択がある時は名詞も1つ採用
+    if (O.shoes && O.shoes.length) {
+      parts.push(pick(O.shoes));
+    }
+
 
     // ---- ★ ここで量産カラーを注入 ----
     if (PC.top)    parts.push(`${PC.top} top`);
