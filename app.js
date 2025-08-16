@@ -1550,10 +1550,10 @@ function initAll(){
   bindProduction();
   bindGASTools();
   bindBottomCategoryGuess();
+
   bindBottomCategoryRadios();
 
-  initHairEyeAndAccWheels();   // 髪/瞳/アクセ（learn/accA/accB/accC）
-
+   
   loadDefaultDicts().then(()=>{
     renderSFW();
     fillAccessorySlots();
@@ -1561,7 +1561,6 @@ function initAll(){
     renderNSFWProduction();
 
     // 色系
-    initHairEyeAndAccWheels();   // 髪/瞳/アクセ（learn/accA/accB/accC）
     // 基本情報タブの「服カラー（固定）」3つを初期化
      initColorWheel("top",    35, 80, 55);
      initColorWheel("bottom",210, 70, 50); 
