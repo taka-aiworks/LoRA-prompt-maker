@@ -1503,6 +1503,11 @@ function initHairEyeAndAccWheels(){
 
   // 服の学習用（top/bottom/shoes）のON/OFF UIを反映
   bindWearToggles();
+// 髪/瞳の旧S/L行は非表示（スクエアで操作するため）
+['satH','litH','satE','litE'].forEach(id=>{
+  const row = document.getElementById(id)?.closest('.row');
+  if (row) row.style.display = 'none';
+});
 }
 
 function initSkinTone(){
