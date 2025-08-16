@@ -1172,6 +1172,16 @@ function readProductionOutfits(){
   };
 }
 
+// 服色タグ取得（量産パネル用）
+function getProdWearColorTag(idBase){
+  // idBase: "top" | "bottom" | "shoes"
+  const use = document.getElementById("p_use_"+idBase);
+  if (use && !use.checked) return "";
+  const t = document.getElementById("tag_p_"+idBase);
+  const txt = (t?.textContent || "").trim();
+  return (txt && txt !== "—") ? txt : "";
+}
+
 /* ② 置き換え版：buildBatchProduction（丸ごと差し替え） */
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
@@ -1197,11 +1207,11 @@ function buildBatchProduction(n){
   ]) : [];
 
    // 量産カラー（p_ホイール）— チェックONかつタグが入ってる時だけ採用
-   const PC = {
-     top:    getWearColorTag("top"),
-     bottom: getWearColorTag("bottom"),
-     shoes:  getWearColorTag("shoes"),
-   };
+    const PC = {
+      top:    getProdWearColorTag("top"),
+      bottom: getProdWearColorTag("bottom"),
+      shoes:  getProdWearColorTag("shoes"),
+  };
   const baseSeed = seedFromName($("#charName").value||"", 0);
   const out = [];
   let guard = 0;
@@ -1464,6 +1474,10 @@ function setupColorPickers(){
   initColorWheel("top",    35, 80, 55);
   initColorWheel("bottom",210, 70, 50);
   initColorWheel("shoes", 0, 0, 30);
+  // 量産（p_）側のホイールも初期化（タグ #tag_p_* に色名が入る）
+  initColorWheel("p_top",    35, 80, 55);
+  initColorWheel("p_bottom",210, 70, 50);
+  initColorWheel("p_shoes",   0,  0, 30);
    
   getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
