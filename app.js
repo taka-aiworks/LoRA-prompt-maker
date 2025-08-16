@@ -1510,12 +1510,11 @@ function initHairEyeAndAccWheels(){
     210, 60, 50
   );
 
-  /* 旧S/L行は非表示（スクエアで操作するため）
+  /* 旧S/L行は非表示（スクエアで操作するため）*/
   ["satH","litH","satE","litE"].forEach(id=>{
     const row = document.getElementById(id)?.closest(".row");
     if (row) row.style.display = "none";
   });
-  */
 
   // --- 学習アクセ & 量産アクセ A/B/C ---
   getLearnAccColor = initColorWheel("learnAcc", 0,   75, 50);
