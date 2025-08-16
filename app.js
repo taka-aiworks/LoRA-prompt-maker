@@ -1227,7 +1227,7 @@ function readAccessorySlots(){
   const A = $("#p_accA")?.value || "", Ac = getAccAColor && getAccAColor();
   const B = $("#p_accB")?.value || "", Bc = getAccBColor && getAccBColor();
   const C = $("#p_accC")?.value || "", Cc = getAccCColor && getAccCColor();
-  const pack = (noun,color)=> noun ? `${color} ${noun}` : "";
+  const pack = (noun,color)=> noun ? (color ? `${color} ${noun}` : noun) : "";
   return [pack(A,Ac), pack(B,Bc), pack(C,Cc)].filter(Boolean);
 }
 
@@ -1559,6 +1559,7 @@ function initAll(){
     fillAccessorySlots();
     renderNSFWLearning();
     renderNSFWProduction();
+    bindWearToggles();  // トグルだけ使う場合
 
     // 色系
     // 基本情報タブの「服カラー（固定）」3つを初期化
