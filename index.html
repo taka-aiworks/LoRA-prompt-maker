@@ -677,7 +677,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // トップス・下カテゴリのパネル
-    setPanelDisabled(panelOf('outfit_top'), isOnepiece);
     const bottomPanel = $('#bottomCategoryRadios')?.closest('.panel');
     setPanelDisabled(bottomPanel, isOnepiece);
     setPanelDisabled(document.getElementById('bottomWearPanel'), isOnepiece);
