@@ -1559,13 +1559,13 @@ function initAll(){
   bindLearnBatch();
   bindProduction();
   bindGASTools();
-  bindBottomCategoryGuess();
 
   bindBottomCategoryRadios();
 
    
   loadDefaultDicts().then(()=>{
     renderSFW();
+    bindBottomCategoryGuess();
     fillAccessorySlots();
     renderNSFWLearning();
     renderNSFWProduction();initHairEyeAndAccWheels(); // ← 髪/瞳/アクセのピッカーとトグル連動をまとめて初期化
