@@ -639,12 +639,6 @@
   </main>
 
   <script src="app.js" defer></script>
-
-  <script>
-document.addEventListener('DOMContentLoaded', () => {
-  if (typeof bindWearToggles === 'function') bindWearToggles();
-});
-</script>
   
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -687,23 +681,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // 初期反映 + bfcache からの復帰にも対応
   applyOutfitMode();
   window.addEventListener('pageshow', applyOutfitMode);
-});
-</script>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  // idBase で呼ぶ：p_top / p_bottom / p_shoes
-  // initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50)
-  initColorWheel("p_top",    35, 80, 55);
-  initColorWheel("p_bottom",210, 70, 50);
-  initColorWheel("p_shoes",   0,  0, 30);
-
-  // 量産用 色タグの取り出しヘルパ
-  window.__prodColor = {
-    get top()    { return document.getElementById('p_use_top').checked    ? document.getElementById('tag_p_top')?.textContent?.trim()    : null; },
-    get bottom() { return document.getElementById('p_use_bottom').checked ? document.getElementById('tag_p_bottom')?.textContent?.trim() : null; },
-    get shoes()  { return document.getElementById('p_use_shoes').checked  ? document.getElementById('tag_p_shoes')?.textContent?.trim()  : null; }
-  };
 });
 </script>
 
