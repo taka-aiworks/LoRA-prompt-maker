@@ -1457,12 +1457,6 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   $("#skinTone")?.addEventListener("input", paintSkin);
   paintSkin();
 
-  if (typeof requestIdleCallback === "function") {
-    requestIdleCallback(setupColorPickers, { timeout: 300 });
-  } else {
-    setTimeout(setupColorPickers, 0);
-  }
-
   await loadDefaultDicts();
 
   // ✅ 新トグルだけ使う
