@@ -812,6 +812,10 @@ function renderSFW(){
   radioList($("#bf_relation"), SFW.relationship, "bf_relation");
   radioList($("#bf_world"),    SFW.worldview,    "bf_world");
   radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
+
+   // ★ ここを追加：動的生成後に有効/無効を更新
+  if (typeof updateOneTestReady === "function") updateOneTestReady();
+
 }
 
 function bindBottomCategoryGuess(){
