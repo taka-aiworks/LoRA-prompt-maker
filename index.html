@@ -246,13 +246,39 @@
         <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
       </div>
 
-       <div class="form-section">
-      <label>テスト出力</label>
-      <div class="row" style="gap:8px">
-         <button id="testGenerateBtn" class="btn-primary">1枚テスト生成</button>
-         <button id="btnExportChar" class="btn ghost small">キャラ設定エクスポート</button>
-        </div>
-      </div>
+<!-- ▼ 基本情報：1枚テスト（移設） -->
+<div class="card" id="learnTestCard">
+  <div class="row">
+    <h3 style="margin:0">1枚テスト</h3><span style="flex:1"></span>
+    <label class="inline mini">出力フォーマット
+      <select id="fmtLearn">
+        <option value="a1111" selected>Web UI（汎用）</option>
+        <option value="invoke">InvokeAI（CLI）</option>
+        <option value="comfy">ComfyUI（テキスト）</option>
+        <option value="sdnext">SD.Next（dream.py）</option>
+        <option value="nai">NovelAI</option>
+      </select>
+    </label>
+    <button id="btnOneLearn" class="btn ghost">テスト生成</button>
+    <button id="btnCopyLearnTest" class="btn ghost">テストをコピー</button>
+    <!-- 追加：キャラ設定エクスポート -->
+    <button id="btnExportChar" class="btn ghost">キャラ設定エクスポート</button>
+  </div>
+  <div class="grid g2" style="margin-top:10px">
+    <div>
+      <h4 style="margin:0 0 6px">テーブル</h4>
+      <table class="table" id="tblLearnTest">
+        <thead><tr><th>#</th><th>seed</th><th>背景</th><th>ポーズ</th><th>表情</th><th>prompt</th><th>negative</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div>
+      <h4 style="margin:0 0 6px">テキスト</h4>
+      <div class="out" id="outLearnTest"></div>
+    </div>
+  </div>
+</div>
+<!-- ▲ 基本情報：1枚テスト -->
     </section>
 
     <!-- 学習モード（バリエーション） -->
@@ -321,21 +347,6 @@
       </div>
 
       <!-- テスト & バッチ出力（既存） -->
-      <div class="card" id="learnTestCard">
-        <div class="row">
-          <h3 style="margin:0">1枚テスト</h3><span style="flex:1"></span>
-          <label class="inline mini">出力フォーマット
-            <select id="fmtLearn">
-              <option value="a1111" selected>Web UI（汎用）</option>
-              <option value="invoke">InvokeAI（CLI）</option>
-              <option value="comfy">ComfyUI（テキスト）</option>
-              <option value="sdnext">SD.Next（dream.py）</option>
-              <option value="nai">NovelAI</option>
-            </select>
-          </label>
-          <button id="btnOneLearn" class="btn ghost">テスト生成</button>
-          <button id="btnCopyLearnTest" class="btn ghost">テストをコピー</button>
-        </div>
         <div class="grid g2" style="margin-top:10px">
           <div>
             <h4 style="margin:0 0 6px">テーブル</h4>
@@ -655,7 +666,6 @@
 
   <script src="app.js" defer></script>
   
-<script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const $ = s => document.querySelector(s);
