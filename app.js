@@ -506,7 +506,7 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   return ()=> $(tagId).textContent;
 }
 
-
+/*
   // --- SLスクエア（DOMを動的追加） ---
   // wheel の直後に 200x140 のキャンバスとサムを生成
   const slWrap = document.createElement("div");
@@ -595,7 +595,7 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   });
 
   // 取得用：タグ文字列（例: "deep blue hair"）
-  return ()=> tagEl.textContent;
+  return ()=> tagEl.textContent; */
 }
 
 
