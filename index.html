@@ -393,41 +393,58 @@
         量産では服ごとにランダム色 or 無色。基本色1色の任意指定も可。
       </div>
 
-      <div class="grid g3">
-        <div class="panel">
-  <h3>服（カテゴリ別 / 複数可）</h3>
+<!-- 服 / 背景 / 表情：3カラムだけでまず閉じる -->
+<div class="grid g3">
+  <div class="panel">
+    <h3>服（カテゴリ別 / 複数可）</h3>
 
-  <!-- 置換許可：行生成時にパンツが空ならスカートから補充（または逆）などをJS側で制御 -->
-  <div class="row mini" style="gap:10px;margin:0 0 8px">
-    <label class="inline"><input type="checkbox" id="allowBottomSwap"> 「ボトムス ↔ スカート」置換を許可</label>
-    <span class="mini">※ どちらか未選択時にもう一方から補完する想定</span>
+    <div class="row mini" style="gap:10px;margin:0 0 8px">
+      <label class="inline"><input type="checkbox" id="allowBottomSwap"> 「ボトムス ↔ スカート」置換を許可</label>
+      <span class="mini">※ どちらか未選択時にもう一方から補完する想定</span>
+    </div>
+
+    <div class="grid g2">
+      <div class="panel">
+        <h4 style="margin:0 0 6px">トップス（複数可）</h4>
+        <div id="p_outfit_top" class="scroller"></div>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">ボトムス（ズボン・複数可）</h4>
+        <div id="p_outfit_pants" class="scroller"></div>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">スカート（複数可）</h4>
+        <div id="p_outfit_skirt" class="scroller"></div>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">ワンピース（複数可）</h4>
+        <div id="p_outfit_dress" class="scroller"></div>
+        <div class="mini">※ ワンピース採用行は下カラー無効</div>
+      </div>
+      <div class="panel">
+        <h4 style="margin:0 0 6px">靴（複数可）</h4>
+        <div id="p_outfit_shoes" class="scroller"></div>
+      </div>
+    </div>
   </div>
 
-  <div class="grid g2">
-    <div class="panel">
-      <h4 style="margin:0 0 6px">トップス（複数可）</h4>
-      <div id="p_outfit_top" class="scroller"></div>
-    </div>
-    <div class="panel">
-      <h4 style="margin:0 0 6px">ボトムス（ズボン・複数可）</h4>
-      <div id="p_outfit_pants" class="scroller"></div>
-    </div>
-    <div class="panel">
-      <h4 style="margin:0 0 6px">スカート（複数可）</h4>
-      <div id="p_outfit_skirt" class="scroller"></div>
-    </div>
-    <div class="panel">
-      <h4 style="margin:0 0 6px">ワンピース（複数可）</h4>
-      <div id="p_outfit_dress" class="scroller"></div>
-      <div class="mini">※ ワンピース採用行は下カラー無効</div>
-    </div>
-    <div class="panel">
-      <h4 style="margin:0 0 6px">靴（複数可）</h4>
-      <div id="p_outfit_shoes" class="scroller"></div>
-    </div>
+  <div class="panel">
+    <h3>背景（複数可）</h3>
+    <div id="p_bg" class="scroller"></div>
+    <h3 style="margin-top:10px">ポーズ・構図</h3>
+    <div id="p_pose" class="scroller"></div>
   </div>
-</div>
-  <div class="card" id="prodColorCard" style="margin-top:10px">
+
+  <div class="panel">
+    <h3>表情（複数可）</h3>
+    <div id="p_expr" class="scroller"></div>
+    <h3 style="margin-top:10px">ライティング</h3>
+    <div id="p_light" class="scroller"></div>
+  </div>
+</div> <!-- ←ここで .grid g3 を閉じる -->
+      
+  <<!-- 服カラー（量産の基本色）：グリッドの外に独立させる -->
+<div class="card" id="prodColorCard" style="margin-top:10px">
   <h4 style="margin:0 0 6px">服カラー（量産の基本色）</h4>
   <div class="mini">指定した色タグを各行に付与します。ワンピース採用行では下カラーは自動で無効。</div>
 
@@ -443,11 +460,10 @@
         S:<input id="sat_p_top" type="range" min="0" max="100" value="80">
         L:<input id="lit_p_top" type="range" min="0" max="100" value="55">
       </div>
-      <div class="row mini">
-        <div id="sw_p_top" class="swatch"></div>
-        <span>色タグ: <code class="tag" id="tag_p_top">—</code></span>
-      </div>
+      <div class="row mini"><div id="sw_p_top" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_p_top">—</code></span></div>
     </div>
+
     <div class="panel" id="panel_p_bottom">
       <div class="row mini">
         <label class="inline"><input type="checkbox" id="p_use_bottom"> 下カラーを使う</label>
@@ -459,10 +475,8 @@
         S:<input id="sat_p_bottom" type="range" min="0" max="100" value="70">
         L:<input id="lit_p_bottom" type="range" min="0" max="100" value="50">
       </div>
-      <div class="row mini">
-        <div id="sw_p_bottom" class="swatch"></div>
-        <span>色タグ: <code class="tag" id="tag_p_bottom">—</code></span>
-      </div>
+      <div class="row mini"><div id="sw_p_bottom" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_p_bottom">—</code></span></div>
       <div class="mini">※ 行がワンピースの場合は無視</div>
     </div>
 
@@ -477,15 +491,15 @@
         S:<input id="sat_p_shoes" type="range" min="0" max="100" value="0">
         L:<input id="lit_p_shoes" type="range" min="0" max="100" value="30">
       </div>
-      <div class="row mini">
-        <div id="sw_p_shoes" class="swatch"></div>
-        <span>色タグ: <code class="tag" id="tag_p_shoes">—</code></span>
-      </div>
+      <div class="row mini"><div id="sw_p_shoes" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_p_shoes">—</code></span></div>
     </div>
   </div>
 </div>
 
-  <h3 style="margin-top:10px">アクセ（3スロット・色指定）</h3>
+  <!-- アクセ：見出しと内容を１ブロックにまとめる（離れない） -->
+<div class="card" id="accCard" style="margin-top:10px">
+  <h3 style="margin:0 0 6px">アクセ（3スロット・色指定）</h3>
   <div class="grid g3">
     <div class="panel">
       <div class="mini">アクセ A</div>
@@ -493,12 +507,12 @@
       <div class="wheel-box" style="margin-top:6px">
         <div id="wheel_accA" class="wheel"></div><div id="thumb_accA" class="thumb"></div>
       </div>
-      <div class="row mini">
-        S:<input id="sat_accA" type="range" min="0" max="100" value="80">
-        L:<input id="lit_accA" type="range" min="0" max="100" value="50">
-      </div>
-      <div class="row mini"><div id="sw_accA" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accA">red</code></span></div>
+      <div class="row mini">S:<input id="sat_accA" type="range" min="0" max="100" value="80">
+        L:<input id="lit_accA" type="range" min="0" max="100" value="50"></div>
+      <div class="row mini"><div id="sw_accA" class="swatch"></div>
+        <span>色タグ: <code class="tag" id="tag_accA">red</code></span></div>
     </div>
+
     <details>
       <summary class="mini"><span class="caret">▶</span> アクセ B</summary>
       <div class="panel" style="margin-top:6px">
@@ -508,9 +522,11 @@
         </div>
         <div class="row mini">S:<input id="sat_accB" type="range" min="0" max="100" value="80">
           L:<input id="lit_accB" type="range" min="0" max="100" value="50"></div>
-        <div class="row mini"><div id="sw_accB" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accB">blue</code></span></div>
+        <div class="row mini"><div id="sw_accB" class="swatch"></div>
+          <span>色タグ: <code class="tag" id="tag_accB">blue</code></span></div>
       </div>
     </details>
+
     <details>
       <summary class="mini"><span class="caret">▶</span> アクセ C</summary>
       <div class="panel" style="margin-top:6px">
@@ -520,7 +536,8 @@
         </div>
         <div class="row mini">S:<input id="sat_accC" type="range" min="0" max="100" value="80">
           L:<input id="lit_accC" type="range" min="0" max="100" value="50"></div>
-        <div class="row mini"><div id="sw_accC" class="swatch"></div><span>色タグ: <code class="tag" id="tag_accC">green</code></span></div>
+        <div class="row mini"><div id="sw_accC" class="swatch"></div>
+          <span>色タグ: <code class="tag" id="tag_accC">green</code></span></div>
       </div>
     </details>
   </div>
