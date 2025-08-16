@@ -381,54 +381,67 @@ legend { display: none; }
   .panel .wheel-box { width: 140px; height: 140px; }
 }
 
-/* ===== 追記：全画面レイアウトと色相環のはみ出し対策 ===== */
-
-/* さらに広いキャンバスを使う */
+/* ====== Ultra-wide layout（選択肢の枠を広げる）====== */
+/* コンテナを広くしてカラムを“最小幅指定付き”で拡張 */
 @media (min-width: 1280px) {
-  .container { max-width: 1480px; }
-}
+  .container { max-width: 1600px; }  /* 1400→1600に拡張 */
 
-/* 髪型・目・服の3列をゆったり（1.2 / 1.2 / 1.6） */
-@media (min-width: 1280px) {
+  /* 髪型/目/服 の3カラム。各枠の最小幅を与えるのがポイント */
   #grid_shape {
     display: grid;
     grid-template-columns:
-      minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.6fr);
-    gap: 12px;
+      minmax(440px, 1fr)   /* 髪型 */
+      minmax(440px, 1fr)   /* 目の形 */
+      minmax(560px, 1.2fr) /* 服（広め） */
+    ;
+    gap: 16px;
+    align-items: start;
   }
-  /* 一覧性UP：選択リストの縦を広げる */
-  #grid_shape .scroller { max-height: 280px; }
-  #panel_outfitFixed .scroller { max-height: 320px; }
+
+  /* 一覧性UP（任意） */
+  #grid_shape .scroller { max-height: 320px; }
 }
 
-/* 服カラー（固定）の3面は等幅・オーバーフロー防止 */
+@media (min-width: 1600px) {
+  .container { max-width: 1760px; }
+  #grid_shape {
+    grid-template-columns:
+      minmax(520px, 1fr)
+      minmax(520px, 1fr)
+      minmax(640px, 1.3fr);
+  }
+}
+
+/* ====== 服カラー：枠を広げて色相環のはみ出し防止 ====== */
+/* 3面の各パネルに最小幅を与える（= 枠そのものが広がる） */
 #grid_fixed_colors {
   display: grid;
-  grid-template-columns:
-    minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(3, minmax(360px, 1fr));
+  gap: 16px;
 }
 
-/* パネル内のはみ出し物を切る（ホイールなど） */
-.panel { overflow: hidden; }
+/* パネルの中身がはみ出すのを確実に止める */
+#grid_fixed_colors .panel { overflow: hidden; }
 
-/* grid 直下のパネルは最小幅0に（長いタグでも折り返せる） */
+/* 色相環は“パネル幅に合わせて”可変。calc で左右パディング分を差し引く */
+#grid_fixed_colors .panel .wheel-box {
+  width:  min(220px, calc(100% - 40px));
+  height: min(220px, calc(100% - 40px));
+  margin: 8px auto 10px;
+}
+
+@media (min-width: 1600px) {
+  #grid_fixed_colors {
+    grid-template-columns: repeat(3, minmax(420px, 1fr));
+  }
+  #grid_fixed_colors .panel .wheel-box {
+    width:  min(240px, calc(100% - 40px));
+    height: min(240px, calc(100% - 40px));
+  }
+}
+
+/* grid 直下の .panel は最小幅0で内側の計算を安定化（長いタグでも折り返せる） */
 .grid > .panel { min-width: 0; }
 
-/* タグは1行で（幅計算が安定） */
+/* タグは1行で。横幅が十分になったので見切れ防止のみ維持 */
 .row.mini code.tag { white-space: nowrap; }
-
-/* ---- 色相環のサイズ調整 ---- */
-/* 服カラーのホイールはパネル幅に収まる可変サイズ＋中央寄せ */
-#grid_fixed_colors .panel .wheel-box {
-  width:  clamp(140px, 26vw, 170px) !important;
-  height: clamp(140px, 26vw, 170px) !important;
-  margin: 6px auto;
-}
-
-/* さらに超ワイドならリストをもう少し高く */
-@media (min-width: 1600px) {
-  #grid_shape .scroller { max-height: 320px; }
-  #panel_outfitFixed .scroller { max-height: 360px; }
-}
-
