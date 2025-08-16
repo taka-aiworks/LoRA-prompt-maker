@@ -600,3 +600,38 @@ legend { display: none; }
 }
 
 
+/* ====== フルスクリーン時の“服”はみ出し対策（外側3カラム） ====== */
+/* minmaxで広がりすぎるのをやめて、frだけで必ず収まる比率にする */
+@media (min-width: 1280px) {
+  #grid_shape {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1.2fr;  /* ← 3.2fr = 画面内に必ず収まる */
+    gap: 16px;
+    align-items: start;
+  }
+}
+/* さらに超ワイドでも“比率のみ”で維持（はみ出さない） */
+@media (min-width: 1600px) {
+  #grid_shape { grid-template-columns: 1fr 1fr 1.3fr; }
+}
+
+/* パネル内の長い内容が横幅を押し広げないように */
+#grid_shape > .panel { min-width: 0; }     /* 既にあればOK（再掲） */
+
+/* ====== 服パネル内の3分割も折り返して収める ====== */
+#panel_outfitFixed .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); /* 収まらない時は自動で2列/1列へ */
+  gap: 12px;
+}
+@media (max-width: 1280px) {
+  #panel_outfitFixed .grid { grid-template-columns: repeat(2, minmax(320px, 1fr)); }
+}
+@media (max-width: 900px) {
+  #panel_outfitFixed .grid { grid-template-columns: 1fr; }
+}
+
+/* パネルの内側からはみ出る装飾をカット（念のため） */
+#panel_outfitFixed { overflow: hidden; }
+#panel_outfitFixed .scroller { max-width: 100%; overflow-x: hidden; }
+
