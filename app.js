@@ -595,9 +595,9 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   });
 
   // 取得用：タグ文字列（例: "deep blue hair"）
-  return ()=> tagEl.textContent; */
+  return ()=> tagEl.textContent;
 }
-
+*/
 
 /* ======= 色ホイール（アクセ） ======= */
 function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
