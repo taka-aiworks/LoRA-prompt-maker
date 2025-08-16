@@ -655,45 +655,62 @@
   <script src="app.js" defer></script>
   
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('DOMContentLoaded', () => {
   const $ = s => document.querySelector(s);
   const panelOf = id => document.getElementById(id)?.closest('.panel');
 
   const getIsOnepiece = () =>
     document.querySelector('input[name="outfitMode"]:checked')?.value === 'onepiece';
 
-  const setPanelDisabled = (el, on) => {
-    if (!el) return;
-    el.classList.toggle('is-disabled', !!on);  // 見た目のグレーアウト
+  // 見た目のグレー + 中のフォーム実体を一括で有効/無効
+  const setDisabledDeep = (root, on) => {
+    if (!root) return;
+    // 見た目
+    root.classList.toggle('is-disabled', !!on);
+    // 入力不可
+    root.querySelectorAll('input, select, textarea, button, fieldset').forEach(el => {
+      el.disabled = !!on;
+    });
   };
 
   const applyOutfitMode = () => {
     const isOnepiece = getIsOnepiece();
 
-    // ワンピースのfieldsetは on の時だけ有効化
-    const fsDress = document.getElementById('fsDress');
-    if (fsDress) {
-      fsDress.disabled = !isOnepiece;
+    const fsDress   = document.getElementById('fsDress');
+    const topPanel  = panelOf('outfit_top');
+    const fsPants   = document.getElementById('fsBottom_pants');
+    const fsSkirt   = document.getElementById('fsBottom_skirt');
+    const bottomCat = document.getElementById('bottomCategoryRadios')?.closest('.panel');
+
+    // ✅ 親 fieldset（#fsSeparates）はもう触らない（無効化しない）
+    // const fsSeparates = document.getElementById('fsSeparates'); ← 触らない
+    // if (fsSeparates) fsSeparates.disabled = isOnepiece;        ← 削除！
+
+    // 片側だけ無効化
+    if (isOnepiece) {
+      // ワンピースを有効化
+      setDisabledDeep(fsDress, false);
+
+      // トップス／下カテゴリは無効化
+      setDisabledDeep(topPanel, true);
+      setDisabledDeep(fsPants,  true);
+      setDisabledDeep(fsSkirt,  true);
+      setDisabledDeep(bottomCat, true);
+    } else {
+      // セパレートを有効化
+      setDisabledDeep(topPanel, false);
+      setDisabledDeep(fsPants,  false);
+      setDisabledDeep(fsSkirt,  false);
+      setDisabledDeep(bottomCat, false);
+
+      // ワンピースは無効化（誤操作防止）
+      setDisabledDeep(fsDress,  true);
     }
-
-    // ← ここが抜けてた：トップスのパネルもワンピース時はグレーアウト
-    setPanelDisabled(panelOf('outfit_top'), isOnepiece);
-
-    // 下カテゴリのパネルもグレーアウト
-    const bottomPanel = $('#bottomCategoryRadios')?.closest('.panel');
-    setPanelDisabled(bottomPanel, isOnepiece);
-
-    // セパレート全体は入力停止（見た目は上のis-disabledで担保）
-    const fsSeparates = document.getElementById('fsSeparates');
-    if (fsSeparates) fsSeparates.disabled = isOnepiece;
-
-    // 使っていないIDへの参照は削除（bottomWearPanel は存在しない）
-    // setPanelDisabled(document.getElementById('bottomWearPanel'), isOnepiece); ←削除
   };
 
   document.querySelectorAll('input[name="outfitMode"]').forEach(r => {
     r.addEventListener('change', applyOutfitMode);
-    r.addEventListener('input', applyOutfitMode);
+    r.addEventListener('input',  applyOutfitMode);
   });
 
   applyOutfitMode();
