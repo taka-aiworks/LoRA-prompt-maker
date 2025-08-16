@@ -1500,15 +1500,15 @@ function bindProduction(){
 function initHairEyeAndAccWheels(){
   // --- 髪/瞳（スクエア付きHSLピッカー） ---
   // 既定色はお好みで
-  getHairColorTag = initWheelWithSquare(
+  /* getHairColorTag = initWheelWithSquare(
     "#wheelH", "#thumbH", "#swH", "#tagH", "hair",
     35, 75, 50
   );
   getEyeColorTag = initWheelWithSquare(
     "#wheelE", "#thumbE", "#swE", "#tagE", "eyes",
     210, 60, 50
-  );
-
+  ); */
+   
  // ✅ S/Lスライダー版に戻す
   getHairColorTag = initWheel(
     "#wheelH", "#thumbH", "#satH", "#litH", "#swH", "#tagH", "hair"
