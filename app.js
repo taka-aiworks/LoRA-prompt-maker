@@ -1481,3 +1481,67 @@ function setupColorPickers(){
    
   getOutfitBaseColor = initColorWheel("outfitBase", 35, 80, 50);
 }
+/* ===== ここから追記：総合初期化 ===== */
+function initHairEyeAndAccWheels(){
+  // 髪/瞳（基本情報）: 「〜 hair / 〜 eyes」を返す getter をセット
+  getHairColorTag = initWheelWithSquare('#wheelH', '#thumbH', '#swH', '#tagH', 'hair', 35, 70, 45);
+  getEyeColorTag  = initWheelWithSquare('#wheelE', '#thumbE', '#swE', '#tagE', 'eyes', 210, 80, 55);
+
+  // 学習アクセ
+  getLearnAccColor = initColorWheel('learnAcc', 0, 75, 50);
+
+  // 量産アクセ A/B/C
+  getAccAColor = initColorWheel('accA', 0, 80, 50);
+  getAccBColor = initColorWheel('accB', 200, 80, 50);
+  getAccCColor = initColorWheel('accC', 120, 80, 50);
+
+  // 服の学習用（top/bottom/shoes）のON/OFF UIを反映
+  bindWearToggles();
+}
+
+function initSkinTone(){
+  const s = document.getElementById('skinTone');
+  if (s) {
+    s.addEventListener('input', paintSkin);
+    paintSkin(); // 初回反映
+  }
+}
+
+function initNSFWStatusBadge(){
+  const badge = document.getElementById('nsfwState');
+  if (!badge) return;
+  const update = () => {
+    const on = document.getElementById('nsfwLearn')?.checked || document.getElementById('nsfwProd')?.checked;
+    badge.textContent = on ? 'ON' : 'OFF';
+  };
+  document.getElementById('nsfwLearn')?.addEventListener('change', update);
+  document.getElementById('nsfwProd')?.addEventListener('change', update);
+  update();
+}
+
+function initAll(){
+  loadSettings();
+  initTabs();
+  bindDictIO();
+  bindCharIO();
+  bindNSFWToggles();
+  bindLearnTest();
+  bindLearnBatch();
+  bindProduction();
+  bindGASTools();
+  bindBottomCategoryGuess();
+
+  // 内蔵辞書ロード → UI生成
+  loadDefaultDicts().then(()=>{
+    renderSFW();
+    fillAccessorySlots();
+    renderNSFWLearning();
+    renderNSFWProduction();
+    initHairEyeAndAccWheels();
+    initSkinTone();
+    initNSFWStatusBadge();
+  });
+}
+
+// ページ読み込み完了後に起動
+document.addEventListener('DOMContentLoaded', initAll);
