@@ -260,6 +260,15 @@ function copyOneTestText(){
   navigator.clipboard.writeText(txt).then(()=> toast("コピーしました"));
 }
 
+// 固定で常に入れたいネガティブ（必要になったらここに増やす）
+const DEFAULT_NEG = "extra fingers, blurry, lowres, bad anatomy";
+
+// チェックボックスのON/OFFを読む（要素が無ければtrue扱い＝互換）
+function isDefaultNegOn() {
+  const el = document.getElementById("useDefaultNeg");
+  return el ? !!el.checked : true;
+}
+
 /* ========= カラーユーティリティ ========= */
 function hslToRgb(h,s,l){
   s/=100; l/=100;
@@ -1134,9 +1143,13 @@ function bindGASTools(){
 
 /* ========= 学習：組み立て ========= */
 function getNeg(){
-  const base = "extra fingers, blurry, lowres, bad anatomy";
-  const g = ($("#negGlobal").value||"").split(",").map(s=>s.trim()).filter(Boolean);
-  return uniq([...base.split(",").map(s=>s.trim()), ...g]).join(", ");
+  const base = isDefaultNegOn() ? DEFAULT_NEG : "";
+  const custom = ($("#negGlobal").value||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const parts = [
+    ... (base ? base.split(",").map(s=>s.trim()) : []),
+    ... custom
+  ];
+  return uniq(parts).join(", ");
 }
 
 // 置き換え: assembleFixedLearning
@@ -1471,8 +1484,8 @@ function getProdWearColorTag(idBase){
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
-  const neg   = ($("#p_neg").value||"").trim();
 
+  const neg = getNegProd();
   const O = readProductionOutfits();  // {top, pants, skirt, dress, shoes}
 
   const bgs    = getMany("p_bg");
@@ -1551,6 +1564,16 @@ function buildBatchProduction(n){
     out.push(makeOne(out.length + 1));
   }
   return out;
+}
+
+function getNegProd(){
+  const base = isDefaultNegOn() ? DEFAULT_NEG : "";
+  const custom = ($("#p_neg").value||"").split(",").map(s=>s.trim()).filter(Boolean);
+  const parts = [
+    ... (base ? base.split(",").map(s=>s.trim()) : []),
+    ... custom
+  ];
+  return uniq(parts).join(", ");
 }
 
 /* ========= レンダラ ========= */
