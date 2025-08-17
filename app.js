@@ -1518,7 +1518,8 @@ function applyNudePriority(parts){
   const hasBottomless = has(/\b(bottomless|下半身裸)\b/i);
   const RE_TOP      = /\b(top|shirt|t[-\s]?shirt|blouse|sweater|hoodie|jacket|coat|cardigan|tank top|camisole|bra|bikini top)\b/i;
   const RE_BOTTOM   = /\b(bottom|skirt|shorts|pants|jeans|trousers|leggings|bikini bottom|panties|underwear|briefs)\b/i;
-  const RE_ONEPIECE = /\b(dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|cape)\b/i;  const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
+  const RE_ONEPIECE = /\b(dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|cape)\b/i;  
+  const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
   const removeWhere = (re)=> { filtered = filtered.filter(t => !re.test(String(t))); };
   if (hasNude) {
     removeWhere(RE_TOP);
