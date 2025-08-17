@@ -1301,12 +1301,16 @@ function buildOneLearning(extraSeed = 0){
   if (genderCount) partsSolo.push(genderCount);
   // ↑↑ ここまで追記
    
-  let parts = uniq([...fixed, b, p, e, l, ...addon]).filter(Boolean);
+  // ★ solo と 1girl/1boy を実際に混ぜる
+  let parts = uniq([...partsSolo, ...fixed, b, p, e, l, ...addon]).filter(Boolean);
   parts = applyNudePriority(parts);
   parts = pairWearColors(parts);
   const pos = ensurePromptOrder(parts);
   const seed = seedFromName($("#charName").value||"", extraSeed); // ←ここでズラす
-  return {seed, pos, neg:getNeg(), text:`${pos.join(", ")} --neg ${getNeg()} seed:${seed}`};
+  // ★ 複数人抑止のネガを付足
+  const neg = withSoloNegatives(getNeg());
+  return {seed, pos, neg, text:`${pos.join(", ")} --neg ${neg} seed:${seed}`};
+
 }
 
 function buildBatchLearning(n){
