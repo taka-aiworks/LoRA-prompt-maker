@@ -59,11 +59,11 @@ function withSoloNegatives(negText) {
 /* === ソロ強制ガード（複数人対策） ======================= */
 const SOLO_POS = ["solo"]; // 1人明示
 const SOLO_NEG = [
-  "2girls","two girls","3girls","multiple girls","2boys","two boys",
-  "two people","three people","multiple people","group","crowd","duo","trio",
-  "pair","couple","twins","twin","roommates","bandmates","classmates","teammates",
-  "master and servant","mentor and pupil","idol and fan",
-  "background people","people in background","bystanders","photobomb"
+  "multiple people",   // 複数人全般
+  "group",             // グループ・集合
+  "crowd",             // 群衆
+  "twins",             // 双子などペア要素
+  "background people"  // 背景に人が映り込む
 ];
 
 // 背景が人混みに寄りやすいタグ → “無人化”の弱い補正を足す
