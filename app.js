@@ -63,7 +63,7 @@ const SOLO_NEG = [
   "group",             // グループ・集合
   "crowd",             // 群衆
   "twins",             // 双子などペア要素
-  "background people"  // 背景に人が映り込む
+  "background people",  // 背景に人が映り込む
   "text on clothes"    // シャツに余計な文字が含まれないようにする
 ];
 
