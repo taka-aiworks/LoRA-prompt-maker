@@ -158,7 +158,11 @@ const KEYMAP = {
 function categorizeOutfit(list){
   const L = normList(list||[]);
   const has = (t, re) => re.test(t.tag);
-  const top   = L.filter(t=> has(t, /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt)\b/i));
+  const top = L.filter(t=> has(t, /\b(
+    t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|
+    tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|
+    blazer|puffer\ jacket|parka|windbreaker|raincoat
+  )\b/ix));
   const pants = L.filter(t=> has(t, /\b(jeans|pants|trousers|shorts|cargo pants|leggings|overalls|bermuda shorts)\b/i));
   const skirt = L.filter(t=> has(t, /\b(skirt|pleated skirt|long skirt|hakama)\b/i));
   const dress = L.filter(t=> has(t, /\b(
@@ -171,8 +175,11 @@ function categorizeOutfit(list){
       tracksuit|sportswear|jersey|
       robe|poncho|cape|witch\s+outfit|idol\s+costume|stage\s+costume
     )\b/ix));
-  const shoes = L.filter(t=> has(t, /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i)); // ← 追加
-  return { top, pants, skirt, dress, shoes }; // ← 追加
+   const shoes = L.filter(t=> has(t, /\b(
+    shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori|
+    thigh-high\ socks|knee-high\ socks
+   )\b/ix));
+   return { top, pants, skirt, dress, shoes }; // ← 追加
 }
 
 function normNSFW(ns) {
@@ -598,13 +605,10 @@ function getLearningWearColorParts(sel){
   const bottom= getWearColorTag("bottom");
   const shoes = getWearColorTag("shoes");
 
-  if (sel.mode === "onepiece") {
-    if (sel.dress && top) {
-      // ワンピース全体を上色で着色
-      const noun = (/\bkimono|yukata\b/i.test(sel.dress)) ? "kimono"
-                : (/\bgown\b/i.test(sel.dress))           ? "gown"
-                : "dress";
-      parts.push(`${top} ${noun}`);
+   if (sel.mode === "onepiece") {
+     if (sel.dress && top) {
+      // そのまま実体タグに色を被せる → "orange sailor uniform" など
+      parts.push(`${top} ${sel.dress}`);
     }
   } else {
     if (sel.top && top)       parts.push(`${top} top`);
@@ -1287,7 +1291,10 @@ function pairWearColors(parts){
   // 服名検出用
   const topRe     = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt)\b/i;
   const bottomRe  = /\b(skirt|pleated skirt|long skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda shorts)\b/i;
-  const dressRe   = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress)\b/i;
+  const dressRe = /\b(
+    dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|
+    (?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape
+  )\b/ix;
   const shoesRe   = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i;
 
   // マッチした文字列から「素の名詞」を抜き出す（色や形容は捨てる）
