@@ -161,20 +161,8 @@ function categorizeOutfit(list){
   const top = L.filter(t => /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer|puffer\ jacket|parka|windbreaker|raincoat)\b/i.test(t.tag));
   const pants = L.filter(t=> has(t, /\b(jeans|pants|trousers|shorts|cargo pants|leggings|overalls|bermuda shorts)\b/i));
   const skirt = L.filter(t=> has(t, /\b(skirt|pleated skirt|long skirt|hakama)\b/i));
-  const dress = L.filter(t=> has(t, /\b(
-      dress|one[-\s]?piece|sundress|gown|
-      kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|
-      lolita dress|kimono dress|
-      swimsuit|bikini|leotard|
-      (?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|
-      maid\s+outfit|nurse\s+uniform|
-      tracksuit|sportswear|jersey|
-      robe|poncho|cape|witch\s+outfit|idol\s+costume|stage\s+costume
-    )\b/i));
-   const shoes = L.filter(t=> has(t, /\b(
-    shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori|
-    thigh-high\ socks|knee-high\ socks
-   )\b/i));
+  const dress = L.filter(t => /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|lolita dress|kimono dress|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|nurse\s+uniform|tracksuit|sportswear|jersey|robe|poncho|cape|witch\s+outfit|idol\s+costume|stage\s+costume)\b/i.test(t.tag));
+  const shoes = L.filter(t => /\b(shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori|thigh-high\ socks|knee-high\ socks)\b/i.test(t.tag));
    return { top, pants, skirt, dress, shoes }; // ← 追加
 }
 
@@ -1524,13 +1512,7 @@ function applyNudePriority(parts){
   const hasBottomless = has(/\b(bottomless|下半身裸)\b/i);
   const RE_TOP      = /\b(top|shirt|t[-\s]?shirt|blouse|sweater|hoodie|jacket|coat|cardigan|tank top|camisole|bra|bikini top)\b/i;
   const RE_BOTTOM   = /\b(bottom|skirt|shorts|pants|jeans|trousers|leggings|bikini bottom|panties|underwear|briefs)\b/i;
-  const RE_ONEPIECE = /\b(
-    dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao|
-    swimsuit|bikini|leotard|
-    (?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|
-    tracksuit|sportswear|jersey|cape
-  )\b/i;
-  const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
+  const RE_ONEPIECE = /\b(dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|cape)\b/i;  const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
   const removeWhere = (re)=> { filtered = filtered.filter(t => !re.test(String(t))); };
   if (hasNude) {
     removeWhere(RE_TOP);
