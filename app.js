@@ -36,6 +36,18 @@ function seedFromName(nm, extra = 0) {
   return h >>> 0;
 }
 
+// --- BF系（age/gender/…）の取得：ラジオ優先＋datasetフォールバック
+function getBFValue(name){
+  // name: "age" | "gender" | "body" | "height" | "person" | "world" | "tone"
+  const sel = document.querySelector(`input[name="bf_${name}"]:checked`);
+  if (sel && sel.value) return sel.value;
+
+  // UIが無い/未レンダ時は dataset を見る（applyCharacterPreset が書き込む）
+  const host = document.body || document.documentElement;
+  const key  = `bf${name[0].toUpperCase()}${name.slice(1)}`; // bfAge, bfGender, ...
+  return (host?.dataset?.[key] || "").trim();
+}
+
 // --- 学習モード専用: 性別から 1girl / 1boy を決める ---
 function getGenderCountTag() {
   const g = document.querySelector('input[name="bf_gender"]:checked')?.value?.toLowerCase() || "";
@@ -998,7 +1010,9 @@ function applyNSFWLearningPreset(p){
     if(p.selected.exposure)   setChecks("nsfwL_expo", p.selected.exposure);
     if(p.selected.situation)  setChecks("nsfwL_situ", p.selected.situation);
   }
-}function applyCharacterPreset(cfg){
+}
+
+function applyCharacterPreset(cfg){
   // 文字列系
   setVal("#charName", cfg.charName || cfg.characterName || "");
   setVal("#loraTag",  cfg.loraTag   || cfg.lora || "");
@@ -1024,16 +1038,30 @@ function applyNSFWLearningPreset(p){
   if(cfg.eyeColorTag)  setColorTag("#tagE", String(cfg.eyeColorTag));
   if(typeof cfg.skinTone==="number") setSkinTone(cfg.skinTone);
 
-  // ★ 基本情報（bf_*）
+    // ★ 基本情報（bf_*）
   const bf = cfg.bf || {};
-  if (bf.age)        setRadio("bf_age",   String(bf.age));
-  if (bf.gender)     setRadio("bf_gender",String(bf.gender));
-  if (bf.body)       setRadio("bf_body",  String(bf.body));
-  if (bf.height)     setRadio("bf_height",String(bf.height));
-  if (bf.personality)setRadio("bf_person",String(bf.personality));
-  if (bf.worldview)  setRadio("bf_world", String(bf.worldview));
-  if (bf.tone)       setRadio("bf_tone",  String(bf.tone));
+  if (bf.age)         setRadio("bf_age",    String(bf.age));
+  if (bf.gender)      setRadio("bf_gender", String(bf.gender));
+  if (bf.body)        setRadio("bf_body",   String(bf.body));
+  if (bf.height)      setRadio("bf_height", String(bf.height));
+  if (bf.personality) setRadio("bf_person", String(bf.personality));
+  if (bf.worldview)   setRadio("bf_world",  String(bf.worldview));
+  if (bf.tone)        setRadio("bf_tone",   String(bf.tone));
 
+  // ✅ 追記：UIが無い/未描画でも拾えるよう dataset にも保持
+  {
+    const host = document.body || document.documentElement;
+    if (host && host.dataset) {
+      if (bf.age)         host.dataset.bfAge    = String(bf.age);
+      if (bf.gender)      host.dataset.bfGender = String(bf.gender);
+      if (bf.body)        host.dataset.bfBody   = String(bf.body);
+      if (bf.height)      host.dataset.bfHeight = String(bf.height);
+      if (bf.personality) host.dataset.bfPerson = String(bf.personality);
+      if (bf.worldview)   host.dataset.bfWorld  = String(bf.worldview);
+      if (bf.tone)        host.dataset.bfTone   = String(bf.tone);
+    }
+  }
+   
   // ★ outfit（分割&モード）
   const outf = cfg.outfit || cfg.outfitSel || cfg.outfits;
   if (typeof outf === "string") {
@@ -1354,10 +1382,10 @@ function assembleFixedLearning(){
   out.push($("#loraTag").value.trim());
   out.push($("#charName").value.trim());
 
-  // 1) 人となり（SFW基礎）
-  ["bf_age","bf_gender","bf_body","bf_height","bf_person","bf_world","bf_tone"]
-    .forEach(n => {
-      const v = document.querySelector(`input[name="${n}"]:checked`)?.value;
+    // 1) 人となり（SFW基礎） ← ここを置き換え
+  ["age","gender","body","height","person","world","tone"]
+    .forEach(k => {
+      const v = getBFValue(k);
       if (v) out.push(v);
     });
 
