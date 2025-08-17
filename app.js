@@ -61,6 +61,8 @@ const SOLO_POS = ["solo"]; // 1人明示
 const SOLO_NEG = [
   "multiple people",   // 複数人
   "group",             // グループ・集合
+  "crowd",             // 群衆
+  "background people", // 背景にいる人
   "text on clothes"    // シャツに余計な文字が含まれないようにする
 ];
 
