@@ -76,6 +76,8 @@ const SOLO_NEG = [
   "crowd",             // 群衆
   "background people", // 背景にいる人
   "text on clothes"    // シャツに余計な文字が含まれないようにする
+  "letters",           // 文字全般
+  "logo"
 ];
 
 // 背景が人混みに寄りやすいタグ → “無人化”の弱い補正を足す
