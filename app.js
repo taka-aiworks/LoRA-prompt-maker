@@ -688,7 +688,7 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
     thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
     thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
   });
-  return ()=> $(tagId).textContent;
+  return ()=> (($(tagId).textContent) || "").trim();
 }
 
 /*
