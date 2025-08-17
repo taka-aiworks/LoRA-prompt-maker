@@ -162,7 +162,7 @@ function categorizeOutfit(list){
     t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|
     tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|
     blazer|puffer\ jacket|parka|windbreaker|raincoat
-  )\b/ix));
+  )\b/i));
   const pants = L.filter(t=> has(t, /\b(jeans|pants|trousers|shorts|cargo pants|leggings|overalls|bermuda shorts)\b/i));
   const skirt = L.filter(t=> has(t, /\b(skirt|pleated skirt|long skirt|hakama)\b/i));
   const dress = L.filter(t=> has(t, /\b(
@@ -174,11 +174,11 @@ function categorizeOutfit(list){
       maid\s+outfit|nurse\s+uniform|
       tracksuit|sportswear|jersey|
       robe|poncho|cape|witch\s+outfit|idol\s+costume|stage\s+costume
-    )\b/ix));
+    )\b/i));
    const shoes = L.filter(t=> has(t, /\b(
     shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori|
     thigh-high\ socks|knee-high\ socks
-   )\b/ix));
+   )\b/i));
    return { top, pants, skirt, dress, shoes }; // ← 追加
 }
 
@@ -1294,7 +1294,7 @@ function pairWearColors(parts){
   const dressRe = /\b(
     dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|
     (?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape
-  )\b/ix;
+  )\b/i;
   const shoesRe   = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i;
 
   // マッチした文字列から「素の名詞」を抜き出す（色や形容は捨てる）
