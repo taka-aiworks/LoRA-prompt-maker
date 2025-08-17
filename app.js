@@ -59,11 +59,7 @@ function withSoloNegatives(negText) {
 /* === ソロ強制ガード（複数人対策） ======================= */
 const SOLO_POS = ["solo"]; // 1人明示
 const SOLO_NEG = [
-  "multiple people",   // 複数人全般
   "group",             // グループ・集合
-  "crowd",             // 群衆
-  "twins",             // 双子などペア要素
-  "background people",  // 背景に人が映り込む
   "text on clothes"    // シャツに余計な文字が含まれないようにする
 ];
 
