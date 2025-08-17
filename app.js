@@ -1420,6 +1420,22 @@ function assembleFixedLearning(){
   const fixedManual = $("#fixedManual").value.split(",").map(s=>s.trim()).filter(Boolean);
   out.push(...fixedManual);
 
+ // 危ない箇所
+ out.push($("#loraTag")?.value?.trim() || "");
+ out.push($("#charName")?.value?.trim() || "");
+ out.push($("#tagSkin")?.textContent || "");
+ 
+ // getNeg
+ const custom = ($("#negGlobal")?.value || "")
+   .split(",").map(s=>s.trim()).filter(Boolean);
+
+ // buildOneLearning / buildBatchProduction
+ const nameVal = $("#charName")?.value || "";
+ const seed = seedFromName(nameVal, extraSeed); // など
+ // buildBatchProduction
+ const fixed = ($("#p_fixed")?.value || "")
+   .split(",").map(s=>s.trim()).filter(Boolean);
+
   return uniq(out).filter(Boolean);
 }
 
