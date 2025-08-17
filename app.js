@@ -664,6 +664,12 @@ function addHueDrag(wheelEl, thumbEl, onHueChange){
 /* ======= 色ホイール（髪/瞳） ======= */
 function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
+
+  // 追加: どれか欠けてたら安全に抜ける
+  if (!wheel || !thumb || !sat || !lit || !sw || !tagEl) {
+    return () => (document.querySelector(tagId)?.textContent || "").trim();
+  }
+   
   let hue = 35;
   function paint(){
     const s = +sat.value, l = +lit.value;
