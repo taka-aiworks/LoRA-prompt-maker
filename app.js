@@ -158,11 +158,7 @@ const KEYMAP = {
 function categorizeOutfit(list){
   const L = normList(list||[]);
   const has = (t, re) => re.test(t.tag);
-  const top = L.filter(t=> has(t, /\b(
-    t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|
-    tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|
-    blazer|puffer\ jacket|parka|windbreaker|raincoat
-  )\b/i));
+  const top = L.filter(t => /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer|puffer\ jacket|parka|windbreaker|raincoat)\b/i.test(t.tag));
   const pants = L.filter(t=> has(t, /\b(jeans|pants|trousers|shorts|cargo pants|leggings|overalls|bermuda shorts)\b/i));
   const skirt = L.filter(t=> has(t, /\b(skirt|pleated skirt|long skirt|hakama)\b/i));
   const dress = L.filter(t=> has(t, /\b(
@@ -1291,10 +1287,7 @@ function pairWearColors(parts){
   // 服名検出用
   const topRe     = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt)\b/i;
   const bottomRe  = /\b(skirt|pleated skirt|long skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda shorts)\b/i;
-  const dressRe = /\b(
-    dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|
-    (?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape
-  )\b/i;
+  const dressRe = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape)\b/i;
   const shoesRe   = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i;
 
   // マッチした文字列から「素の名詞」を抜き出す（色や形容は捨てる）
@@ -1483,17 +1476,7 @@ function ensurePromptOrder(parts) {
     if (S.art_style.has(t))  { buckets.s_art.push(t);  continue; }
    
    // 服・アクセ（色付き服も outfit に寄せる想定）
-   const WEAR_NAME_RE = /\b(
-    t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|
-    tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer|
-    skirt|pleated\ skirt|long\ skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda\ shorts|
-    dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|lolita\ dress|kimono\ dress|
-    swimsuit|bikini|leotard|
-    (?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|
-    tracksuit|sportswear|jersey|
-    robe|poncho|cape|
-    shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori
-   )\b/i;
+   const WEAR_NAME_RE = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer|skirt|pleated\ skirt|long\ skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda\ shorts|dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|lolita\ dress|kimono\ dress|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape|shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori)\b/i;
    if (S.outfit.has(t) || WEAR_NAME_RE.test(t)) { buckets.wear.push(t); continue; }
    if (S.acc.has(t)) { buckets.acc.push(t); continue; }
 
