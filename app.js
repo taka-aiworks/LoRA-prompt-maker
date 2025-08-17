@@ -124,7 +124,7 @@ function resetSettings() {
 }
 
 /* ========= 内蔵辞書（空で開始） ========= */
-const EMBED_SFW  = { hair_style:[], eyes:[], outfit:[], face:[], skin_body:[], art_style:[], background:[], pose_composition:[], expressions:[], accessories:[], lighting:[], age:[], gender:[], body_type:[], height:[], personality:[], relationship:[], worldview:[], speech_tone:[]};
+const EMBED_SFW = { hair_style:[], eyes:[], outfit:[], face:[], skin_body:[], art_style:[], background:[], pose_composition:[], expressions:[], accessories:[], lighting:[], age:[], gender:[], body_type:[], height:[], personality:[], worldview:[], speech_tone:[] };
 const EMBED_NSFW = { categories:{ expression:[], exposure:[], situation:[], lighting:[] } };
 
 let SFW  = JSON.parse(JSON.stringify(EMBED_SFW));
@@ -149,7 +149,6 @@ const KEYMAP = {
   "体型(基本)":"body_type",   // 好きな日本語キーに合わせて
   "身長":"height",
   "性格":"personality",
-  "関係性":"relationship",
   "世界観":"worldview",
   "口調":"speech_tone"
 };
@@ -386,7 +385,7 @@ function toneToHex(v){
 function toneToTag(v){
   if (v <= 10) return "porcelain skin";
   if (v <= 25) return "very fair skin";
-  if (v <= 40) return "fair / light skin";
+  if (v <= 40) return "light skin";
   if (v <= 55) return "medium skin";
   if (v <= 70) return "tan skin";
   if (v <= 85) return "brown skin";
@@ -877,7 +876,6 @@ function renderSFW(){
   radioList($("#bf_body"),     SFW.body_type,    "bf_body");
   radioList($("#bf_height"),   SFW.height,       "bf_height");
   radioList($("#bf_person"),   SFW.personality,  "bf_person");
-  radioList($("#bf_relation"), SFW.relationship, "bf_relation");
   radioList($("#bf_world"),    SFW.worldview,    "bf_world");
   radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
 
@@ -1233,7 +1231,7 @@ function assembleFixedLearning(){
   out.push($("#charName").value.trim());
 
   // 1) 人となり（SFW基礎）
-  ["bf_age","bf_gender","bf_body","bf_height","bf_person","bf_relation","bf_world","bf_tone"]
+  ["bf_age","bf_gender","bf_body","bf_height","bf_person","bf_world","bf_tone"]
     .forEach(n => {
       const v = document.querySelector(`input[name="${n}"]:checked`)?.value;
       if (v) out.push(v);
@@ -1397,7 +1395,6 @@ function ensurePromptOrder(parts) {
     body_basic: asSet(SFW.body_type),
     height:     asSet(SFW.height),
     person:     asSet(SFW.personality),
-    relation:   asSet(SFW.relationship),
     world:      asSet(SFW.worldview),
     tone:       asSet(SFW.speech_tone),
 
@@ -1426,7 +1423,7 @@ function ensurePromptOrder(parts) {
   const buckets = {
     lora:[], name:[],
     // 人となり
-    b_age:[], b_gender:[], b_body:[], b_height:[], b_person:[], b_relation:[], b_world:[], b_tone:[],
+    b_age:[], b_gender:[], b_body:[], b_height:[], b_person:[], b_world:[], b_tone:[],
     // 色
     c_hair:[], c_eye:[], c_skin:[],
     // 形
@@ -1453,7 +1450,6 @@ function ensurePromptOrder(parts) {
     if (S.body_basic.has(t)){ buckets.b_body.push(t); continue; }
     if (S.height.has(t))   { buckets.b_height.push(t); continue; }
     if (S.person.has(t))   { buckets.b_person.push(t); continue; }
-    if (S.relation.has(t)) { buckets.b_relation.push(t); continue; }
     if (S.world.has(t))    { buckets.b_world.push(t); continue; }
     if (S.tone.has(t))     { buckets.b_tone.push(t); continue; }
 
@@ -1493,7 +1489,7 @@ function ensurePromptOrder(parts) {
     ...buckets.lora, ...buckets.name,
     // 人となり
     ...buckets.b_age, ...buckets.b_gender, ...buckets.b_body, ...buckets.b_height,
-    ...buckets.b_person, ...buckets.b_relation, ...buckets.b_world, ...buckets.b_tone,
+    ...buckets.b_person, ...buckets.b_world, ...buckets.b_tone,
     // 色
     ...buckets.c_hair, ...buckets.c_eye, ...buckets.c_skin,
     // 形
