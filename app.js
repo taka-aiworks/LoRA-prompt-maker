@@ -1435,7 +1435,7 @@ function pairWearColors(parts){
   const topRe     = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt)\b/i;
   const bottomRe  = /\b(skirt|pleated skirt|long skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda shorts)\b/i;
   const dressRe = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape)\b/i;
-  const shoesRe   = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori)\b/i;
+  const shoesRe = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori|thigh-high socks|knee-high socks|socks)\b/i;
 
   // マッチした文字列から「素の名詞」を抜き出す（色や形容は捨てる）
   const nounWord = (s, re) => {
@@ -1669,7 +1669,7 @@ function applyNudePriority(parts){
   const hasBottomless = has(/\b(bottomless|下半身裸)\b/i);
   const RE_TOP      = /\b(top|shirt|t[-\s]?shirt|blouse|sweater|hoodie|jacket|coat|cardigan|tank top|camisole|bra|bikini top)\b/i;
   const RE_BOTTOM   = /\b(bottom|skirt|shorts|pants|jeans|trousers|leggings|bikini bottom|panties|underwear|briefs)\b/i;
-  const RE_ONEPIECE = /\b(dress|one[-\s]?piece|gown|kimono|robe|yukata|cheongsam|qipao|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|cape)\b/i;  
+  const RE_ONEPIECE = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|cape)\b/i;
   const RE_SHOES    = /\b(shoes|boots|heels|sandals|sneakers)\b/i;
   const removeWhere = (re)=> { filtered = filtered.filter(t => !re.test(String(t))); };
   if (hasNude) {
