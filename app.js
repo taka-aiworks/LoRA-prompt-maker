@@ -290,16 +290,23 @@ function listMissingForOneTest() {
   if (!getOne("hairStyle")) miss.push("髪型");
   if (!getOne("eyeShape"))  miss.push("目の形");
 
-  // 推奨（任意に変更）
+  // 推奨（任意）
   if (!getOne("skinBody"))  miss.push("体型（任意）");
   if (!getOne("face"))      miss.push("顔の特徴（任意）");
   if (!getOne("artStyle"))  miss.push("画風（任意）");
 
-  // 服は“任意”にする（未選択ならプロンプトに入らないだけ）
-  // const sel = getBasicSelectedOutfit(); ← 必須チェックを削除
-  // ★ 背景/ポーズ/表情は“必須にしない”のでチェック削除
+  // ★ 服は“必須”に変更（学習タブ）
+  const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
+  if (mode === "onepiece") {
+    if (!getOne("outfit_dress")) miss.push("ワンピース（必須）");
+  } else {
+    if (!getOne("outfit_top")) miss.push("トップス（必須）");
+    const bottomPicked = getOne("outfit_pants") || getOne("outfit_skirt");
+    if (!bottomPicked) miss.push("ボトム（必須）");
+  }
 
-  return miss.filter(x => !/（任意）$/.test(x)); // 任意は不足扱いにしない
+  // 任意は不足扱いにしない
+  return miss.filter(x => !/（任意）$/.test(x));
 }
 
 function isBasicReadyForOneTest(){ return listMissingForOneTest().length === 0; }
@@ -844,14 +851,20 @@ function radioList(el, list, name){
     return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}" ${i===0?"checked":""}> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
   }).join("");
 }
-function checkList(el, list, name){
-   if (!el) return;
-   const items = normList(list);
-   el.innerHTML = items.map(it=>{
+// 置き換え版：先頭自動チェックをオプション化
+function radioList(el, list, name, {checkFirst = true} = {}) {
+  if (!el) return;
+  const items = normList(list);
+  el.innerHTML = items.map((it, i) => {
     const showMini = it.tag && it.label && it.tag !== it.label;
-    return `<label class="chip"><input type="checkbox" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
+    const checked = (checkFirst && i === 0) ? 'checked' : '';
+    return `<label class="chip">
+      <input type="radio" name="${name}" value="${it.tag}" ${checked}>
+      ${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}
+    </label>`;
   }).join("");
 }
+
 const getOne  = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || "";
 const getMany = (name) => $$(`input[name="${name}"]:checked`).map(x=>x.value);
 
@@ -872,18 +885,21 @@ function renderSFW(){
   checkList($("#lightLearn"),  SFW.lighting,        "lightLearn");
 
   // ★ outfit をカテゴリに分配して描画
-  const C = categorizeOutfit(SFW.outfit);
-  radioList($("#outfit_top"),    C.top,   "outfit_top");
-  radioList($("#outfit_pants"),  C.pants, "outfit_pants");
-  radioList($("#outfit_skirt"),  C.skirt, "outfit_skirt");
-  radioList($("#outfit_dress"),  C.dress, "outfit_dress");
-  checkList($("#p_outfit_shoes"), C.shoes, "p_outfit_shoes");
+const C = categorizeOutfit(SFW.outfit);
 
-  // 量産側（カテゴリ別のチェック群）
-  checkList($("#p_outfit_top"),   C.top,   "p_outfit_top");
-  checkList($("#p_outfit_pants"), C.pants, "p_outfit_pants");
-  checkList($("#p_outfit_skirt"), C.skirt, "p_outfit_skirt");
-  checkList($("#p_outfit_dress"), C.dress, "p_outfit_dress");
+// ← ここだけ checkFirst:false に
+radioList($("#outfit_top"),    C.top,   "outfit_top",   {checkFirst:false});
+radioList($("#outfit_pants"),  C.pants, "outfit_pants", {checkFirst:false});
+radioList($("#outfit_skirt"),  C.skirt, "outfit_skirt", {checkFirst:false});
+radioList($("#outfit_dress"),  C.dress, "outfit_dress", {checkFirst:false});
+
+checkList($("#p_outfit_shoes"), C.shoes, "p_outfit_shoes");
+
+// 量産側（こちらは従来どおりチェックボックス）
+checkList($("#p_outfit_top"),   C.top,   "p_outfit_top");
+checkList($("#p_outfit_pants"), C.pants, "p_outfit_pants");
+checkList($("#p_outfit_skirt"), C.skirt, "p_outfit_skirt");
+checkList($("#p_outfit_dress"), C.dress, "p_outfit_dress");
 
   // ★ 基本情報（ID / name をHTMLに合わせて）
   radioList($("#bf_age"),      SFW.age,          "bf_age");
