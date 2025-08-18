@@ -379,7 +379,6 @@
       { "tag": "running", "label": "走り" },
       { "tag": "crossed arms", "label": "腕組み" },
       { "tag": "hands on hips", "label": "腰に手" }
-]
     ],
     "expressions": [
       { "tag": "neutral expression", "label": "ニュートラル" },
