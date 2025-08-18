@@ -398,6 +398,7 @@
       { "tag": "determined", "label": "決意" }
     ],
     "lighting": [
+      { "tag": "normal lighting", "label": "通常光" },
       { "tag": "even lighting", "label": "フラット照明" },
       { "tag": "soft lighting", "label": "柔らかい光" },
       { "tag": "backlighting", "label": "逆光" },
