@@ -36,6 +36,10 @@ function seedFromName(nm, extra = 0) {
   return h >>> 0;
 }
 
+
+function getOutfitBaseColor(){ return ""; } // 既定はベース色なし
+
+
 // --- BF系（age/gender/…）の取得：ラジオ優先＋datasetフォールバック
 function getBFValue(name){
   // name: "age" | "gender" | "body" | "height" | "person" | "world" | "tone"
@@ -1018,15 +1022,6 @@ function checkList(el, list, name, { prechecked = [] } = {}) {
 }
 
 /* ========= UI生成 ========= */
-function radioList(el, list, name){
-   if (!el) return;
-   const items = normList(list);
-   el.innerHTML = items.map((it,i)=>{
-    const showMini = it.tag && it.label && it.tag !== it.label;
-    return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}" ${i===0?"checked":""}> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
-  }).join("");
-}
-// 置き換え版：先頭自動チェックをオプション化
 function radioList(el, list, name, {checkFirst = true} = {}) {
   if (!el) return;
   const items = normList(list);
