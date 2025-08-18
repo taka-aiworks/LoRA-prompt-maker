@@ -323,7 +323,8 @@
     ],
     "background": [
       { "tag": "plain background", "label": "無地背景" },
-      { "tag": "white background", "label": "白背景" }
+      { "tag": "white background", "label": "白背景" },
+      { "tag": "solid background",  "label": "単色背景" },
       { "tag": "studio background", "label": "スタジオ背景" },
       { "tag": "bedroom", "label": "ベッドルーム" },
       { "tag": "classroom", "label": "教室" },
@@ -362,6 +363,10 @@
       { "tag": "upper body", "label": "上半身" },
       { "tag": "close-up", "label": "顔寄り" },
       { "tag": "front view", "label": "正面" },
+      { "tag": "bust",       "label": "バストアップ" },
+      { "tag": "waist up",   "label": "腰上" },
+      { "tag": "portrait",   "label": "ポートレート" },
+      { "tag": "centered composition", "label": "中央構図" },
       { "tag": "dynamic pose", "label": "動きのあるポーズ" },
       { "tag": "sitting", "label": "座り" },
       { "tag": "lying down", "label": "寝転び" },
@@ -377,6 +382,7 @@
 ]
     ],
     "expressions": [
+      { "tag": "neutral expression", "label": "ニュートラル" },
       { "tag": "smiling", "label": "笑顔" },
       { "tag": "neutral", "label": "無表情" },
       { "tag": "blushing", "label": "照れ" },
@@ -393,6 +399,7 @@
       { "tag": "determined", "label": "決意" }
     ],
     "lighting": [
+      { "tag": "even lighting", "label": "フラット照明" },
       { "tag": "soft lighting", "label": "柔らかい光" },
       { "tag": "backlighting", "label": "逆光" },
       { "tag": "rim light", "label": "縁取り光" },
