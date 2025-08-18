@@ -52,7 +52,7 @@
       { "tag": "broad shoulders", "label": "広い肩幅" },
       { "tag": "narrow waist", "label": "くびれあり" },
       { "tag": "long legs", "label": "脚が長い" },
-      { "tag": "short torso", "label": "胴短め" }
+      { "tag": "short torso", "label": "胴短め" }  
     ],
     "height": [
       { "tag": "very short", "label": "とても低身長" },
@@ -204,6 +204,8 @@
     ],
     "skin_body": [
       { "tag": "", "label": "なし" },
+      { "tag": "chibi", "label": "ちびキャラ" },
+      { "tag": "super deformed", "label": "SDキャラ" },
       { "tag": "freckles", "label": "そばかす" },
       { "tag": "rosy complexion", "label": "血色よい肌" },
       { "tag": "scar", "label": "傷跡" },
@@ -368,6 +370,7 @@
       { "tag": "portrait",   "label": "ポートレート" },
       { "tag": "centered composition", "label": "中央構図" },
       { "tag": "dynamic pose", "label": "動きのあるポーズ" },
+      { "tag": "pointing", "label": "指を差す" },
       { "tag": "sitting", "label": "座り" },
       { "tag": "lying down", "label": "寝転び" },
       { "tag": "three-quarter view", "label": "3/4アングル" },
