@@ -1002,6 +1002,21 @@ function initColorWheel(idBase, defaultHue=0, defaultS=80, defaultL=50){
   return ()=> tag.textContent.trim();
 }
 
+// チェックボックス版（radioListと対になるやつ）
+function checkList(el, list, name, { prechecked = [] } = {}) {
+  if (!el) return;
+  const items = normList(list);
+  const checkedSet = new Set(prechecked.map(String));
+  el.innerHTML = items.map((it) => {
+    const showMini = it.tag && it.label && it.tag !== it.label;
+    const checked = checkedSet.has(String(it.tag)) ? 'checked' : '';
+    return `<label class="chip">
+      <input type="checkbox" name="${name}" value="${it.tag}" ${checked}>
+      ${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}
+    </label>`;
+  }).join("");
+}
+
 /* ========= UI生成 ========= */
 function radioList(el, list, name){
    if (!el) return;
