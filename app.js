@@ -114,6 +114,175 @@ function stripMultiHints(parts){
   return parts.filter(t => !MULTI_HINT_RE.test(String(t)));
 }
 
+/* === 学習ガード：過剰要素の除去＆上限 === */
+// 変化が大きく学習をブレさせやすい語を落とす（学習時のみ）
+const LEARN_EXCLUDE_RE = /\b(
+  fisheye|wide[-\s]?angle|ultra[-\s]?wide|
+  dutch\s?angle|extreme\s?(close[-\s]?up|zoom|perspective)|
+  motion\s?blur|long\s?exposure|bokeh\s?balls|
+  tilt[-\s]?shift|depth\s?of\s?field|hdr|high\s?contrast|
+  dynamic\s?lighting|dramatic\s?lighting|backlight(ing)?|rim\s?light(ing)?|
+  fireworks|sparks|confetti|
+  holding\s+\w+|wielding\s+\w+|carrying\s+\w+|using\s+\w+|
+  smartphone|cell\s?phone|microphone|camera|sign|banner|weapon
+)\b/i;
+
+// カテゴリ単位で“最大数”を制限（学習時）
+const LEARN_BUCKET_CAP = {
+  lora:  2, name: 1,
+  b_age:1, b_gender:1, b_body:1, b_height:1, b_person:1, b_world:1, b_tone:1,
+  c_hair:1, c_eye:1, c_skin:1,
+  s_hair:1, s_eye:1, s_face:1, s_body:1, s_art:1,
+  wear:2, acc:0,          // ← 服は最大2語（top/bottom or dress）。アクセは0（固定にしたい場合は1でもOK）
+  bg:1, pose:1, expr:1, light:1,
+  n_expr:1, n_expo:1, n_situ:1, n_light:1,
+  other:0
+};
+
+// ensurePromptOrder と同じ仕分けを流用して“刈る”
+function trimByBucketForLearning(parts){
+  const ordered = ensurePromptOrder(parts);
+  const buckets = {
+    lora:[], name:[],
+    b_age:[], b_gender:[], b_body:[], b_height:[], b_person:[], b_world:[], b_tone:[],
+    c_hair:[], c_eye:[], c_skin:[],
+    s_hair:[], s_eye:[], s_face:[], s_body:[], s_art:[],
+    wear:[], acc:[],
+    bg:[], pose:[], expr:[], light:[],
+    n_expr:[], n_expo:[], n_situ:[], n_light:[],
+    other:[]
+  };
+
+  // ensurePromptOrder の分類ロジックに合わせるため、所属判定は同じ関数内の簡易模倣
+  const S = {
+    age:        new Set((SFW.age||[]).map(x=>x.tag||x)),
+    gender:     new Set((SFW.gender||[]).map(x=>x.tag||x)),
+    body_basic: new Set((SFW.body_type||[]).map(x=>x.tag||x)),
+    height:     new Set((SFW.height||[]).map(x=>x.tag||x)),
+    person:     new Set((SFW.personality||[]).map(x=>x.tag||x)),
+    world:      new Set((SFW.worldview||[]).map(x=>x.tag||x)),
+    tone:       new Set((SFW.speech_tone||[]).map(x=>x.tag||x)),
+
+    hair_style: new Set((SFW.hair_style||[]).map(x=>x.tag||x)),
+    eyes_shape: new Set((SFW.eyes||[]).map(x=>x.tag||x)),
+    face:       new Set((SFW.face||[]).map(x=>x.tag||x)),
+    skin_body:  new Set((SFW.skin_body||[]).map(x=>x.tag||x)),
+    art_style:  new Set((SFW.art_style||[]).map(x=>x.tag||x)),
+    outfit:     new Set((SFW.outfit||[]).map(x=>x.tag||x)),
+    acc:        new Set((SFW.accessories||[]).map(x=>x.tag||x)),
+    background: new Set((SFW.background||[]).map(x=>x.tag||x)),
+    pose:       new Set((SFW.pose_composition||[]).map(x=>x.tag||x)),
+    expr:       new Set((SFW.expressions||[]).map(x=>x.tag||x)),
+    light:      new Set((SFW.lighting||[]).map(x=>x.tag||x)),
+
+    nsfw_expr:  new Set((NSFW.expression||[]).map(x=>x.tag||x)),
+    nsfw_expo:  new Set((NSFW.exposure||[]).map(x=>x.tag||x)),
+    nsfw_situ:  new Set((NSFW.situation||[]).map(x=>x.tag||x)),
+    nsfw_light: new Set((NSFW.lighting||[]).map(x=>x.tag||x)),
+  };
+
+  const isHairColor = (t)=> /\bhair$/.test(t) && !S.hair_style.has(t);
+  const isEyeColor  = (t)=> /\beyes$/.test(t) && !S.eyes_shape.has(t);
+  const isSkinTone  = (t)=> /\bskin$/.test(t) && !S.skin_body.has(t);
+  const WEAR_NAME_RE = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer|skirt|pleated\ skirt|long\ skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda\ shorts|dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|lolita\ dress|kimono\ dress|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape|shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori)\b/i;
+
+  for (const t of ordered) {
+    if (!t || LEARN_EXCLUDE_RE.test(t)) continue;
+
+    if (t.startsWith("<lora:") || /\b(?:LoRA|<lyco:)/i.test(t)) { buckets.lora.push(t); continue; }
+    if (($("#charName")?.value||"").trim() === t) { buckets.name.push(t); continue; }
+
+    if (S.age.has(t))       { buckets.b_age.push(t); continue; }
+    if (S.gender.has(t))    { buckets.b_gender.push(t); continue; }
+    if (S.body_basic.has(t)){ buckets.b_body.push(t); continue; }
+    if (S.height.has(t))    { buckets.b_height.push(t); continue; }
+    if (S.person.has(t))    { buckets.b_person.push(t); continue; }
+    if (S.world.has(t))     { buckets.b_world.push(t); continue; }
+    if (S.tone.has(t))      { buckets.b_tone.push(t); continue; }
+
+    if (isHairColor(t)) { buckets.c_hair.push(t); continue; }
+    if (isEyeColor(t))  { buckets.c_eye.push(t);  continue; }
+    if (isSkinTone(t))  { buckets.c_skin.push(t); continue; }
+
+    if (S.hair_style.has(t)) { buckets.s_hair.push(t); continue; }
+    if (S.eyes_shape.has(t)) { buckets.s_eye.push(t);  continue; }
+    if (S.face.has(t))       { buckets.s_face.push(t); continue; }
+    if (S.skin_body.has(t))  { buckets.s_body.push(t); continue; }
+    if (S.art_style.has(t))  { buckets.s_art.push(t);  continue; }
+
+    if (S.outfit.has(t) || WEAR_NAME_RE.test(t)) { buckets.wear.push(t); continue; }
+    if (S.acc.has(t)) { buckets.acc.push(t); continue; }
+
+    if (S.background.has(t)) { buckets.bg.push(t);   continue; }
+    if (S.pose.has(t))       { buckets.pose.push(t); continue; }
+    if (S.expr.has(t))       { buckets.expr.push(t); continue; }
+    if (S.light.has(t))      { buckets.light.push(t);continue; }
+
+    if (S.nsfw_expr.has(t))  { buckets.n_expr.push(t);  continue; }
+    if (S.nsfw_expo.has(t))  { buckets.n_expo.push(t);  continue; }
+    if (S.nsfw_situ.has(t))  { buckets.n_situ.push(t);  continue; }
+    if (S.nsfw_light.has(t)) { buckets.n_light.push(t); continue; }
+
+    buckets.other.push(t);
+  }
+
+  const capped = [];
+  for (const [bk, arr] of Object.entries(buckets)) {
+    const cap = LEARN_BUCKET_CAP[bk];
+    if (cap === undefined) { capped.push(...arr); continue; }
+    if (cap <= 0) continue;
+    capped.push(...arr.slice(0, cap));
+  }
+  return capped;
+}
+
+/* === 学習アンカー：不足時の自動補完（安定化） === */
+const LEARN_DEFAULTS = {
+  // 構図・距離・視線
+  pose: ["upper body", "bust", "waist up", "portrait"],
+  expr: ["neutral expression"],
+  bg:   ["plain background", "studio background", "solid background"],
+  light:["soft lighting", "even lighting"],
+  // 追加の安定化（過激にならず識別に効く）
+  anchors: ["facing viewer", "centered composition", "clear focus"]
+};
+
+// bucketsから“1つも入っていない”ものにだけ1語足す
+function addLearningAnchorsIfMissing(parts){
+  const S = new Set(parts);
+  const need = [];
+
+  const hasPose   = /\b(upper body|bust|waist up|portrait)\b/i.test(parts.join(", "));
+  const hasExpr   = /\b(neutral expression)\b/i.test(parts.join(", "));
+  const hasBG     = /\b(plain background|studio background|solid background)\b/i.test(parts.join(", "));
+  const hasLight  = /\b(soft lighting|even lighting)\b/i.test(parts.join(", "));
+  const hasFacing = /\b(facing viewer)\b/i.test(parts.join(", "));
+  const hasCenter = /\b(centered composition)\b/i.test(parts.join(", "));
+
+  if (!hasPose)  need.push(LEARN_DEFAULTS.pose[0]);
+  if (!hasExpr)  need.push(LEARN_DEFAULTS.expr[0]);
+  if (!hasBG)    need.push(LEARN_DEFAULTS.bg[0]);
+  if (!hasLight) need.push(LEARN_DEFAULTS.light[0]);
+  if (!hasFacing)need.push("facing viewer");
+  if (!hasCenter)need.push("centered composition");
+
+  need.forEach(t => S.add(t));
+  return [...S];
+}
+
+/* === 学習強化ネガ === */
+const DEFAULT_TRAINING_NEG = [
+  "props", "holding object", "microphone", "smartphone", "camera", "sign", "banner",
+  "dynamic lighting", "backlighting", "rim lighting",
+  "fisheye", "wide-angle", "tilt-shift", "motion blur"
+].join(", ");
+
+// 学習用ネガ統合（ソロ強制の既存処理に追記）
+function getNegLearn(){
+  const base = getNeg(); // 既存（DEFAULT_NEG + カスタム）
+  return withSoloNeg(uniq([...(base||"").split(",").map(s=>s.trim()).filter(Boolean), ...DEFAULT_TRAINING_NEG.split(",")]).join(", "));
+}
+
 
 /* ========= 設定（LocalStorage） ========= */
 const LS_KEY = "LPM_SETTINGS_V1";
@@ -1507,8 +1676,9 @@ function getSelectedNSFW_Learn(){
 }
 
 function buildOneLearning(extraSeed = 0){
+  // ===== 1) ベース構築 =====
   const fixed = assembleFixedLearning();
-  const BG = getMany("bg"), PO=getMany("pose"), EX=getMany("expr"), LI=getMany("lightLearn");
+  const BG = getMany("bg"), PO = getMany("pose"), EX = getMany("expr"), LI = getMany("lightLearn");
   const addon = getSelectedNSFW_Learn();
   const b = pick(BG), p = pick(PO), e = pick(EX), l = LI.length ? pick(LI) : "";
 
@@ -1517,18 +1687,64 @@ function buildOneLearning(extraSeed = 0){
   const genderCount = getGenderCountTag(); // "1girl" / "1boy" / ""
   if (genderCount) partsSolo.push(genderCount);
 
-  // まとめる
   let parts = uniq([...partsSolo, ...fixed, b, p, e, l, ...addon]).filter(Boolean);
+
+  // ===== 2) 服の整合、露出優先などの既存ルール =====
   parts = applyNudePriority(parts);
   parts = pairWearColors(parts);
 
-  // ソロ強制 & 複数人ワード除去
+  // ===== 3) 学習に向かない“ノイズ”を除去 =====
+  //   - 小道具・複雑演出・画作り寄りの要素は学習から外す
+  // 学習に不要なノイズ要素を除去
+  const EXCLUDE_RE = /\b(crowd|group|multiple people|two people|three people|duo|trio|background people|lens flare|cinematic lighting|dramatic lighting|stage lighting|studio lighting|hdr|tilt-?shift|fisheye|wide-?angle|dutch angle|extreme close-?up|depth of field|strong bokeh|motion blur|watermark|signature|copyright|smartphone|phone|camera|microphone|mic|weapon|gun|sword|shield|staff|laptop|keyboard|headphones|backpack|bag|umbrella|drink|food|ice cream|skateboard)\b/i;
+
+  parts = parts.filter(t => !EXCLUDE_RE.test(String(t)));
+
+  // 複数人系のニュアンス語をさらに落とす → ソロ強制マーカーを足す
   parts = stripMultiHints(parts);
   parts = forceSoloPos(parts);
 
-  const pos  = ensurePromptOrder(parts);
+  // ===== 4) 学習アンカーを不足時だけ補完 =====
+  const asSet = (arr)=> new Set((arr||[]).map(x=> typeof x==='string' ? x : x.tag));
+  const S = {
+    background: asSet(SFW.background),
+    pose:       asSet(SFW.pose_composition),
+    expr:       asSet(SFW.expressions),
+    light:      asSet(SFW.lighting)
+  };
+  const hasAny = (poolSet)=> parts.some(t => poolSet.has(String(t)));
+
+  // 背景：何も選んでなければフラットに
+  if (!hasAny(S.background)) parts.push("plain background");
+
+  // ポーズ・構図：無ければ“上半身”
+  if (!hasAny(S.pose)) parts.push("upper body");
+
+  // 表情：無ければニュートラル
+  if (!hasAny(S.expr)) parts.push("neutral expression");
+
+  // ライティング：無ければソフト
+  if (!hasAny(S.light)) parts.push("soft lighting");
+
+  // 構図の安定化（入ってなければ）
+  if (!parts.some(t => /\b(center(ed)?\s?composition|centered)\b/i.test(String(t)))) {
+    parts.push("centered composition");
+  }
+
+  // ===== 5) 最終整形・並び順・シード =====
+  const pos  = ensurePromptOrder(uniq(parts).filter(Boolean));
   const seed = seedFromName($("#charName").value||"", extraSeed);
-  const neg  = withSoloNeg(getNeg()); // ← 統一
+
+  // 学習向けの追加ネガを上乗せ（重複は withSoloNeg 側で実質吸収）
+  const EXTRA_NEG = [
+    "props","accessories",
+    "smartphone","phone","camera","microphone","weapon","gun","sword","shield","book","laptop","bag","backpack","umbrella",
+    "drink","food",
+    "dramatic lighting","cinematic lighting","lens flare","motion blur","depth of field","fisheye","dutch angle"
+  ].join(", ");
+
+  const baseNeg = getNeg();                // 既存（グローバル）
+  const neg = withSoloNeg([baseNeg, EXTRA_NEG].filter(Boolean).join(", ")); // 複数人抑止も混ぜる
 
   return { seed, pos, neg, text: `${pos.join(", ")} --neg ${neg} seed:${seed}` };
 }
