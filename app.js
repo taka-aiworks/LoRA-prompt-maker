@@ -153,7 +153,7 @@ function normItem(x) {
   const ja    = x.ja || x.jp || x["name_ja"] || x["label_ja"] || x.desc || x.label;
   const label = (ja && String(ja).trim()) ? String(ja).trim() : (tag || "");
   const level = (x.level || "L1").toUpperCase();
-  return tag ? { tag, label, level } : null;
+  return (tag === undefined || tag === null) ? null : { tag: String(tag), label, level };
 }
 function normList(arr){ return (arr || []).map(normItem).filter(Boolean); }
 
