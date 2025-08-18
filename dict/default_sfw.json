@@ -322,6 +322,8 @@
       { "tag": "gloves", "label": "手袋" }
     ],
     "background": [
+      { "tag": "plain background", "label": "無地背景" },
+      { "tag": "white background", "label": "白背景" }
       { "tag": "studio background", "label": "スタジオ背景" },
       { "tag": "bedroom", "label": "ベッドルーム" },
       { "tag": "classroom", "label": "教室" },
@@ -359,6 +361,7 @@
       { "tag": "full body", "label": "全身" },
       { "tag": "upper body", "label": "上半身" },
       { "tag": "close-up", "label": "顔寄り" },
+      { "tag": "front view", "label": "正面" },
       { "tag": "dynamic pose", "label": "動きのあるポーズ" },
       { "tag": "sitting", "label": "座り" },
       { "tag": "lying down", "label": "寝転び" },
@@ -371,6 +374,7 @@
       { "tag": "running", "label": "走り" },
       { "tag": "crossed arms", "label": "腕組み" },
       { "tag": "hands on hips", "label": "腰に手" }
+]
     ],
     "expressions": [
       { "tag": "smiling", "label": "笑顔" },
