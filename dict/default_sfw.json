@@ -203,6 +203,7 @@
       { "tag": "thin eyebrows", "label": "細い眉" }
     ],
     "skin_body": [
+      { "tag": "", "label": "なし" },
       { "tag": "freckles", "label": "そばかす" },
       { "tag": "rosy complexion", "label": "血色よい肌" },
       { "tag": "cool undertone", "label": "寒色寄りの肌" },
