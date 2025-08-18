@@ -1733,12 +1733,10 @@ function buildOneLearning(extraSeed = 0){
   const seed = seedFromName($("#charName").value||"", extraSeed);
 
   // 学習向けの追加ネガを上乗せ（重複は withSoloNeg 側で実質吸収）
-  const EXTRA_NEG = [
-    "props","accessories",
-    "smartphone","phone","camera","microphone","weapon","gun","sword","shield","book","laptop","bag","backpack","umbrella",
-    "drink","food",
-    "dramatic lighting","cinematic lighting","lens flare","motion blur","depth of field","fisheye","dutch angle"
-  ].join(", ");
+const EXTRA_NEG = [
+  "props", "accessories",
+  "smartphone", "phone", "camera"
+].join(", ");
 
   const baseNeg = getNeg();                // 既存（グローバル）
   const neg = withSoloNeg([baseNeg, EXTRA_NEG].filter(Boolean).join(", ")); // 複数人抑止も混ぜる
