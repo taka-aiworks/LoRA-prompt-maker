@@ -116,16 +116,7 @@ function stripMultiHints(parts){
 
 /* === 学習ガード：過剰要素の除去＆上限 === */
 // 変化が大きく学習をブレさせやすい語を落とす（学習時のみ）
-const LEARN_EXCLUDE_RE = /\b(
-  fisheye|wide[-\s]?angle|ultra[-\s]?wide|
-  dutch\s?angle|extreme\s?(close[-\s]?up|zoom|perspective)|
-  motion\s?blur|long\s?exposure|bokeh\s?balls|
-  tilt[-\s]?shift|depth\s?of\s?field|hdr|high\s?contrast|
-  dynamic\s?lighting|dramatic\s?lighting|backlight(ing)?|rim\s?light(ing)?|
-  fireworks|sparks|confetti|
-  holding\s+\w+|wielding\s+\w+|carrying\s+\w+|using\s+\w+|
-  smartphone|cell\s?phone|microphone|camera|sign|banner|weapon
-)\b/i;
+const LEARN_EXCLUDE_RE = /\b(?:fisheye|wide[-\s]?angle|ultra[-\s]?wide|dutch\s?angle|extreme\s?(?:close[-\s]?up|zoom|perspective)|motion\s?blur|long\s?exposure|bokeh\s?balls|tilt[-\s]?shift|depth\s?of\s?field|hdr|high\s?contrast|dynamic\s?lighting|dramatic\s?lighting|backlight(?:ing)?|rim\s?light(?:ing)?|fireworks|sparks|confetti|holding\s+\w+|wielding\s+\w+|carrying\s+\w+|using\s+\w+|smartphone|cell\s?phone|microphone|camera|sign|banner|weapon)\b/i;
 
 // カテゴリ単位で“最大数”を制限（学習時）
 const LEARN_BUCKET_CAP = {
