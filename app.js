@@ -36,10 +36,6 @@ function seedFromName(nm, extra = 0) {
   return h >>> 0;
 }
 
-
-function getOutfitBaseColor(){ return ""; } // 既定はベース色なし
-
-
 // --- BF系（age/gender/…）の取得：ラジオ優先＋datasetフォールバック
 function getBFValue(name){
   // name: "age" | "gender" | "body" | "height" | "person" | "world" | "tone"
