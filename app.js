@@ -849,7 +849,7 @@ function checkList(el, list, name){
    const items = normList(list);
    el.innerHTML = items.map(it=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
-    return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
+    return `<label class="chip"><input type="checkbox" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
   }).join("");
 }
 const getOne  = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || "";
