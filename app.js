@@ -148,7 +148,8 @@ let NSFW = normNSFW(EMBED_NSFW);
 function normItem(x) {
   if (typeof x === "string") return { tag: x, label: x, level: "L1" };
   if (!x || typeof x !== "object") return null;
-  const tag   = x.tag || x.en || x.keyword || x.value || x.name || "";
+  // 空文字("")は有効。undefined/nullだけ除外したいので ?? を使う
+  const tag   = x.tag ?? x.en ?? x.keyword ?? x.value ?? x.name;
   const ja    = x.ja || x.jp || x["name_ja"] || x["label_ja"] || x.desc || x.label;
   const label = (ja && String(ja).trim()) ? String(ja).trim() : (tag || "");
   const level = (x.level || "L1").toUpperCase();
@@ -848,7 +849,7 @@ function checkList(el, list, name){
    const items = normList(list);
    el.innerHTML = items.map(it=>{
     const showMini = it.tag && it.label && it.tag !== it.label;
-    return `<label class="chip"><input type="checkbox" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
+    return `<label class="chip"><input type="radio" name="${name}" value="${it.tag}"> ${it.label}${showMini?`<span class="mini"> ${it.tag}</span>`:""}</label>`;
   }).join("");
 }
 const getOne  = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || "";
