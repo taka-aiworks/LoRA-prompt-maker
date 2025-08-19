@@ -1072,7 +1072,7 @@ const SCOPE = {
     ],
     // ★全身を必ず含める
     composition: [
-      "full body", "waist up", "bust", "portrait",
+      "full body", "waist up", "bust", "portrait","profile view","back view",
       "front view", "three-quarter view", "centered composition"
     ],
     // 表情は基本＋少しだけ追加
