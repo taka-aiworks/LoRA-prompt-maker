@@ -1057,13 +1057,34 @@ const getOne  = (name) => document.querySelector(`input[name="${name}"]:checked`
 const getMany = (name) => $$(`input[name="${name}"]:checked`).map(x=>x.value);
 
 // 追加：学習用ホワイトリスト（必要ならここを編集）
+// 学習用ホワイトリスト（控えめ多様性版）
+// ※ 文字列は SFW 辞書の tag と完全一致させてね
 const SCOPE = {
   learning: {
-    background:  ["plain background","white background","studio background","classroom","bedroom"],
-    pose:        ["pointing","sitting","crossed arms","hands on hips","waving","head tilt"],
-    composition: ["front view","bust","waist up","centered composition"],
-    expressions: ["neutral expression","smiling","crying"],
-    lighting:    ["normal lighting","even lighting","soft lighting"]
+    background: [
+      "plain background", "white background", "solid background", "studio background",
+      "classroom", "bedroom", "library", "caf\u00e9", "rooftop"
+    ],
+    // “動き”は控えめに。立ち・座り＋簡単ジェスチャ中心
+    pose: [
+      "standing", "sitting", "hands on hips", "crossed arms",
+      "pointing", "waving", "head tilt"
+    ],
+    // ★全身を必ず含める
+    composition: [
+      "full body", "waist up", "bust", "portrait",
+      "front view", "three-quarter view", "centered composition"
+    ],
+    // 表情は基本＋少しだけ追加
+    expressions: [
+      "neutral expression", "smiling", "crying",
+      "surprised", "blushing", "determined"
+    ],
+    // ライティングは安定系のみ
+    lighting: [
+      "normal lighting", "even lighting", "soft lighting",
+      "window light", "overcast"
+    ]
   }
 };
 
