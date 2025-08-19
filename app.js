@@ -1486,26 +1486,35 @@ function bindCharIO(){
 }
 
 
-// === 学習用 NSFW ホワイトリスト（UIと生成の両方で使用） ===
-const NSFW_LEARN_SCOPE = {
+// === 学習用 NSFW ホワイトリスト（最小セット × JSON 交差）=================
+// 1) 学習で「入れて良い」タグだけのハードホワイトリスト（最小セット）
+const NSFW_LEARN_ALLOW = {
+  // 表情：ソフト寄せのみ
   expression: [
-    "aroused","flushed","embarrassed","seductive_smile","half_lidded_eyes","bedroom_eyes","lip_bite"
-    // ← 口出し/あえぎ系は外すなら "panting" を省く
+    "aroused","flushed","embarrassed","seductive_smile","half_lidded_eyes",
+    "bedroom_eyes","lip_bite"
   ],
+  // 露出：R-15〜軽めR-18まで。フルヌード／過激水着／ボンデージは除外
   exposure: [
     "mild_cleavage","off_shoulder","bare_back","leggy",
-    "garter_belt","thighhighs","lingerie","bikini","wet_clothes","see_through","sideboob","underboob"
-    // topless/bottomless/nude は学習方針で入れるならここに追記（基本は外すと安定）
+    "garter_belt","thighhighs","lingerie","bikini",
+    "wet_clothes","see_through","sideboob","underboob"
   ],
+  // シチュ：日常〜軽く挑発系のみ。緊縛や流血系は除外
   situation: [
-    "suggestive_pose","mirror_selfie","after_shower","towel_wrap","in_bed_sheets","undressing","zipper_down","covered_nudity","censored_bars","massage_oil",
-    "beach","poolside","sunbathing","swim_competition","waterpark","shower_outdoor","changing_room","beach_night","foam_party","private_pool","photoshoot_studio","after_party_suite"
+    "suggestive_pose","mirror_selfie","after_shower","towel_wrap",
+    "in_bed_sheets","undressing","zipper_down","covered_nudity","censored_bars","massage_oil",
+    "beach","poolside","sunbathing","swim_competition","waterpark",
+    "shower_outdoor","changing_room","beach_night","foam_party",
+    "private_pool","photoshoot_studio","after_party_suite"
   ],
+  // ライティング：演出強すぎないもの中心
   lighting: [
-    // 学習では演出弱めだけ許容（強演出は除外）
-    "softbox","rim_light","window_glow","golden_hour","neon","candlelight","low_key","hard_light","colored_gels","film_noir","dappled_light","spotlight","moody","backlit"
+    "softbox","rim_light","backlit","window_glow","golden_hour","neon","candlelight",
+    "low_key","hard_light","colored_gels","film_noir","dappled_light","spotlight","moody"
   ]
 };
+
 
 
 function renderNSFWLearning(){
