@@ -1614,14 +1614,21 @@ function assembleFixedLearning(){
     if (v) out.push(v);
   });
 
-  // 4) 服（カテゴリ考慮）
-  const sel = getBasicSelectedOutfit();
-  if (sel.mode === "onepiece") {
-    if (sel.dress) out.push(sel.dress);
-  } else {
-    if (sel.top)    out.push(sel.top);
-    if (sel.bottom) out.push(sel.bottom);
+  // 4) 服（カテゴリ考慮） 
+const sel = getBasicSelectedOutfit();
+if (sel.mode === "onepiece") {
+  if (sel.dress) {
+    const topColor = getWearColorTag("top"); // ← 学習タブの top色
+    if (!topColor) {
+      // 色指定が無いときだけ素のワンピを入れる
+      out.push(sel.dress);
+    }
+    // top色がある場合は素ワンピは入れない（色付きは step5 で入る）
   }
+} else {
+  if (sel.top)    out.push(sel.top);
+  if (sel.bottom) out.push(sel.bottom);
+}
 
   // 5) 服カラー（top/bottom/dress/shoes は後でペア化）
   out.push(...getLearningWearColorParts(sel)); // ex) "orange top", "sky blue bottom", "gray shoes"
