@@ -381,7 +381,12 @@
       { "tag": "jumping", "label": "ジャンプ" },
       { "tag": "running", "label": "走り" },
       { "tag": "crossed arms", "label": "腕組み" },
-      { "tag": "hands on hips", "label": "腰に手" }
+      { "tag": "hands on hips", "label": "腰に手" },
+      { "tag": "slumped shoulders",    "label": "肩を落とす" },
+      { "tag": "head hung low",        "label": "うつむき" },
+      { "tag": "staggering",           "label": "よろめき" },
+      { "tag": "hands on cheeks",      "label": "頬に手" },
+      { "tag": "facepalm",             "label": "顔を覆う/フェイスパーム" }
     ],
     "expressions": [
       { "tag": "neutral expression", "label": "ニュートラル" },
@@ -398,7 +403,16 @@
       { "tag": "crying", "label": "涙目" },
       { "tag": "laughing", "label": "爆笑" },
       { "tag": "embarrassed", "label": "恥ずかしい" },
-      { "tag": "determined", "label": "決意" }
+      { "tag": "determined", "label": "決意" },
+      { "tag": "shocked expression",   "label": "ショック（ガーン）" },
+      { "tag": "dismayed expression",  "label": "落胆（ガーン）" },
+      { "tag": "aghast expression",    "label": "呆然（ガーン）" },
+      { "tag": "stunned expression",   "label": "茫然" },
+      { "tag": "despairing expression","label": "絶望顔" },
+      { "tag": "mouth agape",          "label": "口あんぐり" },
+      { "tag": "blank stare",          "label": "虚ろな目" },
+      { "tag": "dizzy eyes",           "label": "ぐるぐる目" },
+      { "tag": "sweat drop",           "label": "冷や汗マーク" }
     ],
     "lighting": [
       { "tag": "normal lighting", "label": "通常光" },
