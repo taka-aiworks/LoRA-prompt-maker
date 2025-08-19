@@ -1710,6 +1710,50 @@ function getSelectedNSFW_Learn(){
   return uniq(pickeds);
 }
 
+// === 一式（ワンピ）優先：重複衣服の排除＆色プレースホルダの置換 ===
+function enforceOnePieceExclusivity(parts){
+  // 文字列配列に正規化
+  let P = (parts||[]).filter(Boolean).map(String);
+
+  const RE_TOP    = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer)\b/i;
+  const RE_BOTTOM = /\b(skirt|pleated\ skirt|long\ skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda\ shorts)\b/i;
+  const RE_SHOES  = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori)\b/i;
+  const RE_ONE    = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|lolita\ dress|kimono\ dress|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape|witch\s+outfit|idol\s+costume|stage\s+costume)\b/i;
+
+  const firstDress = P.find(t => RE_ONE.test(t));
+  if (!firstDress) return P; // ワンピ無しなら何もしない
+
+  // 1) ワンピは1語に統一（最初の1つだけ残す）
+  P = P.filter((t, i) => !RE_ONE.test(t) || (t === firstDress && i === P.indexOf(firstDress)));
+
+  // 2) トップ/ボトムの“実服”を削除（靴は残す）
+  P = P.filter(t => !(RE_TOP.test(t) || RE_BOTTOM.test(t)));
+
+  // 3) 「色 top / 色 bottom」などのプレースホルダ処理
+  //    - 色 top → 色 + <ワンピ名> に置換
+  //    - 色 bottom → 破棄
+  const dressNoun = (firstDress.match(RE_ONE)?.[1] || "").toLowerCase();
+  const RE_COLOR_TOP    = /^(.+?)\s+top$/i;
+  const RE_COLOR_BOTTOM = /^(.+?)\s+bottom$/i;
+
+  P = P.flatMap(t => {
+    if (RE_COLOR_TOP.test(t)) {
+      const color = t.replace(RE_COLOR_TOP, "$1");
+      return [`${color} ${dressNoun}`];
+    }
+    if (RE_COLOR_BOTTOM.test(t)) {
+      return []; // 捨てる
+    }
+    return [t];
+  });
+
+  // 4) 念のため重複除去（順序は維持）
+  const seen = new Set(); const out = [];
+  for (const t of P) { if (!seen.has(t)) { seen.add(t); out.push(t); } }
+  return out;
+}
+
+
 function buildOneLearning(extraSeed = 0){
   // ===== 1) ベース構築 =====
   const fixed = assembleFixedLearning();
@@ -1728,6 +1772,8 @@ function buildOneLearning(extraSeed = 0){
 
   // ===== 2) 服の整合、露出優先などの既存ルール =====
   parts = applyNudePriority(parts);
+  // ▼ 追加：ワンピ優先の排他と色プレースホルダの置換（18禁でも効く）
+  parts = enforceOnePieceExclusivity(parts);
   parts = pairWearColors(parts);
 
   // ===== 3) 学習に向かない“ノイズ”を除去 =====
@@ -1984,7 +2030,7 @@ function getProdWearColorTag(idBase){
   return (txt && txt !== "—") ? txt : "";
 }
 
-/* ② 置き換え版：buildBatchProduction（丸ごと差し替え） */
+// ② 置き換え版：buildBatchProduction（丸ごと差し替え）
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
@@ -1993,7 +2039,7 @@ function buildBatchProduction(n){
   const O = readProductionOutfits();  // {top, pants, skirt, dress, shoes}
 
   const bgs    = getMany("p_bg");
-  const poses  = [...getMany("p_pose"), ...getMany("p_comp")];   // ← p_comp も吸収
+  const poses  = [...getMany("p_pose"), ...getMany("p_comp")];
   const exprs  = getMany("p_expr");
   const lights = getMany("p_light");
   const acc    = readAccessorySlots();
@@ -2020,9 +2066,12 @@ function buildBatchProduction(n){
   const makeOne = (i)=>{
     const parts = [];
     let usedDress = false;
+    let chosenDress = "";
 
+    // --- 服の選定（ワンピ優先の枝と上下の枝）
     if (O.dress.length && Math.random() < 0.35) {
-      parts.push(pick(O.dress));
+      chosenDress = pick(O.dress);
+      parts.push(chosenDress);
       usedDress = true;
     } else {
       if (O.top.length) parts.push(pick(O.top));
@@ -2035,10 +2084,23 @@ function buildBatchProduction(n){
 
     if (O.shoes && O.shoes.length) parts.push(pick(O.shoes));
 
-    if (PC.top)    parts.push(`${PC.top} top`);
-    if (!usedDress && PC.bottom) parts.push(`${PC.bottom} bottom`);
+    // --- 色の適用
+    if (usedDress) {
+      // ① トップ色は “色 + ワンピ名” に直接乗せ替え
+      if (PC.top && chosenDress) {
+        // chosenDress の名詞抽出（enforceOnePieceExclusivity と同じ正規表現を再利用）
+        const RE_ONE = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|hanbok|sari|lolita\ dress|kimono\ dress|swimsuit|bikini|leotard|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape|witch\s+outfit|idol\s+costume|stage\s+costume)\b/i;
+        const noun = (chosenDress.match(RE_ONE)?.[1] || "").toLowerCase();
+        if (noun) parts.push(`${PC.top} ${noun}`);
+      }
+      // ② ボトム色は破棄（下は存在しない）
+    } else {
+      if (PC.top)    parts.push(`${PC.top} top`);
+      if (PC.bottom) parts.push(`${PC.bottom} bottom`);
+    }
     if (PC.shoes)  parts.push(`${PC.shoes} shoes`);
 
+    // --- アクセ/シーン
     if (acc.length)    parts.push(...acc);
     if (bgs.length)    parts.push(pick(bgs));
     if (poses.length)  parts.push(pick(poses));
@@ -2046,21 +2108,22 @@ function buildBatchProduction(n){
     if (lights.length) parts.push(pick(lights));
     if (nsfwAdd.length)parts.push(...nsfwAdd);
 
+    // --- 服の整合
     let all = uniq([...fixed, ...parts]).filter(Boolean);
-    all = applyNudePriority(all);
-    all = pairWearColors(all);
+    all = applyNudePriority(all);               // ヌード系の優先処理
+    all = enforceOnePieceExclusivity(all);      // ★ ワンピ選択時は上下排除＆色置換
+    all = pairWearColors(all);                  // 名詞と色の最終ペアリング
 
-    // --- SOLO ガード（複数人ニュアンスを除去）
-    all = stripMultiHints(all);   // 関係性/人数っぽい語を除く
-    all = forceSoloPos(all);      // solo, 1girl/1boy を強制
+    // --- SOLO ガード
+    all = stripMultiHints(all);
+    all = forceSoloPos(all);
 
     const prompt = ensurePromptOrder(all).join(", ");
-
     const seed = (seedMode === "fixed")
       ? baseSeed
       : seedFromName($("#charName").value||"", i);
 
-     return { key: `${prompt}|${seed}`, seed, prompt, neg: withSoloNeg(neg) };
+    return { key: `${prompt}|${seed}`, seed, prompt, neg: withSoloNeg(neg) };
   };
 
   // ユニーク優先
@@ -2071,10 +2134,8 @@ function buildBatchProduction(n){
     seen.add(r.key);
     out.push(r);
   }
-  // ここからフォールバック：重複を許して埋め切る
-  while (out.length < n) {
-    out.push(makeOne(out.length + 1));
-  }
+  // フォールバック
+  while (out.length < n) out.push(makeOne(out.length + 1));
   return out;
 }
 
