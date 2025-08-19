@@ -1637,55 +1637,57 @@ function assembleFixedLearning(){
   return uniq(out).filter(Boolean);
 }
 
-// 追加: 服色と服名をペア化
+// 置き換え：服色と服名をペア化（top/bottom/shoes を実服名へマージ）
 function pairWearColors(parts){
-  const P = new Set(parts.filter(Boolean));
-  const take = (re)=> [...P].find(t=> re.test(String(t)));
+  const P = new Set((parts || []).filter(Boolean));
+  const S = s => String(s || "");
 
-  // 服名検出用
-  const topRe     = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench coat|tank top|camisole|turtleneck|off-shoulder top|crop top|sweatshirt)\b/i;
-  const bottomRe  = /\b(skirt|pleated skirt|long skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda shorts)\b/i;
-  const dressRe = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape)\b/i;
-  const shoesRe = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary janes|geta|zori|thigh-high socks|knee-high socks|socks)\b/i;
+  // 実服名の検出
+  const TOP_RE = /\b(t-?shirt|shirt|blouse|hoodie|sweater|cardigan|jacket|coat|trench\ coat|tank\ top|camisole|turtleneck|off-shoulder\ top|crop\ top|sweatshirt|blazer)\b/i;
+  const BOTTOM_RE = /\b(skirt|pleated\ skirt|long\ skirt|hakama|shorts|pants|jeans|trousers|leggings|overalls|bermuda\ shorts)\b/i;
+  const DRESS_RE = /\b(dress|one[-\s]?piece|sundress|gown|kimono(?:\s+dress)?|yukata|cheongsam|qipao|lolita\s+dress|(?:school|sailor|blazer|nurse|maid|waitress)\s+uniform|maid\s+outfit|tracksuit|sportswear|jersey|robe|poncho|cape)\b/i;
+  const SHOES_RE = /\b(shoes|boots|heels|sandals|sneakers|loafers|mary\ janes|geta|zori)\b/i;
 
-  // マッチした文字列から「素の名詞」を抜き出す（色や形容は捨てる）
-  const nounWord = (s, re) => {
-    const m = String(s||"").match(re);
-    return m ? m[1].toLowerCase() : ""; // 例: "gray shoes" -> "shoes"
-  };
+  const find = re => [...P].find(t => re.test(S(t)));
+  const noun = (hit, re) => { const m = S(hit).match(re); return m ? m[1].toLowerCase() : ""; };
 
-  const topHit    = take(topRe);
-  const bottomHit = take(bottomRe);
-  const dressHit  = take(dressRe);
-  const shoesHit  = take(shoesRe);
+  const topHit    = find(TOP_RE);
+  const bottomHit = find(BOTTOM_RE);
+  const dressHit  = find(DRESS_RE);
+  const shoesHit  = find(SHOES_RE);
 
-  const topWord    = nounWord(topHit, topRe);
-  const bottomWord = nounWord(bottomHit, bottomRe);
-  const dressWord  = nounWord(dressHit, dressRe);
-  const shoesWord  = nounWord(shoesHit, shoesRe);
+  const topWord    = noun(topHit, TOP_RE);
+  const bottomWord = noun(bottomHit, BOTTOM_RE);
+  const dressWord  = noun(dressHit, DRESS_RE);
+  const shoesWord  = noun(shoesHit, SHOES_RE);
 
-  const replacePair = (nounWord) => {
+  // "xxx top" / "yyy bottom" / "zzz shoes" → 実服名へ合体
+  const replaceGeneric = (generic, nounWord) => {
     if (!nounWord) return;
-    const reColorTag = new RegExp(`^(.+?)\\s+(?:${nounWord})$`, "i"); // ex) "orange top"
-    const colorTag = [...P].find(t => reColorTag.test(String(t)));
-    if (colorTag) {
-      // 色タグ（"orange top" 等）と、服名（"t-shirt" 等/ "top" / "shoes" など）を除去
-      P.delete(colorTag);
-      // noun は「色付き名詞」かもしれないので、候補を全部消しておく
-      [...P].forEach(x => { if (new RegExp(`\\b${nounWord}\\b`, "i").test(String(x))) P.delete(x); });
+    const reColor = new RegExp(`^(.+?)\\s+${generic}$`, "i");   // 例: "orange top"
+    const colorHit = [...P].find(t => reColor.test(S(t)));
+    if (!colorHit) return;
 
-      const color = String(colorTag).replace(reColorTag, "$1"); // "orange"
-      P.add(`${color} ${nounWord}`); // "orange t-shirt" / "orange bottom" / "gray shoes"
-    }
+    // 色だけ抽出
+    const color = S(colorHit).replace(reColor, "$1");
+
+    // 元の色タグとプレースホルダ、そして“素の名詞”を消す
+    P.delete(colorHit);
+    [...P].forEach(x => {
+      if (new RegExp(`\\b${generic}\\b`, "i").test(S(x))) P.delete(x);
+      if (new RegExp(`\\b${nounWord}\\b`, "i").test(S(x))) P.delete(x);
+    });
+
+    // 合体して追加（例: "orange t-shirt" / "sky blue skirt" / "gray sneakers"）
+    P.add(`${color} ${nounWord}`);
   };
 
-  if (dressWord) {
-    replacePair(dressWord);
-  } else {
-    replacePair(topWord);
-    replacePair(bottomWord);
+  // ワンピ系は元から「色 + dress名」で入るので、top/bottomの置換はスキップ
+  if (!dressWord) {
+    replaceGeneric("top", topWord);
+    replaceGeneric("bottom", bottomWord);
   }
-  replacePair(shoesWord);
+  replaceGeneric("shoes", shoesWord);
 
   return [...P];
 }
