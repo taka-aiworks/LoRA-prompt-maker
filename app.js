@@ -1063,12 +1063,12 @@ const SCOPE = {
   learning: {
     background: [
       "plain background", "white background", "solid background", "studio background",
-      "classroom", "bedroom", "library", "caf\u00e9", "rooftop"
+      "bedroom", "library", "caf\u00e9"
     ],
     // “動き”は控えめに。立ち・座り＋簡単ジェスチャ中心
     pose: [
-      "standing", "sitting", "hands on hips", "crossed arms",
-      "pointing", "waving", "head tilt"
+      "standing", "sitting",
+      "pointing", "head tilt"
     ],
     // ★全身を必ず含める
     composition: [
@@ -1077,8 +1077,8 @@ const SCOPE = {
     ],
     // 表情は基本＋少しだけ追加
     expressions: [
-      "neutral expression", "smiling", "crying",
-      "surprised", "blushing", "determined"
+      "neutral expression", "smiling","serious",
+      "determined"
     ],
     // ライティングは安定系のみ
     lighting: [
