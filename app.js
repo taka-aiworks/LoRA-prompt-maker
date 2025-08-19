@@ -1488,7 +1488,7 @@ function bindCharIO(){
 
 // === 学習用 NSFW ホワイトリスト（最小セット × JSON 交差）=================
 // 1) 学習で「入れて良い」タグだけのハードホワイトリスト（最小セット）
-const NSFW_LEARN_ALLOW = {
+const NSFW_LEARN_SCOPE = {
   // 表情：ソフト寄せのみ
   expression: [
     "aroused","flushed","embarrassed","seductive_smile","half_lidded_eyes",
