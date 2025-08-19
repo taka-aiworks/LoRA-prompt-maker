@@ -1485,20 +1485,46 @@ function bindCharIO(){
   });
 }
 
-/* ========= NSFW描画 ========= */
+
+// === 学習用 NSFW ホワイトリスト（UIと生成の両方で使用） ===
+const NSFW_LEARN_SCOPE = {
+  expression: [
+    "aroused","flushed","embarrassed","seductive_smile","half_lidded_eyes","bedroom_eyes","lip_bite"
+    // ← 口出し/あえぎ系は外すなら "panting" を省く
+  ],
+  exposure: [
+    "mild_cleavage","off_shoulder","bare_back","leggy",
+    "garter_belt","thighhighs","lingerie","bikini","wet_clothes","see_through","sideboob","underboob"
+    // topless/bottomless/nude は学習方針で入れるならここに追記（基本は外すと安定）
+  ],
+  situation: [
+    "suggestive_pose","mirror_selfie","after_shower","towel_wrap","in_bed_sheets","undressing","zipper_down","covered_nudity","censored_bars","massage_oil",
+    "beach","poolside","sunbathing","swim_competition","waterpark","shower_outdoor","changing_room","beach_night","foam_party","private_pool","photoshoot_studio","after_party_suite"
+  ],
+  lighting: [
+    // 学習では演出弱めだけ許容（強演出は除外）
+    "softbox","rim_light","window_glow","golden_hour","neon","candlelight","low_key","hard_light","colored_gels","film_noir","dappled_light","spotlight","moody","backlit"
+  ]
+};
+
+
+
 function renderNSFWLearning(){
-  const cap = document.querySelector('input[name="nsfwLevelLearn"]:checked')?.value || "L1";
-  const order = {L1:1,L2:2,L3:3};
-  const allow = (lv)=> order[(lv||"L1")] <= order[cap];
-  const lvlLabel = (x)=>({L1:"R-15",L2:"R-18",L3:"R-18G"}[(x||"L1")] || "R-15");
-  const toChips = (arr,name)=> normList(arr).filter(it=>allow(it.level)).map(o=>
-    `<label class="chip"><input type="checkbox" name="${name}" value="${o.tag}">${o.label}<span class="mini"> ${lvlLabel(o.level)}</span></label>`
+  // 学習は常にホワイトリスト＆R-18G遮断
+  const allow = (arr, name) => {
+    const wl = new Set(NSFW_LEARN_SCOPE[name] || []);
+    return normList(arr).filter(it => wl.has(it.tag));
+  };
+  const chips = (arr,name)=> arr.map(o =>
+    `<label class="chip"><input type="checkbox" name="nsfwL_${name}" value="${o.tag}">${o.label}<span class="mini"> ${o.level==="L2"?"R-18":"R-15"}</span></label>`
   ).join("");
-  $("#nsfwL_expr") && ($("#nsfwL_expr").innerHTML = toChips(NSFW.expression,"nsfwL_expr"));
-  $("#nsfwL_expo") && ($("#nsfwL_expo").innerHTML = toChips(NSFW.exposure, "nsfwL_expo"));
-  $("#nsfwL_situ") && ($("#nsfwL_situ").innerHTML = toChips(NSFW.situation,"nsfwL_situ"));
-  $("#nsfwL_light")&& ($("#nsfwL_light").innerHTML= toChips(NSFW.lighting, "nsfwL_light"));
+
+  $("#nsfwL_expr")  && ($("#nsfwL_expr").innerHTML  = chips(allow(NSFW.expression,"expression"), "expr"));
+  $("#nsfwL_expo")  && ($("#nsfwL_expo").innerHTML  = chips(allow(NSFW.exposure,  "exposure"),   "expo"));
+  $("#nsfwL_situ")  && ($("#nsfwL_situ").innerHTML  = chips(allow(NSFW.situation, "situation"),  "situ"));
+  $("#nsfwL_light") && ($("#nsfwL_light").innerHTML = chips(allow(NSFW.lighting,  "lighting"),   "light"));
 }
+
 function renderNSFWProduction(){
   const cap = document.querySelector('input[name="nsfwLevelProd"]:checked')?.value || "L1";
   const order = {L1:1,L2:2,L3:3};
@@ -1834,11 +1860,13 @@ function buildOneLearning(extraSeed = 0){
   parts = pairWearColors(parts);
 
   // ===== 3) 学習に向かない“ノイズ”を除去 =====
-  //   - 小道具・複雑演出・画作り寄りの要素は学習から外す
-  // 学習に不要なノイズ要素を除去
-  const EXCLUDE_RE = /\b(crowd|group|multiple people|two people|three people|duo|trio|background people|lens flare|cinematic lighting|dramatic lighting|stage lighting|studio lighting|hdr|tilt-?shift|fisheye|wide-?angle|dutch angle|extreme close-?up|depth of field|strong bokeh|motion blur|watermark|signature|copyright|smartphone|phone|camera|microphone|mic|weapon|gun|sword|shield|staff|laptop|keyboard|headphones|backpack|bag|umbrella|drink|food|ice cream|skateboard)\b/i;
-
-  parts = parts.filter(t => !EXCLUDE_RE.test(String(t)));
+  // 学習で常に除外する R-18G/暴力・流血系（UIで選ばれても落とす）
+  const NSFW_HARD_BLOCK_RE = /\b(blood(_splatter)?|injur(y|ies)|wound(ed)?|gore|gory|violence|torture)\b/i;
+  // 学習用ノイズ（強演出・小道具・群衆…）を一か所に集約
+  const LEARN_NOISE_RE = /\b(crowd|group|multiple people|two people|three people|duo|trio|background people|lens flare|cinematic lighting|dramatic lighting|stage lighting|studio lighting|hdr|tilt-?shift|fisheye|wide-?angle|dutch angle|extreme close-?up|depth of field|strong bokeh|motion blur|watermark|signature|copyright|smartphone|phone|camera|microphone|mic|weapon|gun|sword|shield|staff|laptop|keyboard|headphones|backpack|bag|umbrella|drink|food|ice cream|skateboard)\b/i;
+  // --- 学習に不要なタグの削除（順番はどちらが先でもOKだが両方実行）
+  parts = parts.filter(t => !NSFW_HARD_BLOCK_RE.test(String(t)));
+  parts = parts.filter(t => !LEARN_NOISE_RE.test(String(t)));
 
   // 複数人系のニュアンス語をさらに落とす → ソロ強制マーカーを足す
   parts = stripMultiHints(parts);
