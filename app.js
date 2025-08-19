@@ -2028,8 +2028,8 @@ function buildBatchLearning(n){
     out.push(buildOneLearning(out.length + 1));
   }
     // ★ 横顔を割合配分で注入
-  distributeViewsByPercent(out);    // ← 新しい割合配分版
-   
+    // ★ 学習用：全カテゴリを割合でミックス
+  applyPercentMixToLearning(out);
   return out;
 }
 
