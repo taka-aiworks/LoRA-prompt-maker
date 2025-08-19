@@ -88,7 +88,8 @@
         { "tag": "sci-fi",           "ja": "SF",               "level": "L1" },
         { "tag": "cyberpunk",        "ja": "サイバーパンク",   "level": "L1" },
         { "tag": "historical",       "ja": "歴史風",           "level": "L1" },
-        { "tag": "post_apocalyptic", "ja": "終末世界",         "level": "L1" }
+        { "tag": "post_apocalyptic", "ja": "終末世界",         "level": "L1" },
+        
       ],
       "speech_style": [
         { "tag": "polite",            "ja": "丁寧口調",           "level": "L1" },
@@ -138,7 +139,14 @@
         { "tag": "topless",         "ja": "上半身裸",         "level": "L2" },
         { "tag": "bottomless",      "ja": "下半身裸",         "level": "L2" },
         { "tag": "nude",            "ja": "全裸",             "level": "L2" },
-        { "tag": "bondage_wear",    "ja": "ボンデージ衣装",   "level": "L2" }
+        { "tag": "bondage_wear",    "ja": "ボンデージ衣装",   "level": "L2" },
+        { "tag": "micro_bikini",      "ja": "マイクロビキニ",   "level": "L2" },
+        { "tag": "string_bikini",     "ja": "紐ビキニ",         "level": "L2" },
+        { "tag": "sling_bikini",      "ja": "スリングショットビキニ", "level": "L2" },
+        { "tag": "wet_swimsuit",      "ja": "濡れた水着",       "level": "L2" },
+        { "tag": "nipple_cover_bikini", "ja": "ニップルカバービキニ", "level": "L2" },
+        { "tag": "crotchless_swimsuit", "ja": "クロッチレス水着",     "level": "L2" },
+        { "tag": "bodypaint_swimsuit",  "ja": "ボディペイント水着",    "level": "L2" }
       ],
       "situation": [
         { "tag": "suggestive_pose", "ja": "含みのあるポーズ", "level": "L1" },
@@ -155,7 +163,21 @@
         { "tag": "massage_oil",     "ja": "オイル・マッサージ","level": "L2" },
         { "tag": "blood_splatter",  "ja": "血しぶき",         "level": "L3" },
         { "tag": "injury_detail",   "ja": "負傷描写",         "level": "L3" },
-        { "tag": "gore",            "ja": "グロテスク表現",   "level": "L3" }
+        { "tag": "gore",            "ja": "グロテスク表現",   "level": "L3" },
+        { "tag": "beach",          "ja": "ビーチ",         "level": "L1" },
+        { "tag": "poolside",       "ja": "プールサイド",   "level": "L1" },
+        { "tag": "sunbathing",     "ja": "日光浴",         "level": "L1" },
+        { "tag": "swim_competition","ja": "水泳大会",      "level": "L1" },
+        { "tag": "waterpark",      "ja": "ウォーターパーク","level": "L1" },
+        { "tag": "shower_outdoor", "ja": "屋外シャワー",   "level": "L2" },
+        { "tag": "changing_room",  "ja": "更衣室",         "level": "L2" },
+        { "tag": "beach_night",    "ja": "夜のビーチ",     "level": "L2" },
+        { "tag": "foam_party",     "ja": "泡パーティー",   "level": "L2" },
+        { "tag": "nude_beach",     "ja": "ヌーディストビーチ","level": "L2" },
+        { "tag": "private_pool",   "ja": "プライベートプール","level": "L2" },
+        { "tag": "lovehotel_pool",   "ja": "ラブホテルのプール", "level": "L2" },
+        { "tag": "photoshoot_studio","ja": "撮影スタジオ",       "level": "L2" },
+        { "tag": "after_party_suite","ja": "アフターパーティーのスイートルーム","level": "L2" }
       ],
       "lighting": [
         { "tag": "softbox",        "ja": "ソフトライト",        "level": "L1" },
