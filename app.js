@@ -115,6 +115,21 @@ function stripMultiHints(parts){
 }
 
 /* === 学習ガード：過剰要素の除去＆上限 === */
+
+// === ポーズ/構図のゆる判定（片方のボックスが無いときは無視していい） ===
+function categorizePoseComp(list){
+  const L = normList(list||[]);
+  const isComp = (t)=>/\b(front view|side view|back view|looking up|looking down|overhead view|from below|profile|three-quarters view|bust shot|waist up|upper body|full body|close-?up|wide shot|centered composition|rule of thirds)\b/i.test(t);
+  const poseTags = [];
+  const compTags = [];
+  for (const it of L){
+    const tag = it.tag || "";
+    if (isComp(tag)) compTags.push(it); else poseTags.push(it);
+  }
+  return { poseTags, compTags };
+}
+
+
 // 変化が大きく学習をブレさせやすい語を落とす（学習時のみ）
 const LEARN_EXCLUDE_RE = /\b(?:fisheye|wide[-\s]?angle|ultra[-\s]?wide|dutch\s?angle|extreme\s?(?:close[-\s]?up|zoom|perspective)|motion\s?blur|long\s?exposure|bokeh\s?balls|tilt[-\s]?shift|depth\s?of\s?field|hdr|high\s?contrast|dynamic\s?lighting|dramatic\s?lighting|backlight(?:ing)?|rim\s?light(?:ing)?|fireworks|sparks|confetti|holding\s+\w+|wielding\s+\w+|carrying\s+\w+|using\s+\w+|smartphone|cell\s?phone|microphone|camera|sign|banner|weapon)\b/i;
 
@@ -1042,30 +1057,45 @@ function renderSFW(){
   radioList($("#skinBody"),    SFW.skin_body,       "skinBody");
   radioList($("#artStyle"),    SFW.art_style,       "artStyle");
   checkList($("#bg"),          SFW.background,      "bg");
-  checkList($("#pose"),        SFW.pose_composition,"pose");
   checkList($("#expr"),        SFW.expressions,     "expr");
   checkList($("#p_bg"),        SFW.background,      "p_bg");
-  checkList($("#p_pose"),      SFW.pose_composition,"p_pose");
   checkList($("#p_expr"),      SFW.expressions,     "p_expr");
   checkList($("#p_light"),     SFW.lighting,        "p_light");
   checkList($("#lightLearn"),  SFW.lighting,        "lightLearn");
 
+  // --- ポーズ/構図（HTMLに #comp / #p_comp があれば自動分割、無ければ従来どおり1カラム）
+  {
+    const src = SFW.pose_composition || [];
+    const { poseTags, compTags } = categorizePoseComp(src);
+
+    // 学習タブ
+    if (document.getElementById("comp")) {
+      checkList($("#pose"), poseTags, "pose");
+      checkList($("#comp"), compTags, "comp");
+    } else {
+      checkList($("#pose"), src, "pose");
+    }
+
+    // 量産タブ
+    if (document.getElementById("p_comp")) {
+      checkList($("#p_pose"), poseTags, "p_pose");
+      checkList($("#p_comp"), compTags, "p_comp");
+    } else {
+      checkList($("#p_pose"), src, "p_pose");
+    }
+  }
+
   // ★ outfit をカテゴリに分配して描画
-const C = categorizeOutfit(SFW.outfit);
-
-// ← ここだけ checkFirst:false に
-radioList($("#outfit_top"),    C.top,   "outfit_top",   {checkFirst:false});
-radioList($("#outfit_pants"),  C.pants, "outfit_pants", {checkFirst:false});
-radioList($("#outfit_skirt"),  C.skirt, "outfit_skirt", {checkFirst:false});
-radioList($("#outfit_dress"),  C.dress, "outfit_dress", {checkFirst:false});
-
-checkList($("#p_outfit_shoes"), C.shoes, "p_outfit_shoes");
-
-// 量産側（こちらは従来どおりチェックボックス）
-checkList($("#p_outfit_top"),   C.top,   "p_outfit_top");
-checkList($("#p_outfit_pants"), C.pants, "p_outfit_pants");
-checkList($("#p_outfit_skirt"), C.skirt, "p_outfit_skirt");
-checkList($("#p_outfit_dress"), C.dress, "p_outfit_dress");
+  const C = categorizeOutfit(SFW.outfit);
+  radioList($("#outfit_top"),    C.top,   "outfit_top",   {checkFirst:false});
+  radioList($("#outfit_pants"),  C.pants, "outfit_pants", {checkFirst:false});
+  radioList($("#outfit_skirt"),  C.skirt, "outfit_skirt", {checkFirst:false});
+  radioList($("#outfit_dress"),  C.dress, "outfit_dress", {checkFirst:false});
+  checkList($("#p_outfit_shoes"), C.shoes, "p_outfit_shoes");
+  checkList($("#p_outfit_top"),   C.top,   "p_outfit_top");
+  checkList($("#p_outfit_pants"), C.pants, "p_outfit_pants");
+  checkList($("#p_outfit_skirt"), C.skirt, "p_outfit_skirt");
+  checkList($("#p_outfit_dress"), C.dress, "p_outfit_dress");
 
   // ★ 基本情報（ID / name をHTMLに合わせて）
   radioList($("#bf_age"),      SFW.age,          "bf_age");
@@ -1076,9 +1106,8 @@ checkList($("#p_outfit_dress"), C.dress, "p_outfit_dress");
   radioList($("#bf_world"),    SFW.worldview,    "bf_world");
   radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
 
-   // ★ ここを追加：動的生成後に有効/無効を更新
+  // 動的生成後の必須チェック
   if (typeof updateOneTestReady === "function") updateOneTestReady();
-
 }
 
 function bindBottomCategoryGuess(){
@@ -1675,8 +1704,10 @@ function getSelectedNSFW_Learn(){
 function buildOneLearning(extraSeed = 0){
   // ===== 1) ベース構築 =====
   const fixed = assembleFixedLearning();
-  const BG = getMany("bg"), PO = getMany("pose"), EX = getMany("expr"), LI = getMany("lightLearn");
-  const addon = getSelectedNSFW_Learn();
+  const BG = getMany("bg");
+  const PO = [...getMany("pose"), ...getMany("comp")];           // ← compも足す（無ければ空配列）
+  const EX = getMany("expr");
+  const LI = getMany("lightLearn");  const addon = getSelectedNSFW_Learn();
   const b = pick(BG), p = pick(PO), e = pick(EX), l = LI.length ? pick(LI) : "";
 
   // 学習は常に1人
@@ -1953,7 +1984,7 @@ function buildBatchProduction(n){
   const O = readProductionOutfits();  // {top, pants, skirt, dress, shoes}
 
   const bgs    = getMany("p_bg");
-  const poses  = getMany("p_pose");
+  const poses  = [...getMany("p_pose"), ...getMany("p_comp")];   // ← p_comp も吸収
   const exprs  = getMany("p_expr");
   const lights = getMany("p_light");
   const acc    = readAccessorySlots();
