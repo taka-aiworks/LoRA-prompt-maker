@@ -1517,21 +1517,78 @@ function filterNSFWByWhitelist(category, tags){
   return (tags || []).filter(t => allow.has(t));
 }
 
-function renderNSFWLearning(){
-  // 学習は常にホワイトリスト＆R-18G遮断
-  const allow = (arr, name) => {
-    const wl = new Set(NSFW_LEARN_SCOPE[name] || []);
-    return normList(arr).filter(it => wl.has(it.tag));
-  };
-  const chips = (arr,name)=> arr.map(o =>
-    `<label class="chip"><input type="checkbox" name="nsfwL_${name}" value="${o.tag}">${o.label}<span class="mini"> ${o.level==="L2"?"R-18":"R-15"}</span></label>`
-  ).join("");
-
-  $("#nsfwL_expr")  && ($("#nsfwL_expr").innerHTML  = chips(allow(NSFW.expression,"expression"), "expr"));
-  $("#nsfwL_expo")  && ($("#nsfwL_expo").innerHTML  = chips(allow(NSFW.exposure,  "exposure"),   "expo"));
-  $("#nsfwL_situ")  && ($("#nsfwL_situ").innerHTML  = chips(allow(NSFW.situation, "situation"),  "situ"));
-  $("#nsfwL_light") && ($("#nsfwL_light").innerHTML = chips(allow(NSFW.lighting,  "lighting"),   "light"));
+// ★追加：レベル許可（L1/L2のみ。L3は学習では常に遮断）
+function isLevelAllowedForLearn(cap, lv){
+  const ord = { L1:1, L2:2, L3:3 };
+  const capN = ord[(cap||'L1')] || 1;
+  const lvN  = ord[(lv ||'L1')] || 1;
+  // 学習では R-18G(L3) は常に除外
+  if (lvN >= ord.L3) return false;
+  return lvN <= capN;
 }
+
+function renderNSFWLearning(){
+  // 学習は常にホワイトリスト＆R-18G遮断＋レベル上限
+  const cap = (document.querySelector('input[name="nsfwLevelLearn"]:checked')?.value) || "L1";
+  const allowWL = (arr, name) => {
+    const wl = new Set(NSFW_LEARN_SCOPE[name] || []);
+    return normList(arr).filter(it =>
+      wl.has(it.tag) && isLevelAllowedForLearn(cap, it.level)
+    );
+  };
+  const chips = (arr,name)=> arr.map(o => {
+    const lvlLabel = (o.level === "L2" ? "R-18" : "R-15"); // L3 はここまでに落ちている
+    return `<label class="chip">
+      <input type="checkbox" name="nsfwL_${name}" value="${o.tag}">
+      ${o.label}<span class="mini"> ${lvlLabel}</span>
+    </label>`;
+  }).join("");
+
+  $("#nsfwL_expr")  && ($("#nsfwL_expr").innerHTML  = chips(allowWL(NSFW.expression,"expression"), "expr"));
+  $("#nsfwL_expo")  && ($("#nsfwL_expo").innerHTML  = chips(allowWL(NSFW.exposure,  "exposure"),   "expo"));
+  $("#nsfwL_situ")  && ($("#nsfwL_situ").innerHTML  = chips(allowWL(NSFW.situation, "situation"),  "situ"));
+  $("#nsfwL_light") && ($("#nsfwL_light").innerHTML = chips(allowWL(NSFW.lighting,  "lighting"),   "light"));
+}
+
+function getSelectedNSFW_Learn(){
+  if (!$("#nsfwLearn").checked) return [];
+  const cap = (document.querySelector('input[name="nsfwLevelLearn"]:checked')?.value) || "L1";
+
+  const picked = [
+    ...$$('input[name="nsfwL_expr"]:checked').map(x=>x.value),
+    ...$$('input[name="nsfwL_expo"]:checked').map(x=>x.value),
+    ...$$('input[name="nsfwL_situ"]:checked').map(x=>x.value),
+    ...$$('input[name="nsfwL_light"]:checked').map(x=>x.value)
+  ];
+
+  // ★ホワイトリスト最終適用＋レベル上限でフィルタ
+  const idx = {
+    expression: new Map(normList(NSFW.expression).map(o=>[o.tag,o])),
+    exposure:   new Map(normList(NSFW.exposure).map(o=>[o.tag,o])),
+    situation:  new Map(normList(NSFW.situation).map(o=>[o.tag,o])),
+    lighting:   new Map(normList(NSFW.lighting).map(o=>[o.tag,o]))
+  };
+
+  const inWL = (tag)=>{
+    return (
+      NSFW_LEARN_SCOPE.expression.includes(tag) ||
+      NSFW_LEARN_SCOPE.exposure.includes(tag)   ||
+      NSFW_LEARN_SCOPE.situation.includes(tag)  ||
+      NSFW_LEARN_SCOPE.lighting.includes(tag)
+    );
+  };
+
+  const ok = [];
+  for (const t of picked){
+    if (!inWL(t)) continue;
+    const meta = idx.expression.get(t) || idx.exposure.get(t) || idx.situation.get(t) || idx.lighting.get(t);
+    if (!meta) continue;
+    if (!isLevelAllowedForLearn(cap, meta.level)) continue; // L3遮断含む
+    ok.push(t);
+  }
+  return uniq(ok);
+}
+
 
 function renderNSFWProduction(){
   const cap = document.querySelector('input[name="nsfwLevelProd"]:checked')?.value || "L1";
