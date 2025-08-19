@@ -279,6 +279,13 @@
   { "tag": "plain robe",               "label": "無地ローブ" },
   { "tag": "plain poncho",             "label": "無地ポンチョ" },
   { "tag": "plain cape",               "label": "無地ケープ" },
+  { "tag": "school swimsuit", "label": "スクール水着" },
+  { "tag": "sporty swimsuit", "label": "スポーティ水着" },
+  { "tag": "one-piece swimsuit", "label": "ワンピース水着" },
+  { "tag": "two-piece swimsuit", "label": "ツーピース水着" },
+  { "tag": "bikini swimsuit", "label": "ビキニ（一般）" },
+  { "tag": "rash guard swimsuit", "label": "ラッシュガード水着" },
+  { "tag": "swim trunks", "label": "スイムトランクス" }
 
   { "tag": "combat uniform (no patches)", "label": "戦闘服（パッチなし）" },
   { "tag": "fantasy armor (simple)",      "label": "ファンタジーアーマー（装飾控えめ）" },
@@ -345,7 +352,12 @@
       { "tag": "snowy town", "label": "雪の街" },
       { "tag": "autumn park", "label": "紅葉の公園" },
       { "tag": "spring cherry blossoms", "label": "桜並木" },
-      { "tag": "space interior", "label": "宇宙船内部" }
+      { "tag": "space interior", "label": "宇宙船内部" },
+      { "tag": "poolside", "label": "プールサイド" },
+      { "tag": "swimming pool", "label": "プール" },
+      { "tag": "water park", "label": "ウォーターパーク" },
+      { "tag": "beach daytime", "label": "昼のビーチ" },
+      { "tag": "beach sunset", "label": "夕暮れのビーチ" }
     ],
     "art_style": [
       { "tag": "anime style", "label": "アニメ調" },
