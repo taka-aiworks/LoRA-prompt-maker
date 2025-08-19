@@ -389,7 +389,7 @@
       { "tag": "pointing", "label": "指を差す" },
       { "tag": "sitting", "label": "座り" },
       { "tag": "lying down", "label": "寝転び" },
-      { "tag": "three-quarter view", "label": "3/4アングル" },
+      { "tag": "three-quarter view", "label": "斜め" },
       { "tag": "back view", "label": "背面" },
       { "tag": "profile view", "label": "横顔" },
       { "tag": "over-the-shoulder", "label": "肩越し構図" },
@@ -441,7 +441,8 @@
       { "tag": "mouth agape", "label": "口あんぐり" },
       { "tag": "blank stare", "label": "虚ろな目" },
       { "tag": "dizzy eyes", "label": "ぐるぐる目" },
-      { "tag": "sweat drop", "label": "冷や汗マーク" }
+      { "tag": "sweat drop", "label": "冷や汗マーク" },
+      { "tag": "serious", "label": "真面目な顔" }
     ],
     "lighting": [
       { "tag": "normal lighting", "label": "通常光" },
