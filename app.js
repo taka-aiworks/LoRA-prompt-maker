@@ -1508,7 +1508,6 @@ const NSFW_LEARN_SCOPE = {
 };
 
 
-
 function renderNSFWLearning(){
   // 学習は常にホワイトリスト＆R-18G遮断
   const allow = (arr, name) => {
