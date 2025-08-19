@@ -690,3 +690,28 @@ legend { display: none; }
 @supports (-webkit-touch-callout: none) {
   .mini { transform: translateY(-0.02em); } /* ほんの少しだけ下ろす */
 }
+
+/* ========== 被り対策の最小パッチ ========== */
+
+/* パネル同士に一定の下余白をつける */
+.card > .panel { margin-bottom: 16px; }
+
+/* 大きいブロック（カード）同士の間隔も確保 */
+.card + .card { margin-top: 18px; }
+
+/* 学習セット生成カードの直前クリア＆余白（安全マージン） */
+#learnBatchCard { margin-top: 16px; clear: both; }
+
+/* 行（.row）が横に並び切らない時に下へ折り返して潰れないように */
+.row { display: flex; flex-wrap: wrap; align-items: flex-start; }
+
+/* 内部でfloatを使っている要素があっても親が高さを持つように */
+.panel::after { content: ""; display: block; clear: both; }
+
+/* スクロールボックスがはみ出して重ならないように */
+.scroller { overflow: auto; max-height: 420px; /* 必要なら高さは調整 */ }
+
+/* 表のはみ出しで次要素に重ならないように（任意） */
+.table { width: 100%; table-layout: fixed; }
+
+
