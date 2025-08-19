@@ -285,7 +285,7 @@
   { "tag": "two-piece swimsuit", "label": "ツーピース水着" },
   { "tag": "bikini swimsuit", "label": "ビキニ（一般）" },
   { "tag": "rash guard swimsuit", "label": "ラッシュガード水着" },
-  { "tag": "swim trunks", "label": "スイムトランクス" }
+  { "tag": "swim trunks", "label": "スイムトランクス" },
 
   { "tag": "combat uniform (no patches)", "label": "戦闘服（パッチなし）" },
   { "tag": "fantasy armor (simple)",      "label": "ファンタジーアーマー（装飾控えめ）" },
