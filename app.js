@@ -1887,6 +1887,57 @@ const EXTRA_NEG = [
   return { seed, pos, neg, text: `${pos.join(", ")} --neg ${neg} seed:${seed}` };
 }
 
+// === 横顔の制御（割合ベース） =======================
+// 好きな割合に調整してね（例: 15%〜20%）
+const SIDE_VIEW_PCT_MIN = 0.15;  // 15%
+const SIDE_VIEW_PCT_MAX = 0.20;  // 20%
+const SIDE_VIEW_TAGS    = ["side view", "profile view"];
+
+// 既存：視点タグの付け替え（あるなら置き換えず流用してOK）
+function enforceViewVariant(parts, viewTag){
+  const RE_VIEW = /\b(front view|three-quarters view|profile view|side view|back view)\b/i;
+  const out = [];
+  for (const t of (parts||[])) {
+    if (RE_VIEW.test(String(t))) continue; // 既存の“視点”語は一旦全部外す
+    out.push(t);
+  }
+  if (viewTag) out.push(viewTag);
+  return out;
+}
+
+/**
+ * out配列（buildBatchLearning / buildBatchProduction の生成結果）に
+ * 横顔を割合ベースでバラ撒く。
+ * - rows: [{ pos, neg, seed, text }, ...]
+ */
+function distributeSideViewsByPercent(rows){
+  if (!Array.isArray(rows) || !rows.length) return rows;
+  const n = rows.length;
+
+  // 0〜1の範囲にクランプ
+  const clamp01 = (x)=> Math.max(0, Math.min(1, x));
+  const min = clamp01(SIDE_VIEW_PCT_MIN);
+  const max = clamp01(SIDE_VIEW_PCT_MAX);
+  const lo  = Math.min(min, max);
+  const hi  = Math.max(min, max);
+
+  // 目標枚数を決定（min..max の一様乱数）
+  const ratio = lo + Math.random() * (hi - lo);
+  const k = Math.max(1, Math.min(n, Math.round(n * ratio))); // 少なくとも1枚、n枚は超えない
+
+  // k個のインデックスをランダム抽出
+  const idxs = [...Array(n)].map((_,i)=>i).sort(()=>Math.random()-0.5).slice(0, k);
+
+  // 反映：各行の pos から他の“視点”語を外して横顔タグに差し替え
+  for (const i of idxs) {
+    const tag = SIDE_VIEW_TAGS[Math.floor(Math.random()*SIDE_VIEW_TAGS.length)];
+    const nextPos = enforceViewVariant(rows[i].pos, tag);
+    rows[i].pos  = ensurePromptOrder(nextPos);                 // 既存の並びルールに通す
+    rows[i].text = `${rows[i].pos.join(", ")} --neg ${rows[i].neg} seed:${rows[i].seed}`;
+  }
+  return rows;
+}
+
 function buildBatchLearning(n){
   const used = new Set();
   const out = [];
@@ -1905,6 +1956,9 @@ function buildBatchLearning(n){
   while (out.length < n){
     out.push(buildOneLearning(out.length + 1));
   }
+    // ★ 横顔を割合配分で注入
+  distributeSideViewsByPercent(out);
+   
   return out;
 }
 
