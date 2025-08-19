@@ -1901,68 +1901,113 @@ function enforceViewVariant(parts, viewTag){
   return out;
 }
 
-// === 視点の割合配分（学習用・量産にも使える）==================
-// 例：横顔20%、斜め30%、正面40%、背面10% といった具合に設定
-const VIEW_DISTRIBUTION = {
-  // key: 付与したいタグ（enforceViewVariant が吸収するため既存タグは自動で消える）
-  "profile view":        { min: 0.18, max: 0.22 },  // 横顔（18〜22%）
-  "three-quarters view": { min: 0.25, max: 0.35 },  // 斜め（25〜35%）
-  "front view":          { min: 0.35, max: 0.45 },  // 正面（35〜45%）
-  "back view":           { min: 0.08, max: 0.12 },  // 背面（8〜12%）
-  // 必要なら "side view" を追加してもOK（profile view と重複させないように）
-};
+// === 学習用：視点/構図/表情/背景/光の “割合ミキサー” =======================
 
-// 範囲[min,max]から1つ比率をとり、枚数nに対して個数を決める
-function _pickCountByRatio(n, {min=0, max=0}) {
-  const r = min + Math.random() * Math.max(0, (max - min));
-  return Math.max(0, Math.min(n, Math.round(n * r)));
+// ① グループ内の既存タグを落として target を入れる（ensurePromptOrder まで面倒見） 
+function replaceGroupTag(parts, groupTags, targetTag){
+  const RE = new RegExp("\\b(" + groupTags.map(t=>t.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|") + ")\\b","i");
+  const out = [];
+  for (const t of (parts||[])) { if (!RE.test(String(t))) out.push(t); }
+  if (targetTag) out.push(targetTag);
+  return ensurePromptOrder(out);
 }
 
-// rows: buildBatchLearning/buildBatchProduction が返す {pos,neg,seed,text} の配列
-// dist: VIEW_DISTRIBUTION のような設定
-function distributeViewsByPercent(rows, dist = VIEW_DISTRIBUTION) {
-  if (!Array.isArray(rows) || !rows.length) return rows;
+// ② n枚中、min..max 割合で k 枚をランダムに選んで tag を差し込む
+function applyPercentForTag(rows, groupTags, targetTag, pctMin, pctMax){
+  if (!Array.isArray(rows) || !rows.length) return;
   const n = rows.length;
+  const ratio = pctMin + Math.random() * (pctMax - pctMin);
+  const k = Math.max(1, Math.min(n, Math.round(n * ratio)));
+  const idxs = [...Array(n)].map((_,i)=>i).sort(()=>Math.random()-0.5).slice(0,k);
+  for (const i of idxs){
+    rows[i].pos  = replaceGroupTag(rows[i].pos, groupTags, targetTag);
+    rows[i].text = `${rows[i].pos.join(", ")} --neg ${rows[i].neg} seed:${rows[i].seed}`;
+  }
+}
 
-  // 1) 各タグの希望個数を計算
-  const wantEntries = Object.entries(dist).map(([tag, range]) => [tag, _pickCountByRatio(n, range)]);
-
-  // 2) 合計が n を超える/足りないときの調整（端数をならす）
-  let total = wantEntries.reduce((s, [,k]) => s + k, 0);
-  // まず超過していたら大きいものから削る
-  if (total > n) {
-    let over = total - n;
-    wantEntries.sort((a,b)=>b[1]-a[1]).forEach(e=>{
-      if (over <= 0) return;
-      const dec = Math.min(e[1], over);
-      e[1] -= dec; over -= dec;
-    });
-  } else if (total < n) {
-    // 足りないぶんは一番比率の広い（max-minの大きい）ものへ寄せる
-    let need = n - total;
-    const width = (tag)=> (dist[tag].max ?? 0) - (dist[tag].min ?? 0);
-    wantEntries.sort((a,b)=> width(b[0]) - width(a[0]));
-    let i = 0;
-    while (need > 0 && wantEntries.length) {
-      wantEntries[i % wantEntries.length][1] += 1;
-      need--; i++;
+// ③ 残りをデフォルトで埋める（“何も入ってない/他に置換された”ケースの保険）
+function fillRemainder(rows, groupTags, fallbackTag){
+  for (const r of rows){
+    const hasAny = r.pos.some(t => groupTags.includes(String(t)));
+    if (!hasAny){
+      r.pos  = replaceGroupTag(r.pos, groupTags, fallbackTag);
+      r.text = `${r.pos.join(", ")} --neg ${r.neg} seed:${r.seed}`;
     }
   }
+}
 
-  // 3) インデックスをシャッフルして、重複なしで配分
-  const idxs = [...Array(n)].map((_,i)=>i).sort(()=>Math.random()-0.5);
-  let cursor = 0;
-  for (const [viewTag, k] of wantEntries) {
-    for (let t = 0; t < k && cursor < idxs.length; t++, cursor++) {
-      const i = idxs[cursor];
-      const nextPos = enforceViewVariant(rows[i].pos, viewTag);
-      rows[i].pos  = ensurePromptOrder(nextPos);
-      rows[i].text = `${rows[i].pos.join(", ")} --neg ${rows[i].neg} seed:${rows[i].seed}`;
+// ④ 配分ルール（必要なら数値だけ調整してOK）
+const MIX_RULES = {
+  // 視点（横顔/背面は割合で、残りは 3/4 or 正面に後で丸める）
+  view: {
+    group: ["front view","three-quarters view","profile view","side view","back view"],
+    targets: {
+      "profile view":[0.15,0.20],  // 横顔 15–20%
+      "back view":[0.08,0.12],     // 背面 8–12%
+    },
+    fallback: "three-quarters view"
+  },
+
+  // 構図/距離（合計100%になる必要なし。余りは portrait に落とす）
+  comp: {
+    group: ["full body","waist up","bust","portrait"],
+    targets: {
+      "full body":[0.20,0.25],     // 20–25%
+      "waist up":[0.35,0.40],      // 35–40%
+      "bust":[0.25,0.30],          // 25–30%
+    },
+    fallback: "portrait"
+  },
+
+  // 表情（ニュートラル多め）
+  expr: {
+    group: ["neutral expression","smiling","serious","determined"],
+    targets: {
+      "neutral expression":[0.45,0.60],
+      "smiling":[0.25,0.35],
+      "serious":[0.10,0.20],
+    },
+    fallback: "neutral expression"
+  },
+
+  // 背景（無地/スタジオを多め。bedroom は少し）
+  bg: {
+    group: ["plain background","studio background","solid background","white background","bedroom"],
+    targets: {
+      "plain background":[0.35,0.45],
+      "studio background":[0.20,0.30],
+      "solid background":[0.05,0.10],
+      "bedroom":[0.05,0.10],
+    },
+    fallback: "plain background"
+  },
+
+  // ライティング（安定寄り）
+  light: {
+    group: ["soft lighting","even lighting","normal lighting","window light","overcast"],
+    targets: {
+      "soft lighting":[0.35,0.45],
+      "even lighting":[0.25,0.35],
+      "normal lighting":[0.10,0.20],
+    },
+    fallback: "soft lighting"
+  }
+};
+
+// ⑤ まとめ適用（学習バッチだけに適用）
+function applyPercentMixToLearning(rows){
+  if (!Array.isArray(rows) || !rows.length) return rows;
+
+  // 各カテゴリごとにターゲットを先に配る（被ってもOK、最後に ensurePromptOrder 済）
+  for (const rule of Object.values(MIX_RULES)){
+    const { group, targets, fallback } = rule;
+    for (const [tag,[min,max]] of Object.entries(targets)){
+      applyPercentForTag(rows, group, tag, min, max);
     }
+    fillRemainder(rows, group, fallback);
   }
   return rows;
 }
-
 
 function buildBatchLearning(n){
   const used = new Set();
@@ -1983,7 +2028,7 @@ function buildBatchLearning(n){
     out.push(buildOneLearning(out.length + 1));
   }
     // ★ 横顔を割合配分で注入
-  distributeSideViewsByPercent(out);
+  distributeViewsByPercent(out);    // ← 新しい割合配分版
    
   return out;
 }
