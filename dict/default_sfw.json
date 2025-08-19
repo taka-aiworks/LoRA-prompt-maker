@@ -411,7 +411,8 @@
       { "tag": "head hung low", "label": "うつむき" },
       { "tag": "staggering", "label": "よろめき" },
       { "tag": "hands on cheeks", "label": "頬に手" },
-      { "tag": "facepalm", "label": "顔を覆う/フェイスパーム" }
+      { "tag": "facepalm", "label": "顔を覆う/フェイスパーム" },
+      { "tag": "standing", "label": "直立/立ち" }
     ],
      "expressions": [
       { "tag": "neutral expression", "label": "ニュートラル" },
