@@ -36,6 +36,13 @@ function seedFromName(nm, extra = 0) {
   return h >>> 0;
 }
 
+// 候補が空なら全出し、配列があればそのタグだけに絞る
+const byScope = (items, allowList) =>
+  Array.isArray(allowList) && allowList.length
+    ? items.filter(x => allowList.includes(x.tag))
+    : items;
+
+
 // --- BF系（age/gender/…）の取得：ラジオ優先＋datasetフォールバック
 function getBFValue(name){
   // name: "age" | "gender" | "body" | "height" | "person" | "world" | "tone"
@@ -1049,34 +1056,66 @@ function radioList(el, list, name, {checkFirst = true} = {}) {
 const getOne  = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value || "";
 const getMany = (name) => $$(`input[name="${name}"]:checked`).map(x=>x.value);
 
+// 追加：学習用ホワイトリスト（必要ならここを編集）
+const SCOPE = {
+  learning: {
+    background:  ["plain background","white background","studio background","classroom","bedroom"],
+    pose:        ["pointing","sitting","crossed arms","hands on hips","waving","head tilt"],
+    composition: ["front view","bust","waist up","centered composition"],
+    expressions: ["neutral expression","smiling","crying"],
+    lighting:    ["normal lighting","even lighting","soft lighting"]
+  }
+};
+
+// 追加：タグ配列をホワイトリストで絞る共通関数
+function filterByScope(items, allow) {
+  if (!Array.isArray(items)) return [];
+  if (!Array.isArray(allow) || allow.length === 0) return items;
+  const s = new Set(allow);
+  return items.filter(x => s.has(x.tag));
+}
+
+// 元の categorizePoseComp はそのまま利用する前提
 function renderSFW(){
-  // 基本（従来）
+  // --- 基本（従来の固定系はそのまま）
   radioList($("#hairStyle"),   SFW.hair_style,      "hairStyle");
   radioList($("#eyeShape"),    SFW.eyes,            "eyeShape");
   radioList($("#face"),        SFW.face,            "face");
   radioList($("#skinBody"),    SFW.skin_body,       "skinBody");
   radioList($("#artStyle"),    SFW.art_style,       "artStyle");
-  checkList($("#bg"),          SFW.background,      "bg");
-  checkList($("#expr"),        SFW.expressions,     "expr");
-  checkList($("#p_bg"),        SFW.background,      "p_bg");
-  checkList($("#p_expr"),      SFW.expressions,     "p_expr");
-  checkList($("#p_light"),     SFW.lighting,        "p_light");
-  checkList($("#lightLearn"),  SFW.lighting,        "lightLearn");
 
-  // --- ポーズ/構図（HTMLに #comp / #p_comp があれば自動分割、無ければ従来どおり1カラム）
+  // ===== 学習タブ：背景/表情/ライトはホワイトリスト適用 =====
+  const bg_learn   = filterByScope(SFW.background,   SCOPE.learning.background);
+  const expr_learn = filterByScope(SFW.expressions,  SCOPE.learning.expressions);
+  const lit_learn  = filterByScope(SFW.lighting,     SCOPE.learning.lighting);
+
+  checkList($("#bg"),         bg_learn,   "bg");
+  checkList($("#expr"),       expr_learn, "expr");
+  checkList($("#lightLearn"), lit_learn,  "lightLearn");
+
+  // ===== 量産タブ：フル辞書（従来どおり） =====
+  checkList($("#p_bg"),    SFW.background,   "p_bg");
+  checkList($("#p_expr"),  SFW.expressions,  "p_expr");
+  checkList($("#p_light"), SFW.lighting,     "p_light");
+
+  // --- ポーズ/構図（分離対応）
   {
     const src = SFW.pose_composition || [];
     const { poseTags, compTags } = categorizePoseComp(src);
 
-    // 学習タブ
+    // 学習タブ：ポーズ/構図にホワイトリストを適用
+    const pose_learn = filterByScope(poseTags, SCOPE.learning.pose);
+    const comp_learn = filterByScope(compTags, SCOPE.learning.composition);
+
     if (document.getElementById("comp")) {
-      checkList($("#pose"), poseTags, "pose");
-      checkList($("#comp"), compTags, "comp");
+      checkList($("#pose"), pose_learn, "pose");
+      checkList($("#comp"), comp_learn, "comp");
     } else {
-      checkList($("#pose"), src, "pose");
+      // comp が無い旧HTMLでも、学習側は一応 pose に絞りを掛ける
+      checkList($("#pose"), pose_learn, "pose");
     }
 
-    // 量産タブ
+    // 量産タブ：フル辞書
     if (document.getElementById("p_comp")) {
       checkList($("#p_pose"), poseTags, "p_pose");
       checkList($("#p_comp"), compTags, "p_comp");
@@ -1085,7 +1124,7 @@ function renderSFW(){
     }
   }
 
-  // ★ outfit をカテゴリに分配して描画
+  // ★ outfit をカテゴリに分配して描画（そのまま）
   const C = categorizeOutfit(SFW.outfit);
   radioList($("#outfit_top"),    C.top,   "outfit_top",   {checkFirst:false});
   radioList($("#outfit_pants"),  C.pants, "outfit_pants", {checkFirst:false});
@@ -1097,7 +1136,7 @@ function renderSFW(){
   checkList($("#p_outfit_skirt"), C.skirt, "p_outfit_skirt");
   checkList($("#p_outfit_dress"), C.dress, "p_outfit_dress");
 
-  // ★ 基本情報（ID / name をHTMLに合わせて）
+  // ★ 基本情報（ID / name は既存の通り）
   radioList($("#bf_age"),      SFW.age,          "bf_age");
   radioList($("#bf_gender"),   SFW.gender,       "bf_gender");
   radioList($("#bf_body"),     SFW.body_type,    "bf_body");
