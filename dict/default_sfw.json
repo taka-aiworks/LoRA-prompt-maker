@@ -389,7 +389,7 @@
       { "tag": "pointing", "label": "指を差す" },
       { "tag": "sitting", "label": "座り" },
       { "tag": "lying down", "label": "寝転び" },
-      { "tag": "three-quarter view", "label": "斜め" },
+      { "tag": "three-quarters view", "label": "斜め" },
       { "tag": "back view", "label": "背面" },
       { "tag": "profile view", "label": "横顔" },
       { "tag": "over-the-shoulder", "label": "肩越し構図" },
