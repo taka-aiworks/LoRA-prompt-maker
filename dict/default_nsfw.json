@@ -88,7 +88,7 @@
         { "tag": "sci-fi",           "ja": "SF",               "level": "L1" },
         { "tag": "cyberpunk",        "ja": "サイバーパンク",   "level": "L1" },
         { "tag": "historical",       "ja": "歴史風",           "level": "L1" },
-        { "tag": "post_apocalyptic", "ja": "終末世界",         "level": "L1" },
+        { "tag": "post_apocalyptic", "ja": "終末世界",         "level": "L1" }
         
       ],
       "speech_style": [
