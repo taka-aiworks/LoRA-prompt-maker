@@ -1889,9 +1889,6 @@ const EXTRA_NEG = [
 
 // === 横顔の制御（学習用・割合ベース） =======================
 // 横顔を全体の 15〜20% で混ぜたい場合
-const SIDE_VIEW_PCT_MIN = 0.15;  // 15%
-const SIDE_VIEW_PCT_MAX = 0.20;  // 20%
-const SIDE_VIEW_TAGS    = ["side view", "profile view"];
 
 function enforceViewVariant(parts, viewTag){
   const RE_VIEW = /\b(front view|three-quarters view|profile view|side view|back view)\b/i;
@@ -1904,24 +1901,68 @@ function enforceViewVariant(parts, viewTag){
   return out;
 }
 
-function distributeSideViewsByPercent(rows){
+// === 視点の割合配分（学習用・量産にも使える）==================
+// 例：横顔20%、斜め30%、正面40%、背面10% といった具合に設定
+const VIEW_DISTRIBUTION = {
+  // key: 付与したいタグ（enforceViewVariant が吸収するため既存タグは自動で消える）
+  "profile view":        { min: 0.18, max: 0.22 },  // 横顔（18〜22%）
+  "three-quarters view": { min: 0.25, max: 0.35 },  // 斜め（25〜35%）
+  "front view":          { min: 0.35, max: 0.45 },  // 正面（35〜45%）
+  "back view":           { min: 0.08, max: 0.12 },  // 背面（8〜12%）
+  // 必要なら "side view" を追加してもOK（profile view と重複させないように）
+};
+
+// 範囲[min,max]から1つ比率をとり、枚数nに対して個数を決める
+function _pickCountByRatio(n, {min=0, max=0}) {
+  const r = min + Math.random() * Math.max(0, (max - min));
+  return Math.max(0, Math.min(n, Math.round(n * r)));
+}
+
+// rows: buildBatchLearning/buildBatchProduction が返す {pos,neg,seed,text} の配列
+// dist: VIEW_DISTRIBUTION のような設定
+function distributeViewsByPercent(rows, dist = VIEW_DISTRIBUTION) {
   if (!Array.isArray(rows) || !rows.length) return rows;
   const n = rows.length;
 
-  // 割合をランダムに決定
-  const ratio = SIDE_VIEW_PCT_MIN + Math.random() * (SIDE_VIEW_PCT_MAX - SIDE_VIEW_PCT_MIN);
-  const k = Math.max(1, Math.min(n, Math.round(n * ratio)));
+  // 1) 各タグの希望個数を計算
+  const wantEntries = Object.entries(dist).map(([tag, range]) => [tag, _pickCountByRatio(n, range)]);
 
-  // k個ランダムに横顔にする
-  const idxs = [...Array(n)].map((_,i)=>i).sort(()=>Math.random()-0.5).slice(0, k);
-  for (const i of idxs) {
-    const tag = SIDE_VIEW_TAGS[Math.floor(Math.random()*SIDE_VIEW_TAGS.length)];
-    const nextPos = enforceViewVariant(rows[i].pos, tag);
-    rows[i].pos  = ensurePromptOrder(nextPos);
-    rows[i].text = `${rows[i].pos.join(", ")} --neg ${rows[i].neg} seed:${rows[i].seed}`;
+  // 2) 合計が n を超える/足りないときの調整（端数をならす）
+  let total = wantEntries.reduce((s, [,k]) => s + k, 0);
+  // まず超過していたら大きいものから削る
+  if (total > n) {
+    let over = total - n;
+    wantEntries.sort((a,b)=>b[1]-a[1]).forEach(e=>{
+      if (over <= 0) return;
+      const dec = Math.min(e[1], over);
+      e[1] -= dec; over -= dec;
+    });
+  } else if (total < n) {
+    // 足りないぶんは一番比率の広い（max-minの大きい）ものへ寄せる
+    let need = n - total;
+    const width = (tag)=> (dist[tag].max ?? 0) - (dist[tag].min ?? 0);
+    wantEntries.sort((a,b)=> width(b[0]) - width(a[0]));
+    let i = 0;
+    while (need > 0 && wantEntries.length) {
+      wantEntries[i % wantEntries.length][1] += 1;
+      need--; i++;
+    }
+  }
+
+  // 3) インデックスをシャッフルして、重複なしで配分
+  const idxs = [...Array(n)].map((_,i)=>i).sort(()=>Math.random()-0.5);
+  let cursor = 0;
+  for (const [viewTag, k] of wantEntries) {
+    for (let t = 0; t < k && cursor < idxs.length; t++, cursor++) {
+      const i = idxs[cursor];
+      const nextPos = enforceViewVariant(rows[i].pos, viewTag);
+      rows[i].pos  = ensurePromptOrder(nextPos);
+      rows[i].text = `${rows[i].pos.join(", ")} --neg ${rows[i].neg} seed:${rows[i].seed}`;
+    }
   }
   return rows;
 }
+
 
 function buildBatchLearning(n){
   const used = new Set();
