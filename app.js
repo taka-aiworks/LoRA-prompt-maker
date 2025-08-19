@@ -477,15 +477,12 @@ function listMissingForOneTest() {
   if (!getOne("face"))      miss.push("顔の特徴（任意）");
   if (!getOne("artStyle"))  miss.push("画風（任意）");
 
-  // ★ 服は“必須”に変更（学習タブ）
+  // ★ 服は“任意”に変更（学習タブ）
   const mode = document.querySelector('input[name="outfitMode"]:checked')?.value || "separate";
-  if (mode === "onepiece") {
-    if (!getOne("outfit_dress")) miss.push("ワンピース（必須）");
-  } else {
-    if (!getOne("outfit_top")) miss.push("トップス（必須）");
-    const bottomPicked = getOne("outfit_pants") || getOne("outfit_skirt");
-    if (!bottomPicked) miss.push("ボトム（必須）");
-  }
+
+  // 服は未選択でもOKなので、miss.push は行わない
+  // 選択されていればそのまま利用される
+  // ここでは何もチェックしない
 
   // 任意は不足扱いにしない
   return miss.filter(x => !/（任意）$/.test(x));
@@ -1063,7 +1060,7 @@ const SCOPE = {
   learning: {
     background: [
       "plain background", "white background", "solid background", "studio background",
-      "bedroom", "library", "caf\u00e9"
+      "bedroom",
     ],
     // “動き”は控えめに。立ち・座り＋簡単ジェスチャ中心
     pose: [
