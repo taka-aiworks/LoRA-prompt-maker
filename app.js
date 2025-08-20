@@ -2232,9 +2232,42 @@ function buildBatchLearning(n){
   while (out.length < n){
     out.push(buildOneLearning(out.length + 1));
   }
-    // ★ 横顔を割合配分で注入
-    // ★ 学習用：全カテゴリを割合でミックス
-   // applyPercentMixToLearning(out);
+    // ★ 横顔を割合配分で注入// ★ 学習バッチ完成後に割合を適用する
+{
+  const rows = out;
+
+  // VIEW
+  applyPercentForTag(rows, MIX_RULES.view.group, "profile view", ...MIX_RULES.view.targets["profile view"]);
+  applyPercentForTag(rows, MIX_RULES.view.group, "back view",    ...MIX_RULES.view.targets["back view"]);
+  fillRemainder(rows, MIX_RULES.view.group, MIX_RULES.view.fallback);
+
+  // COMPOSITION
+  for (const [tag, rng] of Object.entries(MIX_RULES.comp.targets)) {
+    applyPercentForTag(rows, MIX_RULES.comp.group, tag, rng[0], rng[1]);
+  }
+  fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
+
+  // EXPRESSION（UIで選ばれているものだけを母集団に）
+  const selExpr = getMany("expr");
+  const exprGroup = selExpr.length ? selExpr : MIX_RULES.expr.group;
+  for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
+    if (!exprGroup.includes(tag)) continue;
+    applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
+  }
+  fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
+
+  // BACKGROUND
+  for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
+    applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
+  }
+  fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
+
+  // LIGHTING
+  for (const [tag, rng] of Object.entries(MIX_RULES.light.targets)) {
+    applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
+  }
+  fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
+}
   return out;
 }
 
