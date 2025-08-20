@@ -1060,19 +1060,26 @@ const SCOPE = {
   learning: {
     background: [
       "plain background", "white background", "solid background", "studio background",
-      "bedroom",
+      "bedroom"
+      // もし辞書にあれば: "light gray background"
     ],
-    // “動き”は控えめに。立ち・座り＋簡単ジェスチャ中心
+    // 動きは控えめ＋手の見せ方を少し
     pose: [
       "standing", "sitting",
-      "pointing", "head tilt"
+      "pointing", "head tilt",
+      "hands on hips", "arms crossed"
     ],
-    // ★全身を必ず含める
+    // ★全身を必ず含める（視点タグはここに置いてOK）
     composition: [
-      "full body", "waist up", "bust", "portrait","profile view","back view",
-      "front view", "three-quarters view", "centered composition"
+      "full body", "waist up", "bust", "portrait",
+      "profile view", "back view", "front view", "three-quarters view",
+      "centered composition",
+      // 角度系（強すぎないやつ）
+      "from below", "looking down", "overhead view",
+      // 目線系
+      "facing viewer", "looking to the side", "looking up"
     ],
-    // 表情は整合済みの正規タグのみ
+    // 表情は整合済みの正規タグ
     expressions: [
       "neutral expression",
       "smiling",
