@@ -2185,9 +2185,7 @@ expr: {
     group: ["plain background","studio background","solid background","white background","bedroom"],
     targets: {
       "plain background":[0.35,0.45],
-      "studio background":[0.20,0.30],
-      "solid background":[0.05,0.10],
-      "bedroom":[0.05,0.10],
+      "studio background":[0.20,0.30]
     },
     fallback: "plain background"
   },
