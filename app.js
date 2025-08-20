@@ -1305,10 +1305,16 @@ function applyCharacterPreset(cfg){
   setVal("#negGlobal",  cfg.negative || cfg.negativeTags || "");
 
   // 構図・ライティング（※ json → cfg / setMany → setChecks）
-  if (cfg.composition)
-    setChecks("comp", Array.isArray(cfg.composition) ? cfg.composition : [cfg.composition]);
-  if (cfg.lighting)
-    setChecks("lightLearn", Array.isArray(cfg.lighting) ? cfg.lighting : [cfg.lighting]);
+  {
+    const compIn = (cfg.composition ?? cfg.comp);
+    if (compIn) {
+      setChecks("comp", Array.isArray(compIn) ? compIn : [compIn]);
+    }
+    const lightIn = cfg.lighting ?? cfg.light ?? cfg.lightLearn;
+    if (lightIn) {
+      setChecks("lightLearn", Array.isArray(lightIn) ? lightIn : [lightIn]);
+    }
+  }
 
   // 形状
   if (cfg.hairStyle) setRadio("hairStyle", String(cfg.hairStyle));
@@ -1440,7 +1446,7 @@ function collectCharacterPreset(){
 
     // ★ 構図（チェックボックスの name/id が "comp" 前提）
     //   HTML上のIDに合わせて key をそのまま使う
-    comp:     getMany("comp"),        // ← <div id="comp">
+    composition: getMany("comp"),
     lighting: getMany("lightLearn"),  // ← <div id="lightLearn">
 
     // 色（髪/瞳/肌）
