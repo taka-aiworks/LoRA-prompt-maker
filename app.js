@@ -1173,7 +1173,7 @@ function renderSFW(){
   radioList($("#bf_gender"),   SFW.gender,       "bf_gender");
   radioList($("#bf_body"),     SFW.body_type,    "bf_body");
   radioList($("#bf_height"),   SFW.height,       "bf_height");
-  radioList($("#bf_person"),   SFW.personality,  "bf_person");
+  // radioList($("#bf_person"),   SFW.personality,  "bf_person");
   radioList($("#bf_world"),    SFW.worldview,    "bf_world");
   radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
 
@@ -1348,7 +1348,7 @@ function applyCharacterPreset(cfg){
   if (bf.gender)     setRadio("bf_gender", String(bf.gender));
   if (bf.body)       setRadio("bf_body",   String(bf.body));
   if (bf.height)     setRadio("bf_height", String(bf.height));
-  if (bf.personality)setRadio("bf_person", String(bf.personality));
+  // if (bf.personality)setRadio("bf_person", String(bf.personality));
   if (bf.tone)       setRadio("bf_tone",   String(bf.tone));
 
   // dataset にも保持（必要なら）
@@ -1359,7 +1359,7 @@ function applyCharacterPreset(cfg){
       if (bf.gender)     host.dataset.bfGender = String(bf.gender);
       if (bf.body)       host.dataset.bfBody   = String(bf.body);
       if (bf.height)     host.dataset.bfHeight = String(bf.height);
-      if (bf.personality)host.dataset.bfPerson = String(bf.personality);
+      // if (bf.personality)host.dataset.bfPerson = String(bf.personality);
       if (bf.tone)       host.dataset.bfTone   = String(bf.tone);
     }
   }
