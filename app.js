@@ -145,9 +145,9 @@ function categorizePoseComp(list){
 const LEARN_EXCLUDE_RE = /\b(?:fisheye|wide[-\s]?angle|ultra[-\s]?wide|dutch\s?angle|extreme\s?(?:close[-\s]?up|zoom|perspective)|motion\s?blur|long\s?exposure|bokeh\s?balls|tilt[-\s]?shift|depth\s?of\s?field|hdr|high\s?contrast|dynamic\s?lighting|dramatic\s?lighting|backlight(?:ing)?|rim\s?light(?:ing)?|fireworks|sparks|confetti|holding\s+\w+|wielding\s+\w+|carrying\s+\w+|using\s+\w+|smartphone|cell\s?phone|microphone|camera|sign|banner|weapon)\b/i;
 
 // カテゴリ単位で“最大数”を制限（学習時）
-const LEARN_BUCKET_CAP = {
+const LEARN_BUCKET_CAP = { 
   lora:  2, name: 1,
-  b_age:1, b_gender:1, b_body:1, b_height:1, b_person:1, b_world:1, b_tone:1,
+  b_age:1, b_gender:1, b_body:1, b_height:1, b_person:1, b_world:0, b_tone:0,
   c_hair:1, c_eye:1, c_skin:1,
   s_hair:1, s_eye:1, s_face:1, s_body:1, s_art:1,
   wear:2, acc:0,          // ← 服は最大2語（top/bottom or dress）。アクセは0（固定にしたい場合は1でもOK）
@@ -297,7 +297,7 @@ const DEFAULT_TRAINING_NEG = [
 // 学習用ネガ統合（ソロ強制の既存処理に追記）
 function getNegLearn(){
   const base = getNeg(); // 既存（DEFAULT_NEG + カスタム）
-  return withSoloNeg(uniq([...(base||"").split(",").map(s=>s.trim()).filter(Boolean), ...DEFAULT_TRAINING_NEG.split(",")]).join(", "));
+  return withSoloNeg(merged);  // 新：複数人ブロックを必ず混ぜる
 }
 
 
@@ -530,7 +530,7 @@ function copyOneTestText(){
 }
 
 // 固定で常に入れたいネガティブ（必要になったらここに増やす）
-const DEFAULT_NEG = "extra fingers, blurry, lowres, bad anatomy, bad hands, bad feet, text, watermark";
+const DEFAULT_NEG = "extra fingers, extra hands, extra arms, fused fingers, mutated hands, blurry, lowres, bad anatomy, bad hands, bad feet, text, watermark";
 
 // チェックボックスのON/OFFを読む（要素が無ければtrue扱い＝互換）
 function isDefaultNegOn() {
