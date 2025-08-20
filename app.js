@@ -1059,8 +1059,7 @@ const getMany = (name) => $$(`input[name="${name}"]:checked`).map(x=>x.value);
 const SCOPE = {
   learning: {
     background: [
-      "plain background", "white background", "solid background", "studio background",
-      "bedroom"
+      "plain background"
       // もし辞書にあれば: "light gray background"
     ],
     // 動きは控えめ＋手の見せ方を少し
