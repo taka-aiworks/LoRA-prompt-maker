@@ -2119,11 +2119,16 @@ const MIX_RULES = {
   },
 
   // 表情（ニュートラル多め）
-    expr: {
-    group: ["neutral expression","smiling","serious","determined"],
-    targets: { /* 何も入れない */ },
-    fallback: "neutral expression" // ← 何も指定が無いときだけ中立になる
-  },
+expr: {
+  group: [
+    "neutral expression","neutral expression","neutral expression","neutral expression","neutral expression","neutral expression","neutral expression", // 7回
+    "smiling","smiling", // 2回
+    "serious",           // 1回
+    "determined"         // 1回
+  ],
+  targets: {},
+  fallback: "neutral expression"
+}
 
   // 背景（無地/スタジオを多め。bedroom は少し）
   bg: {
