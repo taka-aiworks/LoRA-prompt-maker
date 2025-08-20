@@ -21,7 +21,7 @@
     </div>
   </div>
 
-  <main class="container">
+    <main class="container">
     <!-- 基本情報 -->
     <section id="panelBasic" class="card">
       <div class="header-row">
@@ -34,199 +34,187 @@
         髪/瞳/肌・髪型・目の形・服・<b>服カラー</b>はここで固定。学習や量産では基本的に変更しません。
       </div>
 
-      <!-- SFW基礎属性（年齢/性別/体型/身長/性格/世界観/口調） -->
-<div class="panel">
-  <h2 style="margin-top:18px">テキスト属性（SFW基礎）</h2>
-  <div class="note mini">
-    文章トーンやプロンプトの補助タグとして使用。LoRAの視覚的学習には影響しないが、キャラ解像度を上げるため固定推奨。
-  </div>
+      <!-- テキスト属性（SFW基礎） -->
+      <div class="panel">
+        <h2 style="margin-top:18px">テキスト属性（SFW基礎）</h2>
+        <div class="note mini">
+          文章トーンやプロンプトの補助タグとして使用。LoRAの視覚的学習には影響しないが、キャラ解像度を上げるため固定推奨。
+        </div>
 
-  <div class="grid g4" style="margin-top:8px">
-  <div class="panel">
-    <h3>年齢</h3>
-    <div id="bf_age" class="scroller"></div>
-  </div>
-  <div class="panel">
-    <h3>性別</h3>
-    <div id="bf_gender" class="scroller"></div>
-  </div>
-  <div class="panel">
-    <h3>体型</h3>
-    <!-- 修正: bf_body_type → bf_body -->
-    <div id="bf_body" class="scroller"></div>
-  </div>
-  <div class="panel">
-    <h3>身長</h3>
-    <div id="bf_height" class="scroller"></div>
-  </div>
-</div>
+        <!-- 1段目：年齢・性別・体型・身長 -->
+        <div class="grid g4" style="margin-top:8px">
+          <div class="panel">
+            <h3>年齢</h3>
+            <div id="bf_age" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>性別</h3>
+            <div id="bf_gender" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>体型</h3>
+            <div id="bf_body" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>身長</h3>
+            <div id="bf_height" class="scroller"></div>
+          </div>
+        </div>
 
-<div class="grid g4" style="margin-top:10px">
-  <!-- <div class="panel"> 
-    <h3>性格</h3>
-    <div id="bf_person" class="scroller"></div>
-    <div class="mini">※ 主導的/従順など一部はNSFWレベル依存のタグがある場合があります。</div>
-  </div>
-  <!--<div class="panel">
-    <h3>世界観</h3>
-    <div id="bf_world" class="scroller"></div>
-  </div> -->
-  <div class="panel">
-    <h3>口調</h3>
-    <!-- 修正: bf_speech_style → bf_tone -->
-    <div id="bf_tone" class="scroller"></div>
-  </div>
-  <div class="panel"><h3>髪型（1つ）</h3><div id="hairStyle" class="scroller"></div></div>
-  <div class="panel"><h3>目の形（1つ）</h3><div id="eyeShape" class="scroller"></div></div>
-      
+        <!-- 2段目：口調のみ -->
+        <div class="grid g1" style="margin-top:10px">
+          <div class="panel">
+            <h3>口調</h3>
+            <div id="bf_tone" class="scroller"></div>
+          </div>
+        </div>
+
+        <!-- 3段目：形状（髪型・目の形） -->
+        <div class="grid g2" style="margin-top:10px">
+          <div class="panel"><h3>髪型（1つ）</h3><div id="hairStyle" class="scroller"></div></div>
+          <div class="panel"><h3>目の形（1つ）</h3><div id="eyeShape" class="scroller"></div></div>
+        </div>
+      </div>
+
       <!-- 色：髪/瞳/肌 -->
-<div class="grid g3">
-  <div class="panel">
-    <h3>髪色</h3>
-    <div class="wheel-box">
-      <div id="wheelH" class="wheel"></div><div id="thumbH" class="thumb"></div>
-    </div>
-    <label class="row mini">S: <input id="satH" type="range" min="0" max="100" value="70">
-      L: <input id="litH" type="range" min="0" max="100" value="45"></label>
-    <div class="row mini"><div id="swH" class="swatch"></div>
-      <span>タグ: <code class="tag" id="tagH">brown hair</code></span></div>
-  </div>
-
-  <div class="panel">
-    <h3>瞳色</h3>
-    <div class="wheel-box">
-      <div id="wheelE" class="wheel"></div><div id="thumbE" class="thumb"></div>
-    </div>
-    <label class="row mini">S: <input id="satE" type="range" min="0" max="100" value="80">
-      L: <input id="litE" type="range" min="0" max="100" value="55"></label>
-    <div class="row mini"><div id="swE" class="swatch"></div>
-      <span>タグ: <code class="tag" id="tagE">blue eyes</code></span></div>
-  </div>
-
-  <div class="panel">
-    <h3>肌トーン</h3>
-    <input id="skinTone" type="range" min="0" max="100" value="30">
-    <div class="row mini"><div id="swSkin" class="swatch"></div>
-      <span>タグ: <code class="tag" id="tagSkin">fair skin</code></span></div>
-  </div>
-</div>
-<!-- 服（固定 / 上下 or ワンピース） -->
-  <div class="grid g1">
-<div class="panel" id="panel_outfitFixed">
-  <h3>服（固定 / 上下 or ワンピース）</h3>
-
-  <div class="row mini" style="gap:10px;margin:6px 0 8px">
-    <label class="inline"><input type="radio" name="outfitMode" value="separate" id="outfitModeSeparate" checked> 上下コーデ</label>
-    <label class="inline"><input type="radio" name="outfitMode" value="onepiece" id="outfitModeDress"> ワンピース</label>
-    <span class="mini">※ ワンピース選択時は下カラー無効</span>
-  </div>
-
-  <fieldset id="fsSeparates">
-    <div class="grid g3">
-      <div class="panel">
-        <h4 style="margin:0 0 6px">トップス（1つ）</h4>
-        <div id="outfit_top" class="scroller"></div>
-      </div>
-
-      <div class="panel">
-        <h4 style="margin:0 0 6px">ワンピース（1つ）</h4>
-        <fieldset id="fsDress" disabled>
-          <div id="outfit_dress" class="scroller"></div>
-          <div class="mini">選択時は「下カラー」は自動で無効</div>
-        </fieldset>
-      </div>
-
-      <div class="panel">
-        <h4 style="margin:0 0 6px">下カテゴリ</h4>
-        <div class="row mini" id="bottomCategoryRadios" style="gap:10px">
-          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_pants" value="pants" checked> ボトムス（ズボン）</label>
-          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_skirt" value="skirt"> スカート</label>
+      <div class="grid g3" style="margin-top:10px">
+        <div class="panel">
+          <h3>髪色</h3>
+          <div class="wheel-box">
+            <div id="wheelH" class="wheel"></div><div id="thumbH" class="thumb"></div>
+          </div>
+          <label class="row mini">S: <input id="satH" type="range" min="0" max="100" value="70">
+            L: <input id="litH" type="range" min="0" max="100" value="45"></label>
+          <div class="row mini"><div id="swH" class="swatch"></div>
+            <span>タグ: <code class="tag" id="tagH">brown hair</code></span></div>
         </div>
 
-        <fieldset id="fsBottom_pants" class="swap-target" style="margin-top:8px">
-          <h4 class="mini" style="margin:0 0 6px">ボトムス（ズボン・1つ）</h4>
-          <div id="outfit_pants" class="scroller"></div>
-        </fieldset>
+        <div class="panel">
+          <h3>瞳色</h3>
+          <div class="wheel-box">
+            <div id="wheelE" class="wheel"></div><div id="thumbE" class="thumb"></div>
+          </div>
+          <label class="row mini">S: <input id="satE" type="range" min="0" max="100" value="80">
+            L: <input id="litE" type="range" min="0" max="100" value="55"></label>
+          <div class="row mini"><div id="swE" class="swatch"></div>
+            <span>タグ: <code class="tag" id="tagE">blue eyes</code></span></div>
+        </div>
 
-        <fieldset id="fsBottom_skirt" class="swap-target" style="margin-top:8px">
-          <h4 class="mini" style="margin:0 0 6px">スカート（1つ）</h4>
-          <div id="outfit_skirt" class="scroller"></div>
-        </fieldset>
-      </div>
-    </div>
-  </fieldset>
-</div>
-</div>
-</div>
-  <!-- カラー指定（固定） -->
-  <div class="card" style="margin-top:10px">
-    <h4 style="margin:0 0 6px">服カラー（固定）</h4>
-    <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
-
-    <div class="grid g3"  id="grid_fixed_colors" style="margin-top:8px">
-      <!-- トップス色（置き換え済み） -->
-      <div class="panel" id="panel_top">
-        <div class="row mini">
-          <label class="inline"><input type="checkbox" id="use_top" checked> トップス色を使う</label>
-        </div>
-        <div class="wheel-box">
-          <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
-        </div>
-        <div class="row mini">
-          S:<input id="sat_top" type="range" min="0" max="100" value="80">
-          L:<input id="lit_top" type="range" min="0" max="100" value="55">
-        </div>
-        <div class="row mini">
-          <div id="sw_top" class="swatch"></div>
-          <span>色タグ: <code class="tag" id="tag_top">—</code></span>
+        <div class="panel">
+          <h3>肌トーン</h3>
+          <input id="skinTone" type="range" min="0" max="100" value="30">
+          <div class="row mini"><div id="swSkin" class="swatch"></div>
+            <span>タグ: <code class="tag" id="tagSkin">fair skin</code></span></div>
         </div>
       </div>
 
-      <!-- 下色（置き換え済み） -->
-      <div class="panel" id="panel_bottom">
-        <div class="row mini">
-          <label class="inline"><input type="checkbox" id="useBottomColor" checked> 下カラーを使う（ズボン/スカート共通）</label>
+      <!-- 服（固定 / 上下 or ワンピース） -->
+      <div class="grid g1" style="margin-top:10px">
+        <div class="panel" id="panel_outfitFixed">
+          <h3>服（固定 / 上下 or ワンピース）</h3>
+
+          <div class="row mini" style="gap:10px;margin:6px 0 8px">
+            <label class="inline"><input type="radio" name="outfitMode" value="separate" id="outfitModeSeparate" checked> 上下コーデ</label>
+            <label class="inline"><input type="radio" name="outfitMode" value="onepiece" id="outfitModeDress"> ワンピース</label>
+            <span class="mini">※ ワンピース選択時は下カラー無効</span>
+          </div>
+
+          <fieldset id="fsSeparates">
+            <div class="grid g3">
+              <div class="panel">
+                <h4 style="margin:0 0 6px">トップス（1つ）</h4>
+                <div id="outfit_top" class="scroller"></div>
+              </div>
+
+              <div class="panel">
+                <h4 style="margin:0 0 6px">ワンピース（1つ）</h4>
+                <fieldset id="fsDress" disabled>
+                  <div id="outfit_dress" class="scroller"></div>
+                  <div class="mini">選択時は「下カラー」は自動で無効</div>
+                </fieldset>
+              </div>
+
+              <div class="panel">
+                <h4 style="margin:0 0 6px">下カテゴリ</h4>
+                <div class="row mini" id="bottomCategoryRadios" style="gap:10px">
+                  <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_pants" value="pants" checked> ボトムス（ズボン）</label>
+                  <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_skirt" value="skirt"> スカート</label>
+                </div>
+
+                <fieldset id="fsBottom_pants" class="swap-target" style="margin-top:8px">
+                  <h4 class="mini" style="margin:0 0 6px">ボトムス（ズボン・1つ）</h4>
+                  <div id="outfit_pants" class="scroller"></div>
+                </fieldset>
+
+                <fieldset id="fsBottom_skirt" class="swap-target" style="margin-top:8px">
+                  <h4 class="mini" style="margin:0 0 6px">スカート（1つ）</h4>
+                  <div id="outfit_skirt" class="scroller"></div>
+                </fieldset>
+              </div>
+            </div>
+          </fieldset>
         </div>
-        <div class="wheel-box">
-          <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
-        </div>
-        <div class="row mini">
-          S:<input id="sat_bottom" type="range" min="0" max="100" value="70">
-          L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
-        </div>
-        <div class="row mini">
-          <div id="sw_bottom" class="swatch"></div>
-          <span>色タグ: <code class="tag" id="tag_bottom">—</code></span>
-        </div>
-        <div class="mini">※ ワンピース選択時は自動で無効化されます</div>
       </div>
 
-      <!-- 靴色（置き換え済み） -->
-      <div class="panel" id="panel_shoes">
-        <div class="row mini">
-          <label class="inline"><input type="checkbox" id="use_shoes" checked> 靴色を使う</label>
-        </div>
-        <div class="wheel-box">
-          <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
-        </div>
-        <div class="row mini">
-          S:<input id="sat_shoes" type="range" min="0" max="100" value="0">
-          L:<input id="lit_shoes" type="range" min="0" max="100" value="30">
-        </div>
-        <div class="row mini">
-          <div id="sw_shoes" class="swatch"></div>
-          <span>色タグ: <code class="tag" id="tag_shoes">—</code></span>
+      <!-- カラー指定（固定） -->
+      <div class="card" style="margin-top:10px">
+        <h4 style="margin:0 0 6px">服カラー（固定）</h4>
+        <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
+
+        <div class="grid g3" id="grid_fixed_colors" style="margin-top:8px">
+          <div class="panel" id="panel_top">
+            <div class="row mini">
+              <label class="inline"><input type="checkbox" id="use_top" checked> トップス色を使う</label>
+            </div>
+            <div class="wheel-box">
+              <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_top" type="range" min="0" max="100" value="80">
+              L:<input id="lit_top" type="range" min="0" max="100" value="55">
+            </div>
+            <div class="row mini">
+              <div id="sw_top" class="swatch"></div>
+              <span>色タグ: <code class="tag" id="tag_top">—</code></span>
+            </div>
+          </div>
+
+          <div class="panel" id="panel_bottom">
+            <div class="row mini">
+              <label class="inline"><input type="checkbox" id="useBottomColor" checked> 下カラーを使う（ズボン/スカート共通）</label>
+            </div>
+            <div class="wheel-box">
+              <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_bottom" type="range" min="0" max="100" value="70">
+              L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
+            </div>
+            <div class="row mini">
+              <div id="sw_bottom" class="swatch"></div>
+              <span>色タグ: <code class="tag" id="tag_bottom">—</code></span>
+            </div>
+            <div class="mini">※ ワンピース選択時は自動で無効化されます</div>
+          </div>
+
+          <div class="panel" id="panel_shoes">
+            <div class="row mini">
+              <label class="inline"><input type="checkbox" id="use_shoes" checked> 靴色を使う</label>
+            </div>
+            <div class="wheel-box">
+              <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_shoes" type="range" min="0" max="100" value="0">
+              L:<input id="lit_shoes" type="range" min="0" max="100" value="30">
+            </div>
+            <div class="row mini">
+              <div id="sw_shoes" class="swatch"></div>
+              <span>色タグ: <code class="tag" id="tag_shoes">—</code></span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
-    
-      <!-- 形質：顔/体/画風（必要なら固定に） -->
-      <!-- <div class="grid g3">
-        <div class="panel"><h3>顔の特徴（1つ）</h3><div id="face" class="scroller"></div></div>
-        <div class="panel"><h3>肌（1つ）</h3><div id="skinBody" class="scroller"></div></div>
-        <!-- <div class="panel"><h3>画風（1つ）</h3><div id="artStyle" class="scroller"></div></div> -->
-      <!-- </div> -->
 
       <div class="panel">
         <h3>キャラ識別</h3>
