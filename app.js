@@ -2072,7 +2072,7 @@ const EXTRA_NEG = [
 ].join(", ");
 
   const baseNeg = getNeg();                // 既存（グローバル）
-  const neg = withSoloNeg([baseNeg, EXTRA_NEG].filter(Boolean).join(", ")); // 複数人抑止も混ぜる
+  const neg = withSoloNegatives(userNeg);   // ← 元は userNeg だけ
 
   return { seed, pos, neg, text: `${pos.join(", ")} --neg ${neg} seed:${seed}` };
 }
@@ -2485,7 +2485,7 @@ function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
 
-  const neg = getNegProd();
+  const neg = withSoloNegatives(prodNeg);   // ← 元は prodNeg だけ
   const O = readProductionOutfits();  // {top, pants, skirt, dress, shoes}
 
   const bgs    = getMany("p_bg");
