@@ -2130,21 +2130,20 @@ function fillRemainder(rows, groupTags, fallbackTag){
   }
 }
 
-// 配分処理（applyPercentForTag群, fillRemainder） の直後に入れる
+// EXPR_ALL はそのまま使う
 const EXPR_ALL = new Set([
-  ...Object.keys(MIX_RULES.expr.targets),   // 例: "smiling", "surprised (mild)", "pouting (slight)" ...
-  MIX_RULES.expr.fallback                   // 例: "neutral expression"
+  ...Object.keys(MIX_RULES.expr.targets),
+  MIX_RULES.expr.fallback
 ]);
 
 rows.forEach(r => {
-  // 行に含まれる「表情タグ」だけ抽出
-  const exprs = r.tags.filter(t => EXPR_ALL.has(t));
-
+  const exprs = r.pos.filter(t => EXPR_ALL.has(t));
   if (exprs.length > 1) {
-    // ルール：非ニュートラルが1つでもあればそれを優先。なければ先頭だけ残す
+    // 非ニュートラルがあれば優先、なければ先頭だけ残す
     const keep = exprs.find(t => t !== MIX_RULES.expr.fallback) || exprs[0];
-    r.tags = r.tags.filter(t => !EXPR_ALL.has(t)); // いったん全消し
-    r.tags.push(keep);                              // 1つだけ残す
+    r.pos = r.pos.filter(t => !EXPR_ALL.has(t));
+    r.pos.push(keep);
+    r.text = `${r.pos.join(", ")} --neg ${r.neg} seed:${r.seed}`;
   }
 });
 
@@ -2285,22 +2284,17 @@ function buildBatchLearning(n){
   }
   fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
 
-  // EXPRESSION（UIで選ばれているものだけを母集団に）
-const selExpr = getMany("expr");
-const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
+  // ★EXPRESSION（UIで選ばれているものだけを母集団に）
+  const selExpr = getMany("expr");
+  const exprGroup = selExpr.length ? selExpr : MIX_RULES.expr.group; // ← neutral は足さない
 
-// neutral expression を必ず入れる。ただし重複しないようにする
-const exprGroup = exprGroupBase.includes("neutral expression")
-  ? exprGroupBase
-  : [...exprGroupBase, "neutral expression"];
+  for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
+    if (!exprGroup.includes(tag)) continue;
+    applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
+  }
 
-for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
-  if (!exprGroup.includes(tag)) continue;
-  applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
-}
-
-// fallback は今のままでOK
-fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
+  // ここで “埋め” を入れる。判定の母集団には fallback も入れておくと取りこぼし無し
+  fillRemainder(rows, [...exprGroup, MIX_RULES.expr.fallback], MIX_RULES.expr.fallback);
 
   // BACKGROUND
   for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
