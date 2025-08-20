@@ -2366,6 +2366,15 @@ function ensurePromptOrder(parts) {
     other:[]
   };
 
+   // ← ensurePromptOrder 内、buckets へ詰め終わった直後あたりに追加
+   // 表情は常に1つに正規化
+   if (buckets.expr.length > 1) {
+     const nonNeutral = buckets.expr.filter(
+       t => t.toLowerCase() !== "neutral expression"
+     );
+     buckets.expr = nonNeutral.length ? [nonNeutral[0]] : ["neutral expression"];
+   }
+
   const charName = ($("#charName")?.value || "").trim();
 
   for (const t of set) {
