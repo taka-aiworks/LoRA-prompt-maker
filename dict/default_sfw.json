@@ -175,18 +175,12 @@
       { "tag": "ahoge", "label": "アホ毛" }
     ],
     "eyes": [
-      { "tag": "large eyes", "label": "大きな目" },
-      { "tag": "almond eyes", "label": "アーモンド形" },
-      { "tag": "slanted eyes", "label": "切れ長" },
-      { "tag": "droopy eyes", "label": "タレ目" },
-      { "tag": "sharp eyes", "label": "ツリ目" },
-      { "tag": "narrow eyes", "label": "細い目" },
-      { "tag": "round eyes", "label": "丸い目" },
-      { "tag": "upturned eyes", "label": "上がり目" },
-      { "tag": "downturned eyes", "label": "下がり目" },
-      { "tag": "monolid", "label": "一重" },
-      { "tag": "double eyelids", "label": "二重" },
-      { "tag": "sleepy eyes", "label": "眠そうな目" }
+  { "tag": "almond eyes", "label": "アーモンド形" },
+  { "tag": "slanted eyes", "label": "切れ長" },
+  { "tag": "droopy eyes", "label": "タレ目" },
+  { "tag": "sharp eyes", "label": "ツリ目" },
+  { "tag": "monolid", "label": "一重" },
+  { "tag": "double eyelids", "label": "二重" }
     ],
     "face": [
       { "tag": "youthful face", "label": "幼い顔立ち" },
