@@ -1365,7 +1365,6 @@ function applyCharacterPreset(cfg){
       if (bf.tone)       host.dataset.bfTone   = String(bf.tone);
     }
   }
-}   
   // ★ outfit（分割&モード）
   const outf = cfg.outfit || cfg.outfitSel || cfg.outfits;
   if (typeof outf === "string") {
