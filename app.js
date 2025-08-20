@@ -1862,17 +1862,6 @@ function pairWearColors(parts){
   return [...P];
 }
 
-function getSelectedNSFW_Learn(){
-  if (!$("#nsfwLearn").checked) return [];
-  const pickeds = [
-    ...$$('input[name="nsfwL_expr"]:checked').map(x=>x.value),
-    ...$$('input[name="nsfwL_expo"]:checked').map(x=>x.value),
-    ...$$('input[name="nsfwL_situ"]:checked').map(x=>x.value),
-    ...$$('input[name="nsfwL_light"]:checked').map(x=>x.value)
-  ];
-  return uniq(pickeds);
-}
-
 // === 一式（ワンピ）優先：重複衣服の排除＆色プレースホルダの置換 ===
 function enforceOnePieceExclusivity(parts){
   // 文字列配列に正規化
