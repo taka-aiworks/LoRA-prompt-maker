@@ -2234,7 +2234,7 @@ function buildBatchLearning(n){
   }
     // ★ 横顔を割合配分で注入
     // ★ 学習用：全カテゴリを割合でミックス
-  applyPercentMixToLearning(out);
+   // applyPercentMixToLearning(out);
   return out;
 }
 
