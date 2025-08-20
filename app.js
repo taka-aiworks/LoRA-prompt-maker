@@ -526,8 +526,7 @@ function copyOneTestText(){
 }
 
 // 固定で常に入れたいネガティブ（必要になったらここに増やす）
-const DEFAULT_NEG = "extra fingers, extra hands, extra arms, fused fingers, mutated hands, multiple arms, multiple hands, bad hands, bad feet, bad anatomy, blurry, lowres, text, watermark, logo";
-
+const DEFAULT_NEG = "extra fingers, blurry, lowres, bad anatomy, bad hands, bad feet, text, watermark";
 
 // チェックボックスのON/OFFを読む（要素が無ければtrue扱い＝互換）
 function isDefaultNegOn() {
@@ -1060,7 +1059,8 @@ const getMany = (name) => $$(`input[name="${name}"]:checked`).map(x=>x.value);
 const SCOPE = {
   learning: {
     background: [
-      "plain background"
+      "plain background", "white background", "solid background", "studio background",
+      "bedroom"
       // もし辞書にあれば: "light gray background"
     ],
     // 動きは控えめ＋手の見せ方を少し
@@ -2181,7 +2181,7 @@ expr: {
 bg: {
   group: ["plain background"], // 学習では固定
   fallback: "plain background"
-},
+}
   // ライティング（安定寄り）
   light: {
     group: ["soft lighting","even lighting","normal lighting","window light","overcast"],
@@ -2279,24 +2279,18 @@ for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
 fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
 
   // BACKGROUND
-   {
-     const bgTargets = MIX_RULES.bg.targets || {};
-     for (const [tag, rng] of Object.entries(bgTargets)) {
-       applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
-     }
-     fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
-   }
- 
-   // LIGHTING
-   {
-     const lightTargets = MIX_RULES.light.targets || {};
-     for (const [tag, rng] of Object.entries(lightTargets)) {
-       applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
-     }
-     fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
-   }
+  for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
+    applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
+  }
+  fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
 
-   return out;
+  // LIGHTING
+  for (const [tag, rng] of Object.entries(MIX_RULES.light.targets)) {
+    applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
+  }
+  fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
+}
+  return out;
 }
 
 // 置き換え: ensurePromptOrder
