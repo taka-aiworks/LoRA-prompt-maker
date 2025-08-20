@@ -1304,17 +1304,21 @@ function applyCharacterPreset(cfg){
   setVal("#fixedManual",cfg.fixed    || cfg.fixedTags || "");
   setVal("#negGlobal",  cfg.negative || cfg.negativeTags || "");
 
-  // 構図・ライティング（※ json → cfg / setMany → setChecks）
-  {
-    const compIn = (cfg.composition ?? cfg.comp);
-    if (compIn) {
-      setChecks("comp", Array.isArray(compIn) ? compIn : [compIn]);
-    }
-    const lightIn = cfg.lighting ?? cfg.light ?? cfg.lightLearn;
-    if (lightIn) {
-      setChecks("lightLearn", Array.isArray(lightIn) ? lightIn : [lightIn]);
-    }
-  }
+  // 構図：新キー comp / 互換 composition のどちらでも受ける
+{
+  const arr = Array.isArray(cfg.comp) ? cfg.comp
+            : Array.isArray(cfg.composition) ? cfg.composition
+            : (cfg.comp ?? cfg.composition ? [cfg.comp ?? cfg.composition] : []);
+  setChecks("comp", arr);
+}
+
+// ライティング：新キー lightLearn / 互換 lighting
+{
+  const arr = Array.isArray(cfg.lightLearn) ? cfg.lightLearn
+            : Array.isArray(cfg.lighting) ? cfg.lighting
+            : (cfg.lightLearn ?? cfg.lighting ? [cfg.lightLearn ?? cfg.lighting] : []);
+  setChecks("lightLearn", arr);
+}
 
   // 形状
   if (cfg.hairStyle) setRadio("hairStyle", String(cfg.hairStyle));
@@ -1423,7 +1427,7 @@ function applyCharacterPreset(cfg){
 }
 
 function collectCharacterPreset(){
-  const outfitSel = getBasicSelectedOutfit(); // {mode, top, bottom, dress, bottomCat}
+  const outfitSel = getBasicSelectedOutfit();
 
   return {
     // 基本
@@ -1443,11 +1447,9 @@ function collectCharacterPreset(){
     background:  getMany("bg"),
     pose:        getMany("pose"),
     expressions: getMany("expr"),
-
-    // ★ 構図（チェックボックスの name/id が "comp" 前提）
-    //   HTML上のIDに合わせて key をそのまま使う
-    composition: getMany("comp"),
-    lighting: getMany("lightLearn"),  // ← <div id="lightLearn">
+    // ★ 追加：構図とライティング（学習タブ）
+    comp:        getMany("comp"),
+    lightLearn:  getMany("lightLearn"),
 
     // 色（髪/瞳/肌）
     hairColorTag: $("#tagH")?.textContent || "",
