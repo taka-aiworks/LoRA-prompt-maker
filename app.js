@@ -126,7 +126,7 @@ function stripMultiHints(parts){
 // === ポーズ/構図のゆる判定（片方のボックスが無いときは無視していい） ===
 function categorizePoseComp(list){
   const L = normList(list||[]);
-  const isComp = (t) => /\b(front view|side view|back view|profile view|three-quarters view|looking up|looking down|overhead view|from below|bust(?: shot)?|waist up|upper body|full body|portrait|close-?up|wide shot|centered composition|rule of thirds)\b/i.test(t);
+  const isComp = (t) => /\b(front view|side view|back view|profile(?:\sview)?|three-quarters view|looking up|looking down|overhead view|from below|bust(?:\s?shot)?|waist up|upper body|full body|portrait|close-?up|wide shot|centered composition|rule of thirds)\b/i.test(t);
   const poseTags = [];
   const compTags = [];
   for (const it of L){
