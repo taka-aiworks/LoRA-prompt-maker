@@ -1349,7 +1349,6 @@ function applyCharacterPreset(cfg){
   if (bf.body)       setRadio("bf_body",   String(bf.body));
   if (bf.height)     setRadio("bf_height", String(bf.height));
   if (bf.personality)setRadio("bf_person", String(bf.personality));
-  if (bf.worldview)  setRadio("bf_world",  String(bf.worldview));
   if (bf.tone)       setRadio("bf_tone",   String(bf.tone));
 
   // dataset にも保持（必要なら）
@@ -1361,7 +1360,6 @@ function applyCharacterPreset(cfg){
       if (bf.body)       host.dataset.bfBody   = String(bf.body);
       if (bf.height)     host.dataset.bfHeight = String(bf.height);
       if (bf.personality)host.dataset.bfPerson = String(bf.personality);
-      if (bf.worldview)  host.dataset.bfWorld  = String(bf.worldview);
       if (bf.tone)       host.dataset.bfTone   = String(bf.tone);
     }
   }
@@ -1462,7 +1460,6 @@ function collectCharacterPreset(){
       body:       getOne("bf_body"),
       height:     getOne("bf_height"),
       personality:getOne("bf_person"),
-      worldview:  getOne("bf_world"),
       tone:       getOne("bf_tone"),
     },
 
@@ -1856,8 +1853,8 @@ function assembleFixedLearning(){
   out.push($("#loraTag").value.trim());
   out.push($("#charName").value.trim());
 
-    // 1) 人となり（SFW基礎） ← ここを置き換え
-  ["age","gender","body","height","person","world","tone"]
+  // 修正後
+  ["age","gender","body","height","person","tone"]
     .forEach(k => {
       const v = getBFValue(k);
       if (v) out.push(v);
