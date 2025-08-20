@@ -62,7 +62,7 @@
       { "tag": "very tall", "label": "かなり高身長" },
       { "tag": "towering", "label": "頭ひとつ抜けた高身長" },
       { "tag": "petite stature", "label": "小柄な体躯" },
-      { "tag": "long stature", "label": "長身の体躯" }
+      { "tag": "tail stature", "label": "長身の体躯" }
     ],
     "personality": [
       { "tag": "cheerful", "label": "明るい" },
@@ -254,8 +254,7 @@
   { "tag": "plain gown",               "label": "無地ガウン" },
   { "tag": "kimono",                   "label": "着物" },
   { "tag": "yukata",                   "label": "浴衣" },
-  { "tag": "cheongsam",                "label": "チャイナドレス（チョンシャン）" },
-  { "tag": "qipao",                    "label": "チャイナドレス（旗袍）" },
+  { "tag": "cheongsam",                "label": "チャイナドレス" },
   { "tag": "hanbok",                   "label": "韓服" },
   { "tag": "sari",                     "label": "サリー" },
 
@@ -345,7 +344,7 @@
       { "tag": "forest", "label": "森" },
       { "tag": "shrine", "label": "神社" },
       { "tag": "sci-fi lab", "label": "SF研究室" },
-      { "tag": "café", "label": "カフェ" },
+      { "tag": "cafe", "label": "カフェ" },
       { "tag": "library", "label": "図書館" },
       { "tag": "rooftop", "label": "屋上" },
       { "tag": "train platform", "label": "駅ホーム" },
@@ -368,7 +367,7 @@
       { "tag": "painterly", "label": "絵画風" },
       { "tag": "sketch", "label": "スケッチ風" },
       { "tag": "flat shading", "label": "フラット塗り" },
-      { "tag": "cell shading", "label": "セル塗り" },
+      { "tag": "cel shading", "label": "セル塗り" },
       { "tag": "watercolor", "label": "水彩風" },
       { "tag": "ink drawing", "label": "インク画" },
       { "tag": "pixel art", "label": "ドット絵" },
@@ -426,7 +425,6 @@
   { "tag": "smiling", "label": "笑顔" },
   { "tag": "soft smile", "label": "微笑み" },
   { "tag": "bright smile", "label": "満面の笑み" },
-  { "tag": "neutral", "label": "無表情" },
   { "tag": "blushing", "label": "照れ" },
   { "tag": "slight blush", "label": "ほんのり照れ" },
   { "tag": "angry", "label": "怒り" },
