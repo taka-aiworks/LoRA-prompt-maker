@@ -412,7 +412,13 @@
       { "tag": "staggering", "label": "よろめき" },
       { "tag": "hands on cheeks", "label": "頬に手" },
       { "tag": "facepalm", "label": "顔を覆う/フェイスパーム" },
-      { "tag": "standing", "label": "直立/立ち" }
+      { "tag": "standing", "label": "直立/立ち" },
+      { "tag": "from below", "label": "煽り（下から）" },
+      { "tag": "looking down", "label": "俯瞰（上から）" },
+      { "tag": "overhead view", "label": "真上から" },
+      { "tag": "facing viewer", "label": "正面を見る" },
+      { "tag": "looking to the side", "label": "横を見る" },
+      { "tag": "looking up", "label": "見上げる" }
     ],
      "expressions": [
   { "tag": "neutral expression", "label": "ニュートラル" },
