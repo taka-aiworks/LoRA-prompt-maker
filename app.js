@@ -2269,12 +2269,14 @@ function buildBatchLearning(n){
   // EXPRESSION（UIで選ばれているものだけを母集団に）
   const selExpr = getMany("expr");
   const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
-  // neutral expression を常に含めておく
+  // ← neutral を常に母集団に入れる
   const exprGroup = Array.from(new Set([...exprGroupBase, "neutral expression"]));
+
   for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
     if (!exprGroup.includes(tag)) continue;
     applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
-  }
+  }  
+  // ここは group も fallback もそのままでOK
   fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
 
   // BACKGROUND
@@ -2481,7 +2483,20 @@ function buildBatchProduction(n){
 
   const bgs    = getMany("p_bg");
   const poses  = [...getMany("p_pose"), ...getMany("p_comp")];
-  const exprs  = getMany("p_expr");
+  // 表情（生産モード）
+  const exprs = getMany("p_expr");
+
+  // neutral も含む表情グループ
+  const exprGroup = Array.from(new Set([...MIX_RULES.expr.group, "neutral expression"]));
+
+  if (exprs.length > 0) {
+    // 複数選ばれていても先頭だけ採用
+    const chosenExpr = exprs[0];
+    replaceGroupTag(parts, exprGroup, chosenExpr);
+  } else {
+    // 何も選ばれていないなら neutral にする
+    replaceGroupTag(parts, exprGroup, "neutral expression");
+  }
   const lights = getMany("p_light");
   const acc    = readAccessorySlots();
 
