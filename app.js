@@ -2269,6 +2269,7 @@ function buildBatchLearning(n){
   // EXPRESSION（UIで選ばれているものだけを母集団に）
   const selExpr = getMany("expr");
   const exprGroup = selExpr.length ? selExpr : MIX_RULES.expr.group;
+  const exprGroup = Array.from(new Set([...exprGroupBase, "neutral expression"]));
   for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
     if (!exprGroup.includes(tag)) continue;
     applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
