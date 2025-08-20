@@ -127,6 +127,7 @@ function stripMultiHints(parts){
 function categorizePoseComp(list){
   const L = normList(list||[]);
   const isComp = (t) => /\b(front view|side view|back view|profile view|three-quarters view|looking up|looking down|overhead view|from below|bust(?: shot)?|waist up|upper body|full body|portrait|close-?up|wide shot|centered composition|rule of thirds)\b/i.test(t);
+  const poseTags = [];
   const compTags = [];
   for (const it of L){
     const tag = it.tag || "";
