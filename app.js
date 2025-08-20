@@ -1299,56 +1299,63 @@ function applyNSFWLearningPreset(p){
 
 function applyCharacterPreset(cfg){
   // 文字列系
-  setVal("#charName", cfg.charName || cfg.characterName || "");
-  setVal("#loraTag",  cfg.loraTag   || cfg.lora || "");
-  setVal("#fixedManual", cfg.fixed || cfg.fixedTags || "");
-  setVal("#negGlobal",   cfg.negative || cfg.negativeTags || "");
-  setMany("comp", json.comp || []);
-  setMany("lightLearn", json.lighting || []);
+  setVal("#charName",   cfg.charName || cfg.characterName || "");
+  setVal("#loraTag",    cfg.loraTag  || cfg.lora || "");
+  setVal("#fixedManual",cfg.fixed    || cfg.fixedTags || "");
+  setVal("#negGlobal",  cfg.negative || cfg.negativeTags || "");
+
+  // 構図・ライティング（※ json → cfg / setMany → setChecks）
+  if (cfg.composition)
+    setChecks("comp", Array.isArray(cfg.composition) ? cfg.composition : [cfg.composition]);
+  if (cfg.lighting)
+    setChecks("lightLearn", Array.isArray(cfg.lighting) ? cfg.lighting : [cfg.lighting]);
 
   // 形状
-  if(cfg.hairStyle) setRadio("hairStyle", String(cfg.hairStyle));
-  if(cfg.eyeShape)  setRadio("eyeShape",  String(cfg.eyeShape));
-  if(cfg.face)      setRadio("face",      String(cfg.face));
-  if(cfg.skinBody)  setRadio("skinBody",  String(cfg.skinBody));
-  if(cfg.artStyle)  setRadio("artStyle",  String(cfg.artStyle));
+  if (cfg.hairStyle) setRadio("hairStyle", String(cfg.hairStyle));
+  if (cfg.eyeShape)  setRadio("eyeShape",  String(cfg.eyeShape));
+  if (cfg.face)      setRadio("face",      String(cfg.face));
+  if (cfg.skinBody)  setRadio("skinBody",  String(cfg.skinBody));
+  if (cfg.artStyle)  setRadio("artStyle",  String(cfg.artStyle));
 
-  // シーン
-  if(cfg.background) setChecks("bg", Array.isArray(cfg.background)? cfg.background : [cfg.background]);
-  if(cfg.pose || cfg.composition){
-    const poses = cfg.pose || cfg.composition; setChecks("pose", Array.isArray(poses)? poses : [poses]);
-  }
-  if(cfg.expressions) setChecks("expr", Array.isArray(cfg.expressions)? cfg.expressions : [cfg.expressions]);
+  // シーン（※ 構図とは分離して個別に反映）
+  if (cfg.background)
+    setChecks("bg", Array.isArray(cfg.background) ? cfg.background : [cfg.background]);
+
+  if (cfg.pose)
+    setChecks("pose", Array.isArray(cfg.pose) ? cfg.pose : [cfg.pose]);
+
+  if (cfg.expressions)
+    setChecks("expr", Array.isArray(cfg.expressions) ? cfg.expressions : [cfg.expressions]);
 
   // 色（髪/瞳/肌）
-  if(cfg.hairColorTag) setColorTag("#tagH", String(cfg.hairColorTag));
-  if(cfg.eyeColorTag)  setColorTag("#tagE", String(cfg.eyeColorTag));
-  if(typeof cfg.skinTone==="number") setSkinTone(cfg.skinTone);
+  if (cfg.hairColorTag) setColorTag("#tagH", String(cfg.hairColorTag));
+  if (cfg.eyeColorTag)  setColorTag("#tagE", String(cfg.eyeColorTag));
+  if (typeof cfg.skinTone === "number") setSkinTone(cfg.skinTone);
 
-    // ★ 基本情報（bf_*）
+  // ★ 基本情報（bf_*）
   const bf = cfg.bf || {};
-  if (bf.age)         setRadio("bf_age",    String(bf.age));
-  if (bf.gender)      setRadio("bf_gender", String(bf.gender));
-  if (bf.body)        setRadio("bf_body",   String(bf.body));
-  if (bf.height)      setRadio("bf_height", String(bf.height));
-  if (bf.personality) setRadio("bf_person", String(bf.personality));
-  if (bf.worldview)   setRadio("bf_world",  String(bf.worldview));
-  if (bf.tone)        setRadio("bf_tone",   String(bf.tone));
+  if (bf.age)        setRadio("bf_age",    String(bf.age));
+  if (bf.gender)     setRadio("bf_gender", String(bf.gender));
+  if (bf.body)       setRadio("bf_body",   String(bf.body));
+  if (bf.height)     setRadio("bf_height", String(bf.height));
+  if (bf.personality)setRadio("bf_person", String(bf.personality));
+  if (bf.worldview)  setRadio("bf_world",  String(bf.worldview));
+  if (bf.tone)       setRadio("bf_tone",   String(bf.tone));
 
-  // ✅ 追記：UIが無い/未描画でも拾えるよう dataset にも保持
+  // dataset にも保持（必要なら）
   {
     const host = document.body || document.documentElement;
     if (host && host.dataset) {
-      if (bf.age)         host.dataset.bfAge    = String(bf.age);
-      if (bf.gender)      host.dataset.bfGender = String(bf.gender);
-      if (bf.body)        host.dataset.bfBody   = String(bf.body);
-      if (bf.height)      host.dataset.bfHeight = String(bf.height);
-      if (bf.personality) host.dataset.bfPerson = String(bf.personality);
-      if (bf.worldview)   host.dataset.bfWorld  = String(bf.worldview);
-      if (bf.tone)        host.dataset.bfTone   = String(bf.tone);
+      if (bf.age)        host.dataset.bfAge    = String(bf.age);
+      if (bf.gender)     host.dataset.bfGender = String(bf.gender);
+      if (bf.body)       host.dataset.bfBody   = String(bf.body);
+      if (bf.height)     host.dataset.bfHeight = String(bf.height);
+      if (bf.personality)host.dataset.bfPerson = String(bf.personality);
+      if (bf.worldview)  host.dataset.bfWorld  = String(bf.worldview);
+      if (bf.tone)       host.dataset.bfTone   = String(bf.tone);
     }
   }
-   
+}   
   // ★ outfit（分割&モード）
   const outf = cfg.outfit || cfg.outfitSel || cfg.outfits;
   if (typeof outf === "string") {
