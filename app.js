@@ -2181,7 +2181,7 @@ expr: {
 bg: {
   group: ["plain background"], // 学習では固定
   fallback: "plain background"
-}
+},
   // ライティング（安定寄り）
   light: {
     group: ["soft lighting","even lighting","normal lighting","window light","overcast"],
