@@ -2214,7 +2214,7 @@ expr: {
     targets: {
       "soft lighting":[0.35,0.45],
       "even lighting":[0.25,0.35],
-      "normal lighting":[0.10,0.20],
+      "normal lighting":[0.10,0.20]
     },
     fallback: "soft lighting"
   }
