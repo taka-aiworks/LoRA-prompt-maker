@@ -2130,6 +2130,24 @@ function fillRemainder(rows, groupTags, fallbackTag){
   }
 }
 
+// 配分処理（applyPercentForTag群, fillRemainder） の直後に入れる
+const EXPR_ALL = new Set([
+  ...Object.keys(MIX_RULES.expr.targets),   // 例: "smiling", "surprised (mild)", "pouting (slight)" ...
+  MIX_RULES.expr.fallback                   // 例: "neutral expression"
+]);
+
+rows.forEach(r => {
+  // 行に含まれる「表情タグ」だけ抽出
+  const exprs = r.tags.filter(t => EXPR_ALL.has(t));
+
+  if (exprs.length > 1) {
+    // ルール：非ニュートラルが1つでもあればそれを優先。なければ先頭だけ残す
+    const keep = exprs.find(t => t !== MIX_RULES.expr.fallback) || exprs[0];
+    r.tags = r.tags.filter(t => !EXPR_ALL.has(t)); // いったん全消し
+    r.tags.push(keep);                              // 1つだけ残す
+  }
+});
+
 // ④ 配分ルール（必要なら数値だけ調整してOK）
 const MIX_RULES = {
   // 視点（横顔/背面は割合で、残りは 3/4 or 正面に後で丸める）
