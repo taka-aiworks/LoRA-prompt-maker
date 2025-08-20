@@ -2279,18 +2279,24 @@ for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
 fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
 
   // BACKGROUND
-  for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
-    applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
-  }
-  fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
+   {
+     const bgTargets = MIX_RULES.bg.targets || {};
+     for (const [tag, rng] of Object.entries(bgTargets)) {
+       applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
+     }
+     fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
+   }
+ 
+   // LIGHTING
+   {
+     const lightTargets = MIX_RULES.light.targets || {};
+     for (const [tag, rng] of Object.entries(lightTargets)) {
+       applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
+     }
+     fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
+   }
 
-  // LIGHTING
-  for (const [tag, rng] of Object.entries(MIX_RULES.light.targets)) {
-    applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
-  }
-  fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
-}
-  return out;
+   return out;
 }
 
 // 置き換え: ensurePromptOrder
