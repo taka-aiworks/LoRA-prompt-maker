@@ -2128,7 +2128,7 @@ expr: {
   ],
   targets: {},
   fallback: "neutral expression"
-}
+},
 
   // 背景（無地/スタジオを多め。bedroom は少し）
   bg: {
