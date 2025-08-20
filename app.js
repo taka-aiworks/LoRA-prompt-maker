@@ -126,8 +126,7 @@ function stripMultiHints(parts){
 // === ポーズ/構図のゆる判定（片方のボックスが無いときは無視していい） ===
 function categorizePoseComp(list){
   const L = normList(list||[]);
-  const isComp = (t) => /\b(front view|side view|back view|looking up|looking down|overhead view|from below|profile|three-quarters view|bust(?: shot)?|waist up|upper body|full body|portrait|close-?up|wide shot|centered composition|rule of thirds)\b/i.test(t);  const poseTags = [];
-  const compTags = [];
+  const isComp = (t) => /\b(front view|side view|back view|profile view|three-quarters view|looking up|looking down|overhead view|from below|bust(?: shot)?|waist up|upper body|full body|portrait|close-?up|wide shot|centered composition|rule of thirds)\b/i.test(t);  const compTags = [];
   for (const it of L){
     const tag = it.tag || "";
     if (isComp(tag)) compTags.push(it); else poseTags.push(it);
@@ -2111,22 +2110,24 @@ function fillRemainder(rows, groupTags, fallbackTag){
 // ④ 配分ルール（必要なら数値だけ調整してOK）
 const MIX_RULES = {
   // 視点（横顔/背面は割合で、残りは 3/4 or 正面に後で丸める）
-  view: {
+    view: {
     group: ["front view","three-quarters view","profile view","side view","back view"],
     targets: {
-      "profile view":[0.15,0.20],  // 横顔 15–20%
-      "back view":[0.08,0.12],     // 背面 8–12%
+      "profile view":[0.15,0.20],
+      "back view":[0.08,0.12],
     },
     fallback: "three-quarters view"
   },
 
-  // 構図/距離（合計100%になる必要なし。余りは portrait に落とす）
   comp: {
-    group: ["full body","waist up","bust","portrait"],
+    group: ["full body","waist up","upper body","bust","portrait","close-up","wide shot"],
     targets: {
-      "full body":[0.20,0.25],     // 20–25%
-      "waist up":[0.35,0.40],      // 35–40%
-      "bust":[0.25,0.30],          // 25–30%
+      "full body":[0.20,0.25],
+      "waist up":[0.30,0.35],
+      "upper body":[0.05,0.10],   // 追加
+      "bust":[0.20,0.25],
+      "close-up":[0.05,0.10],     // 追加
+      "wide shot":[0.05,0.10]     // 追加
     },
     fallback: "portrait"
   },
