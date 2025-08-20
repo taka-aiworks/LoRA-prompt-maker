@@ -1175,7 +1175,7 @@ function renderSFW(){
   radioList($("#bf_height"),   SFW.height,       "bf_height");
   // radioList($("#bf_person"),   SFW.personality,  "bf_person");
   radioList($("#bf_world"),    SFW.worldview,    "bf_world");
-  radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
+  // radioList($("#bf_tone"),     SFW.speech_tone,  "bf_tone");
 
   // 動的生成後の必須チェック
   if (typeof updateOneTestReady === "function") updateOneTestReady();
@@ -1349,7 +1349,7 @@ function applyCharacterPreset(cfg){
   if (bf.body)       setRadio("bf_body",   String(bf.body));
   if (bf.height)     setRadio("bf_height", String(bf.height));
   // if (bf.personality)setRadio("bf_person", String(bf.personality));
-  if (bf.tone)       setRadio("bf_tone",   String(bf.tone));
+  // if (bf.tone)       setRadio("bf_tone",   String(bf.tone));
 
   // dataset にも保持（必要なら）
   {
