@@ -2130,6 +2130,9 @@ function fillRemainder(rows, groupTags, fallbackTag){
   }
 }
 
+// ...VIEW/COMP/EXPR/BG/LIGHT の配分＆fillRemainder が全部終わった直後
+rows.forEach(fixExprOnRow);
+
 // 配分処理（applyPercentForTag群, fillRemainder） の直後に入れる
 const EXPR_ALL = new Set([
   ...Object.keys(MIX_RULES.expr.targets),   // 例: "smiling", "surprised (mild)", "pouting (slight)" ...
@@ -2147,6 +2150,33 @@ rows.forEach(r => {
     r.tags.push(keep);                              // 1つだけ残す
   }
 });
+
+// 表情は1行につき1個だけに統一（非ニュートラル優先）
+function fixExprOnRow(r){
+  if (!r || !Array.isArray(r.pos)) return;
+
+  // EXPR集合：targetsキー + fallback + group（どれか欠けても効くように全部寄せる）
+  const exprSet = new Set([
+    ...(MIX_RULES?.expr?.group || []),
+    ...(Object.keys(MIX_RULES?.expr?.targets || {})),
+    (MIX_RULES?.expr?.fallback || "neutral expression")
+  ]);
+
+  const exprs = r.pos.filter(t => exprSet.has(String(t)));
+  if (exprs.length <= 1) return; // そもそも重複なし
+
+  // 非ニュートラルが1つでもあればそれを優先、無ければ先頭
+  const keep = exprs.find(t => t !== (MIX_RULES?.expr?.fallback || "neutral expression")) || exprs[0];
+
+  // いったん表情を全部除去して keep だけ戻す（順序は最後に ensurePromptOrder で整える）
+  r.pos = r.pos.filter(t => !exprSet.has(String(t)));
+  r.pos.push(keep);
+
+  // テキスト再構築
+  r.pos  = ensurePromptOrder(uniq(r.pos));
+  r.text = `${r.pos.join(", ")} --neg ${r.neg} seed:${r.seed}`;
+}
+
 
 // ④ 配分ルール（必要なら数値だけ調整してOK）
 const MIX_RULES = {
