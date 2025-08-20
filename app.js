@@ -2155,7 +2155,7 @@ const MIX_RULES = {
     group: ["front view","three-quarters view","profile view","side view","back view"],
     targets: {
       "profile view":[0.15,0.20],
-      "back view":[0.08,0.12],
+      "back view":[0.08,0.12]
     },
     fallback: "three-quarters view"
   },
