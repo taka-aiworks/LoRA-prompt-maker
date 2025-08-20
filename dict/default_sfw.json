@@ -92,31 +92,6 @@
       { "tag": "idol industry", "label": "アイドル業界" },
       { "tag": "sports drama", "label": "スポ根" }
     ],
-    "speech_tone": [
-      { "tag": "polite", "label": "丁寧語" },
-      { "tag": "very polite", "label": "敬語（かしこまり）" },
-      { "tag": "formal", "label": "フォーマル" },
-      { "tag": "casual", "label": "くだけた口調" },
-      { "tag": "rough", "label": "荒っぽい口調" },
-      { "tag": "girly", "label": "女の子っぽい口調" },
-      { "tag": "boyish", "label": "男の子っぽい口調" },
-      { "tag": "soft-spoken", "label": "おっとり/小声" },
-      { "tag": "energetic", "label": "ハイテンション" },
-      { "tag": "monotone", "label": "無機質/一本調子" },
-      { "tag": "sarcastic", "label": "皮肉混じり" },
-      { "tag": "playful", "label": "おちゃめ" },
-      { "tag": "flirty", "label": "軽くあしらう/小悪魔" },
-      { "tag": "archaic", "label": "古風な言い回し" },
-      { "tag": "robotic", "label": "ロボット風" },
-      { "tag": "kansai dialect", "label": "関西弁" },
-      { "tag": "tohoku dialect", "label": "東北訛り" },
-      { "tag": "kyoto dialect", "label": "京都弁" },
-      { "tag": "deadpan", "label": "淡々" },
-      { "tag": "poetic", "label": "詩的" },
-      { "tag": "teacherly", "label": "先生口調" },
-      { "tag": "tsun-tsun", "label": "ツンツン" }
-    ],
-
     "hair_style": [
       { "tag": "long hair", "label": "長髪" },
       { "tag": "medium hair", "label": "ミディアム" },
