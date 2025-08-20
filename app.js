@@ -1691,7 +1691,7 @@ const FORMATTERS = {
 const getFmt = (selId, fallback="a1111") => FORMATTERS[$(selId)?.value || fallback] || FORMATTERS[fallback];
 
 // --- 追加：結合版（プロンプト＋ネガ）を作るヘルパ
-function buildMergedPrompt(p, n, sep = " ### NEGATIVE: ") {
+function buildMergedPrompt(p, n, sep = "NEGATIVE: ") {
   return `${p}${sep}${n}`;
 }
 
