@@ -2285,7 +2285,7 @@ function buildBatchLearning(n){
   fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
 
   // EXPRESSION（UIで選ばれているものだけを母集団に）
-const selExpr = getMany("expr");
+const selExpr = getMany("expr") || [];
 const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
 
 // neutral を必ず含めつつ、全要素を重複排除
