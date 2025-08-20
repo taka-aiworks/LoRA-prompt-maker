@@ -1072,10 +1072,16 @@ const SCOPE = {
       "full body", "waist up", "bust", "portrait","profile view","back view",
       "front view", "three-quarters view", "centered composition"
     ],
-    // 表情は基本＋少しだけ追加
+    // 表情は整合済みの正規タグのみ
     expressions: [
-      "neutral expression", "smiling","serious",
-      "determined"
+      "neutral expression",
+      "smiling",
+      "smiling open mouth",
+      "serious",
+      "determined",
+      "slight blush",
+      "surprised (mild)",
+      "pouting (slight)"
     ],
     // ライティングは安定系のみ
     lighting: [
