@@ -1067,7 +1067,7 @@ const SCOPE = {
     pose: [
       "standing", "sitting",
       "pointing", "head tilt",
-      "hands on hips", "arms crossed"
+      "hands on hips", "crossed arms"
     ],
     // ★全身を必ず含める（視点タグはここに置いてOK）
     composition: [
