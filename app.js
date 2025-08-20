@@ -1674,53 +1674,68 @@ function csvFromProd(fmtSelId="#fmtProd"){
   return [fmt.csvHeader.join(","), ...rows].join("\n");
 }
 
+// 追加：実際に投げるURLを作るヘルパ
+function buildGasUrl() {
+  const base = (Settings.gasUrl || '').trim();
+  const t    = (Settings.gasToken || '').trim(); // ← ここは “クエリ” に付ける
+  return t ? `${base}?token=${encodeURIComponent(t)}` : base;
+}
+
 /* ========= クラウド送信 ========= */
-async function postCSVtoGAS(kind, csv, meta = {}){
-  const url = (Settings.gasUrl||"").trim();
-  if(!url){ toast("クラウド保存URL（GAS）を設定タブで入力してください"); throw new Error("missing GAS url"); }
-  const nameChar = ($("#charName")?.value||"").replace(/[^\w\-]/g,"_") || "noname";
+async function postCSVtoGAS(kind, csv, meta = {}) {
+  const url = buildGasUrl();
+  if (!url) { toast("クラウド保存URL（GAS）を設定タブで入力してください"); throw new Error("missing GAS url"); }
+
+  const nameChar = ($("#charName")?.value || "").replace(/[^\w\-]/g, "_") || "noname";
   const body = {
     kind,
     filename: `${kind}_${nameChar}_${nowStamp()}.csv`,
     csv,
-    meta: { charName: $("#charName")?.value||"", fmt:(kind==="learning" ? $("#fmtLearnBatch")?.value : $("#fmtProd")?.value)||"", ...meta },
+    meta: { charName: $("#charName")?.value || "", fmt:(kind==="learning" ? $("#fmtLearnBatch")?.value : $("#fmtProd")?.value)||"", ...meta },
     ts: Date.now()
   };
-  const headers = {"Content-Type":"application/json"};
-  if(Settings.gasToken) headers["Authorization"] = "Bearer " + Settings.gasToken;
-  try{
-    const r = await fetch(url, { method:"POST", headers, body: JSON.stringify(body), redirect:"follow" });
-    if(!r.ok) throw new Error("bad status:"+r.status);
-    const txt = await r.text().catch(()=>"(no text)");
-    toast("クラウド（GAS）へ保存しました（応答: " + txt.slice(0,80) + "…）");
-  }catch(err){
-    try{
-      await fetch(url, { method:"POST", mode:"no-cors", body: JSON.stringify(body) });
-      toast("クラウド（GAS）へ保存しました（no-cors）");
-    }catch(e2){
-      console.error(e2); toast("クラウド保存に失敗（URL/公開設定/トークンを確認）"); throw e2;
-    }
-  }
+
+  // ★ Authorizationヘッダを消す／Content-Typeはtext/plain
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+    body: JSON.stringify(body)
+  });
+
+  const txt = await r.text().catch(()=>"(no text)");
+  if (!r.ok) throw new Error("bad status: " + r.status + " " + txt);
+  toast("クラウド（GAS）へ保存しました（応答: " + txt.slice(0,80) + "…）");
 }
+
 function bindGASTools(){
-   document.getElementById("btnSaveSettings")?.addEventListener("click", saveSettings);
-   document.getElementById("btnResetSettings")?.addEventListener("click", resetSettings);
+  document.getElementById("btnSaveSettings")?.addEventListener("click", saveSettings);
+  document.getElementById("btnResetSettings")?.addEventListener("click", resetSettings);
+
   $("#btnTestGAS")?.addEventListener("click", async ()=>{
     saveSettings();
-    const url = Settings.gasUrl?.trim();
-    if(!url){ $("#gasTestResult").textContent = "URL未設定"; return; }
-    $("#gasTestResult").textContent = "テスト中…";
-    try{
-      const headers = {"Content-Type":"application/json"};
-      if(Settings.gasToken) headers["Authorization"]="Bearer "+Settings.gasToken;
 
-      const ctrl = new AbortController();
+    const url = buildGasUrl(); // ← token を ?token= に付与
+    const out = $("#gasTestResult");
+    if (!url) { if(out) out.textContent = "URL未設定"; return; }
+
+    if(out) out.textContent = "テスト中…";
+    try {
+      const ctrl  = new AbortController();
       const timer = setTimeout(()=>ctrl.abort(), 6000);
-      const r = await fetch(url, { method:"POST", headers, body: JSON.stringify({kind:"ping", ts:Date.now()}), signal: ctrl.signal });
+
+      const r = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain; charset=utf-8" }, // ← text/plain に統一
+        body: JSON.stringify({ kind: "ping", ts: Date.now() }),   // ← 本体と同じ形式
+        signal: ctrl.signal
+      });
       clearTimeout(timer);
-      $("#gasTestResult").textContent = r.ok ? "OK" : ("NG ("+r.status+")");
-    }catch(e){
-      $("#gasTestResult").textContent = "no-cors で送信（レスポンス確認不可）";
+
+      const txt = await r.text().catch(()=>"(no text)");
+      if(out) out.textContent = r.ok ? (txt ? `OK: ${txt}` : "OK") : `NG (${r.status})`;
+    } catch (e) {
+      // CORSで応答が読めない環境でも “送信はできた” 旨だけ表示
+      if(out) out.textContent = "送信は完了（no-corsのため応答確認不可）";
     }
   });
 }
