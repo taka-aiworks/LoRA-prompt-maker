@@ -2120,13 +2120,13 @@ const MIX_RULES = {
 
   // 表情（ニュートラル多め）
 expr: {
-  group: [
-    "neutral expression","neutral expression","neutral expression","neutral expression","neutral expression","neutral expression","neutral expression", // 7回
-    "smiling","smiling", // 2回
-    "serious",           // 1回
-    "determined"         // 1回
-  ],
-  targets: {},
+  group: ["neutral expression", "smiling", "serious", "determined"],
+  targets: {
+    "neutral expression": [0.6, 0.7], // 60–70%
+    "smiling": [0.2, 0.25],           // 20–25%
+    "serious": [0.05, 0.1],           // 5–10%
+    "determined": [0.05, 0.1]         // 5–10%
+  },
   fallback: "neutral expression"
 },
 
@@ -2155,18 +2155,34 @@ expr: {
 };
 
 // ⑤ まとめ適用（学習バッチだけに適用）
-function applyPercentMixToLearning(rows){
-  if (!Array.isArray(rows) || !rows.length) return rows;
-
-  // 各カテゴリごとにターゲットを先に配る（被ってもOK、最後に ensurePromptOrder 済）
-  for (const rule of Object.values(MIX_RULES)){
-    const { group, targets, fallback } = rule;
-    for (const [tag,[min,max]] of Object.entries(targets)){
-      applyPercentForTag(rows, group, tag, min, max);
-    }
-    fillRemainder(rows, group, fallback);
+function applyPercentMixToLearning(rule, selected) {
+  // selected が空なら fallback 固定
+  if (!selected || selected.length === 0) {
+    return [rule.fallback];
   }
-  return rows;
+
+  // selected があるとき → groupから未選択は除外
+  const group = rule.group.filter(g => selected.includes(g));
+
+  // 全部外れてたら fallback
+  if (group.length === 0) {
+    return [rule.fallback];
+  }
+
+  // targets に設定があるものだけ確率で選ぶ
+  const rand = Math.random();
+  let acc = 0;
+  for (const tag of group) {
+    const [min, max] = rule.targets[tag] || [0, 0];
+    const p = (min + max) / 2; // 平均で扱う（お好みで）
+    acc += p;
+    if (rand < acc) {
+      return [tag];
+    }
+  }
+
+  // 余ったら fallback
+  return [rule.fallback];
 }
 
 function buildBatchLearning(n){
