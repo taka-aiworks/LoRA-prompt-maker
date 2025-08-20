@@ -2284,17 +2284,18 @@ function buildBatchLearning(n){
   }
   fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
 
-  // ★EXPRESSION（UIで選ばれているものだけを母集団に）
-  const selExpr = getMany("expr");
-  const exprGroup = selExpr.length ? selExpr : MIX_RULES.expr.group; // ← neutral は足さない
+  // EXPRESSION（UIで選ばれているものだけを母集団に）
+const selExpr = getMany("expr");
+const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
 
-  for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
-    if (!exprGroup.includes(tag)) continue;
-    applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
-  }
+// neutral を必ず含めつつ、全要素を重複排除
+const exprGroup = Array.from(new Set([...exprGroupBase, "neutral expression"]));
 
-  // ここで “埋め” を入れる。判定の母集団には fallback も入れておくと取りこぼし無し
-  fillRemainder(rows, [...exprGroup, MIX_RULES.expr.fallback], MIX_RULES.expr.fallback);
+for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
+  if (!exprGroup.includes(tag)) continue;
+  applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
+}
+fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
 
   // BACKGROUND
   for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
