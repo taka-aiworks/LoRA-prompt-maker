@@ -2178,14 +2178,10 @@ expr: {
 },
 
   // 背景（無地/スタジオを多め。bedroom は少し）
-  bg: {
-    group: ["plain background","studio background","solid background","white background","bedroom"],
-    targets: {
-      "plain background":[0.35,0.45]
-    },
-    fallback: "plain background"
-  },
-
+bg: {
+  group: ["plain background"], // 学習では固定
+  fallback: "plain background"
+}
   // ライティング（安定寄り）
   light: {
     group: ["soft lighting","even lighting","normal lighting","window light","overcast"],
