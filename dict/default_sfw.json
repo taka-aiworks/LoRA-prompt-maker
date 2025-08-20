@@ -391,7 +391,8 @@
       { "tag": "lying down", "label": "寝転び" },
       { "tag": "three-quarters view", "label": "斜め" },
       { "tag": "back view", "label": "背面" },
-      { "tag": "profile view", "label": "横顔" },
+      { "tag": "profile view", "label": "横顔（顔メイン）" },
+      { "tag": "side view", "label": "横向き（全身）" }
       { "tag": "over-the-shoulder", "label": "肩越し構図" },
       { "tag": "foreshortening", "label": "パース強め" },
       { "tag": "eye-level", "label": "アイレベル" },
