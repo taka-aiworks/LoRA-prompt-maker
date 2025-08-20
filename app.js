@@ -65,22 +65,18 @@ function getGenderCountTag() {
   return ""; // 中立系（androgynous 等）は solo のみで制御
 }
 
-/// 全モード共通: 複数人＋手の増殖を抑止するネガティブを付足
+// --- 全モード共通: 複数人や手の増殖を抑止するネガティブを付足 ---
 function withSoloNegatives(negText) {
   const add = [
-    "2girls","2boys","two people","multiple people","group","crowd","duo","trio",
-    "extra hands","extra arms","extra fingers",
-    "multiple arms","multiple hands",
-    "fused fingers","mutated hands","bad hands","bad anatomy"
+    // 複数人抑止
+    "2girls", "2boys", "two people", "multiple people", "group", "crowd", "duo", "trio",
+    // 手・指の増殖抑止
+    "extra hands", "extra arms", "extra fingers",
+    "multiple arms", "multiple hands",
+    "fused fingers", "mutated hands"
   ];
-  const base = (negText || "")
-    .split(",")
-    .map(s => s.trim())
-    .filter(Boolean);
-
-  // uniq の代わりに Set で重複排除して文字列で返す
-  const merged = [...new Set([...base, ...add])];
-  return merged.join(", ");
+  const base = (negText || "").split(",").map(s => s.trim()).filter(Boolean);
+  return uniq([...base, ...add]).join(", ");
 }
 
 /* === ソロ強制ガード（複数人対策） ======================= */
