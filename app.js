@@ -1088,7 +1088,8 @@ const SCOPE = {
       "determined",
       "slight blush",
       "surprised (mild)",
-      "pouting (slight)"
+      "pouting (slight)",
+      "crying"
     ],
     // ライティングは安定系のみ
     lighting: [
