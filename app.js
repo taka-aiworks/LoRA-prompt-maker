@@ -1655,24 +1655,86 @@ const FORMATTERS = {
 };
 const getFmt = (selId, fallback="a1111") => FORMATTERS[$(selId)?.value || fallback] || FORMATTERS[fallback];
 
-function csvFromLearn(fmtSelId="#fmtLearnBatch"){
-  const fmt = getFmt(fmtSelId);
-  const rows = Array.from($("#tblLearn tbody")?.querySelectorAll("tr") || []).map((tr,i)=>{
-    const tds = Array.from(tr.children).map(td=>td.textContent);
-    const seed = tds[1]||""; const prompt = tds[5]||""; const negative = tds[6]||"";
-    return fmt.csvRow(i+1, seed, prompt, negative);
-  });
-  return [fmt.csvHeader.join(","), ...rows].join("\n");
+// --- 追加：結合版（プロンプト＋ネガ）を作るヘルパ
+function buildMergedPrompt(p, n, sep = " ### NEGATIVE: ") {
+  return `${p}${sep}${n}`;
 }
-function csvFromProd(fmtSelId="#fmtProd"){
+
+function csvFromLearn(fmtSelId = "#fmtLearnBatch") {
   const fmt = getFmt(fmtSelId);
-  const rows = Array.from($("#tblProd tbody")?.querySelectorAll("tr") || []).map(tr=>{
-    const tds = Array.from(tr.children).map(td=>td.textContent);
-    const i = tds[0]||"", seed = tds[1]||"", prompt = tds[2]||"", negative = tds[3]||"";
-    return fmt.csvRow(i, seed, prompt, negative);
+  // 1ファイル内に全部（分割/結合/コマンド行）を入れる
+  const header = [
+    '"no"',
+    '"seed"',
+    '"prompt"',
+    '"negative"',
+    '"merged"',
+    '"line"'
+  ];
+
+  const rows = Array.from($("#tblLearn tbody")?.querySelectorAll("tr") || []).map((tr, i) => {
+    // 学習テーブルの列取りは既存実装に合わせる（seed=td[1], prompt=td[5], neg=td[6]）
+    const tds = Array.from(tr.children).map(td => td.textContent || "");
+    const no   = String(i + 1);
+    const seed = tds[1] || "";
+    const p    = tds[5] || "";
+    const n    = tds[6] || "";
+
+    const merged = buildMergedPrompt(p, n);
+    const line   = fmt.line(p, n, seed); // フォーマッタの1行表現
+
+    // CSVエスケープ
+    const esc = (s) => `"${String(s).replace(/"/g, '""')}"`;
+    return [
+      esc(no),
+      esc(seed),
+      esc(p),
+      esc(n),
+      esc(merged),
+      esc(line)
+    ].join(",");
   });
-  return [fmt.csvHeader.join(","), ...rows].join("\n");
+
+  return [header.join(","), ...rows].join("\n");
 }
+
+
+function csvFromProd(fmtSelId = "#fmtProd") {
+  const fmt = getFmt(fmtSelId);
+  const header = [
+    '"no"',
+    '"seed"',
+    '"prompt"',
+    '"negative"',
+    '"merged"',
+    '"line"'
+  ];
+
+  const rows = Array.from($("#tblProd tbody")?.querySelectorAll("tr") || []).map((tr) => {
+    // 量産テーブルは既存実装に合わせて（no=td[0], seed=td[1], prompt=td[2], neg=td[3]）
+    const tds = Array.from(tr.children).map(td => td.textContent || "");
+    const no   = tds[0] || "";
+    const seed = tds[1] || "";
+    const p    = tds[2] || "";
+    const n    = tds[3] || "";
+
+    const merged = buildMergedPrompt(p, n);
+    const line   = fmt.line(p, n, seed);
+
+    const esc = (s) => `"${String(s).replace(/"/g, '""')}"`;
+    return [
+      esc(no),
+      esc(seed),
+      esc(p),
+      esc(n),
+      esc(merged),
+      esc(line)
+    ].join(",");
+  });
+
+  return [header.join(","), ...rows].join("\n");
+}
+
 
 // 追加：実際に投げるURLを作るヘルパ
 function buildGasUrl() {
