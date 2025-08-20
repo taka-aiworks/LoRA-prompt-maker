@@ -69,11 +69,7 @@ function getGenderCountTag() {
 function withSoloNegatives(negText) {
   const add = [
     // 複数人抑止
-    "2girls", "2boys", "two people", "multiple people", "group", "crowd", "duo", "trio",
-    // 手・指の増殖抑止
-    "extra hands", "extra arms", "extra fingers",
-    "multiple arms", "multiple hands",
-    "fused fingers", "mutated hands"
+    "2girls", "2boys", "two people", "multiple people", "group", "crowd", "duo", "trio"
   ];
   const base = (negText || "").split(",").map(s => s.trim()).filter(Boolean);
   return uniq([...base, ...add]).join(", ");
