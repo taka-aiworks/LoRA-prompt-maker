@@ -2148,8 +2148,8 @@ expr: {
     "neutral expression": [0.55, 0.65],
     "smiling":            [0.18, 0.25],
     "smiling open mouth": [0.05, 0.10],
-    "serious":            [0.05, 0.08],
-    "determined":         [0.05, 0.08],
+    "serious":            [0.01, 0.02],
+    "determined":         [0.01, 0.02],
     "slight blush":       [0.03, 0.05]
     // "surprised (mild)" や "pouting (slight)" を使う時はここに追記してね（各 0.03–0.05 程度）
   },
