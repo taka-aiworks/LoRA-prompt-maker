@@ -1304,7 +1304,7 @@ function applyCharacterPreset(cfg){
   setVal("#fixedManual", cfg.fixed || cfg.fixedTags || "");
   setVal("#negGlobal",   cfg.negative || cfg.negativeTags || "");
   setMany("comp", json.comp || []);
-  setMany("light", (json.lighting || json.light || []));
+  setMany("lightLearn", json.lighting || []);
 
   // 形状
   if(cfg.hairStyle) setRadio("hairStyle", String(cfg.hairStyle));
@@ -1432,13 +1432,9 @@ function collectCharacterPreset(){
     expressions: getMany("expr"),
 
     // ★ 構図（チェックボックスの name/id が "comp" 前提）
-    //   もしUI側が "pose_composition" 等なら getMany("pose_composition") に差し替えてください
-    comp: getMany("comp"),
-
-    // ★ ライティング
-    //   UIのグループ名が "light" の場合 → getMany("light")
-    //   "lighting" の場合もあり得るのでフォールバックで両対応
-    lighting: (getMany("light") || []).length ? getMany("light") : getMany("lighting"),
+    //   HTML上のIDに合わせて key をそのまま使う
+    comp:     getMany("comp"),        // ← <div id="comp">
+    lighting: getMany("lightLearn"),  // ← <div id="lightLearn">
 
     // 色（髪/瞳/肌）
     hairColorTag: $("#tagH")?.textContent || "",
