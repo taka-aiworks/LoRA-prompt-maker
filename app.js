@@ -2266,18 +2266,25 @@ function buildBatchLearning(n){
   }
   fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
 
-  // EXPRESSION（UIで選ばれているものだけを母集団に）
-  const selExpr = getMany("expr");
-  const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
-  // ← neutral を常に母集団に入れる
-  const exprGroup = Array.from(new Set([...exprGroupBase, "neutral expression"]));
+  // buildBatchLearning 内の EXPRESSION ブロック
 
-  for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
-    if (!exprGroup.includes(tag)) continue;
-    applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
-  }  
-  // ここは group も fallback もそのままでOK
-  fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
+const selExpr = getMany("expr");
+const exprGroup = Array.from(new Set(selExpr.length ? selExpr : MIX_RULES.expr.group));
+
+// ★neutral を常に入れたい場合は targets 配分をスキップ（二重防止）
+// for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
+//   if (tag === "neutral expression") continue;
+//   if (!exprGroup.includes(tag)) continue;
+//   applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
+// }
+
+// ★neutral を常に入れたくない場合（＝UI/デフォだけを母集団に使う）ならこれだけでOK
+for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
+  if (!exprGroup.includes(tag)) continue;
+  applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
+}
+
+fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
 
   // BACKGROUND
   for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
