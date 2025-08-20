@@ -2130,24 +2130,6 @@ function fillRemainder(rows, groupTags, fallbackTag){
   }
 }
 
-// EXPR_ALL はそのまま使う
-const EXPR_ALL = new Set([
-  ...Object.keys(MIX_RULES.expr.targets),
-  MIX_RULES.expr.fallback
-]);
-
-rows.forEach(r => {
-  const exprs = r.pos.filter(t => EXPR_ALL.has(t));
-  if (exprs.length > 1) {
-    // 非ニュートラルがあれば優先、なければ先頭だけ残す
-    const keep = exprs.find(t => t !== MIX_RULES.expr.fallback) || exprs[0];
-    r.pos = r.pos.filter(t => !EXPR_ALL.has(t));
-    r.pos.push(keep);
-    r.text = `${r.pos.join(", ")} --neg ${r.neg} seed:${r.seed}`;
-  }
-});
-
-
 // ④ 配分ルール（必要なら数値だけ調整してOK）
 const MIX_RULES = {
   // 視点（横顔/背面は割合で、残りは 3/4 or 正面に後で丸める）
@@ -2219,6 +2201,13 @@ expr: {
     fallback: "soft lighting"
   }
 };
+
+// EXPR_ALL はそのまま使う
+const EXPR_ALL = new Set([
+  ...Object.keys(MIX_RULES.expr.targets),
+  MIX_RULES.expr.fallback
+]);
+
 
 // ⑤ まとめ適用（学習バッチだけに適用）
 function applyPercentMixToLearning(rule, selected) {
