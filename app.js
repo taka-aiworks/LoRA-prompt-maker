@@ -2118,14 +2118,27 @@ const MIX_RULES = {
     fallback: "portrait"
   },
 
-  // 表情（ニュートラル多め）
+  // 表情（UIで選ばれた中だけから配分。未選択なら fallback=neutral）
 expr: {
-  group: ["neutral expression", "smiling", "serious", "determined"],
+  group: [
+    "neutral expression",
+    "smiling",
+    "smiling open mouth",
+    "serious",
+    "determined",
+    "slight blush",
+    "surprised (mild)",
+    "pouting (slight)"
+  ],
+  // ★デフォルト配分（汎用SFW）
   targets: {
-    "neutral expression": [0.6, 0.7], // 60–70%
-    "smiling": [0.2, 0.25],           // 20–25%
-    "serious": [0.05, 0.1],           // 5–10%
-    "determined": [0.05, 0.1]         // 5–10%
+    "neutral expression": [0.55, 0.65],
+    "smiling":            [0.18, 0.25],
+    "smiling open mouth": [0.05, 0.10],
+    "serious":            [0.05, 0.08],
+    "determined":         [0.05, 0.08],
+    "slight blush":       [0.03, 0.05]
+    // "surprised (mild)" や "pouting (slight)" を使う時はここに追記してね（各 0.03–0.05 程度）
   },
   fallback: "neutral expression"
 },
