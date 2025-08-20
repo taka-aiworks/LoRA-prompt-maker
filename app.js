@@ -1092,8 +1092,8 @@ const SCOPE = {
     ],
     // ライティングは安定系のみ
     lighting: [
-      "normal lighting", "even lighting", "soft lighting",
-      "window light", "overcast"
+      "normal lighting", "even lighting", "soft lighting","studio lighting","dramatic lighting","backlighting",
+      "window light", "overcast","natural lighting"
     ]
   }
 };
