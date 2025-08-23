@@ -2344,6 +2344,7 @@ function buildBatchLearning(n){
 
   return out;
 }
+
 // 置き換え: ensurePromptOrder
 function ensurePromptOrder(parts) {
   const set = new Set(parts.filter(Boolean));
@@ -2573,7 +2574,6 @@ function buildBatchProduction(n){
     for (const t of arr){
       if (pool.includes(t)) {
         if (!kept){ ret.push(t); kept = true; }
-        // 2個目以降は捨てる
       } else {
         ret.push(t);
       }
@@ -2692,6 +2692,7 @@ function buildBatchProduction(n){
 
   return out;
 }
+
 function getNegProd(){
   const base = isDefaultNegOn() ? DEFAULT_NEG : "";
   const custom = ($("#p_neg").value||"").split(",").map(s=>s.trim()).filter(Boolean);
