@@ -75,6 +75,22 @@ function withSoloNegatives(negText) {
   return uniq([...base, ...add]).join(", ");
 }
 
+// NSFW 同じ要素はプロンプトに1つしか入らないようにする
+function pickOneOrNone(listId){
+  const items = getMany(listId);
+  if (!items || !items.length) return "";
+  return pick(items); // 複数選ばれていても1つランダム
+}
+
+const nsfwOn  = !!$("#nsfwProd")?.checked;
+const nsfwAdd = nsfwOn ? uniq([
+  pickOneOrNone("nsfwP_expr"),
+  pickOneOrNone("nsfwP_expo"),
+  pickOneOrNone("nsfwP_situ"),
+  pickOneOrNone("nsfwP_light")
+].filter(Boolean)) : [];
+
+
 /* === ソロ強制ガード（複数人対策） ======================= */
 const SOLO_POS = ["solo"]; // 1人明示
 const SOLO_NEG = [
@@ -2232,6 +2248,7 @@ function applyPercentMixToLearning(rule, selected) {
   return [rule.fallback];
 }
 
+// ★ 学習モード：同一NSFWカテゴリからは最大1つだけ残す版
 function buildBatchLearning(n){
   const used = new Set();
   const out = [];
@@ -2250,49 +2267,83 @@ function buildBatchLearning(n){
   while (out.length < n){
     out.push(buildOneLearning(out.length + 1));
   }
-    // ★ 横顔を割合配分で注入// ★ 学習バッチ完成後に割合を適用する
-{
-  const rows = out;
 
-  // VIEW
-  applyPercentForTag(rows, MIX_RULES.view.group, "profile view", ...MIX_RULES.view.targets["profile view"]);
-  applyPercentForTag(rows, MIX_RULES.view.group, "back view",    ...MIX_RULES.view.targets["back view"]);
-  fillRemainder(rows, MIX_RULES.view.group, MIX_RULES.view.fallback);
+  // ★ 学習バッチ完成後に割合を適用する
+  {
+    const rows = out;
 
-  // COMPOSITION
-  for (const [tag, rng] of Object.entries(MIX_RULES.comp.targets)) {
-    applyPercentForTag(rows, MIX_RULES.comp.group, tag, rng[0], rng[1]);
+    // VIEW
+    applyPercentForTag(rows, MIX_RULES.view.group, "profile view", ...MIX_RULES.view.targets["profile view"]);
+    applyPercentForTag(rows, MIX_RULES.view.group, "back view",    ...MIX_RULES.view.targets["back view"]);
+    fillRemainder(rows, MIX_RULES.view.group, MIX_RULES.view.fallback);
+
+    // COMPOSITION
+    for (const [tag, rng] of Object.entries(MIX_RULES.comp.targets)) {
+      applyPercentForTag(rows, MIX_RULES.comp.group, tag, rng[0], rng[1]);
+    }
+    fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
+
+    // EXPRESSION（UIで選ばれているものだけを母集団に）
+    const selExpr = getMany("expr") || [];
+    const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
+    const exprGroup = Array.from(new Set([...exprGroupBase, "neutral expression"]));
+    for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
+      if (!exprGroup.includes(tag)) continue;
+      applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
+    }
+    fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
+
+    // BACKGROUND
+    for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
+      applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
+    }
+    fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
+
+    // LIGHTING
+    for (const [tag, rng] of Object.entries(MIX_RULES.light.targets)) {
+      applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
+    }
+    fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
   }
-  fillRemainder(rows, MIX_RULES.comp.group, MIX_RULES.comp.fallback);
 
-  // EXPRESSION（UIで選ばれているものだけを母集団に）
-const selExpr = getMany("expr") || [];
-const exprGroupBase = selExpr.length ? selExpr : MIX_RULES.expr.group;
+  // ★ ここから：NSFWカテゴリは「各カテゴリから最大1つだけ」に整理
+  {
+    // UIで選ばれている候補（空なら何もしない）
+    const gExpr = getMany("nsfwL_expr") || [];
+    const gExpo = getMany("nsfwL_expo") || [];
+    const gSitu = getMany("nsfwL_situ") || [];
+    const gLight= getMany("nsfwL_light")|| [];
 
-// neutral を必ず含めつつ、全要素を重複排除
-const exprGroup = Array.from(new Set([...exprGroupBase, "neutral expression"]));
+    // 同一プール内は最初に出現した1つだけ残し、他は削除
+    const keepOneFrom = (arr, pool)=>{
+      if (!pool.length) return arr;
+      let kept = false;
+      const out = [];
+      for (const t of arr){
+        if (pool.includes(t)) {
+          if (!kept){ out.push(t); kept = true; }
+          // 2個目以降はスキップ
+        } else {
+          out.push(t);
+        }
+      }
+      return out;
+    };
 
-for (const [tag, rng] of Object.entries(MIX_RULES.expr.targets)) {
-  if (!exprGroup.includes(tag)) continue;
-  applyPercentForTag(rows, exprGroup, tag, rng[0], rng[1]);
-}
-fillRemainder(rows, exprGroup, MIX_RULES.expr.fallback);
-
-  // BACKGROUND
-  for (const [tag, rng] of Object.entries(MIX_RULES.bg.targets)) {
-    applyPercentForTag(rows, MIX_RULES.bg.group, tag, rng[0], rng[1]);
+    for (const r of out){
+      if (Array.isArray(r.pos)) {
+        r.pos = keepOneFrom(r.pos, gExpr);
+        r.pos = keepOneFrom(r.pos, gExpo);
+        r.pos = keepOneFrom(r.pos, gSitu);
+        r.pos = keepOneFrom(r.pos, gLight);
+      }
+      // 文字列も持っている場合は同期
+      if (Array.isArray(r.pos)) r.prompt = r.pos.join(", ");
+    }
   }
-  fillRemainder(rows, MIX_RULES.bg.group, MIX_RULES.bg.fallback);
 
-  // LIGHTING
-  for (const [tag, rng] of Object.entries(MIX_RULES.light.targets)) {
-    applyPercentForTag(rows, MIX_RULES.light.group, tag, rng[0], rng[1]);
-  }
-  fillRemainder(rows, MIX_RULES.light.group, MIX_RULES.light.fallback);
-}
   return out;
 }
-
 // 置き換え: ensurePromptOrder
 function ensurePromptOrder(parts) {
   const set = new Set(parts.filter(Boolean));
