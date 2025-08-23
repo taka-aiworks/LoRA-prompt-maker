@@ -2532,7 +2532,7 @@ function getProdWearColorTag(idBase){
   return (txt && txt !== "—") ? txt : "";
 }
 
-// ② 置き換え版：buildBatchProduction（基本情報 + 服色ペアリング対応）
+// ② 置き換え版：buildBatchProduction（基本情報 + 服色ペアリング + NSFW各カテゴリ1件化）
 function buildBatchProduction(n){
   const seedMode = document.querySelector('input[name="seedMode"]:checked')?.value || "fixed";
   const fixed = ($("#p_fixed").value||"").split(",").map(s=>s.trim()).filter(Boolean);
@@ -2564,6 +2564,22 @@ function buildBatchProduction(n){
   const out  = [];
   const seen = new Set();
   let guard  = 0;
+
+  // ★ ローカル：同一プールからは最初の1件だけ残す
+  const keepOneFrom = (arr, pool)=>{
+    if (!pool || !pool.length) return arr;
+    let kept = false;
+    const ret = [];
+    for (const t of arr){
+      if (pool.includes(t)) {
+        if (!kept){ ret.push(t); kept = true; }
+        // 2個目以降は捨てる
+      } else {
+        ret.push(t);
+      }
+    }
+    return ret;
+  };
 
   const makeOne = (i)=>{
     const parts = [];
@@ -2617,7 +2633,7 @@ function buildBatchProduction(n){
       }
       // 下は無し（破棄）
     } else {
-      if (PC.top)    parts.push(`${PC.top} top`);     // 例: "white top"
+      if (PC.top)    parts.push(`${PC.top} top`);       // 例: "white top"
       if (PC.bottom) parts.push(`${PC.bottom} bottom`); // 例: "azure bottom"
     }
     if (PC.shoes) parts.push(`${PC.shoes} shoes`);
@@ -2634,9 +2650,21 @@ function buildBatchProduction(n){
     let all = uniq([...fixed, ...parts]).filter(Boolean);
     all = applyNudePriority(all);
     all = enforceOnePieceExclusivity(all);
-    all = pairWearColors(all);       // ← 色タグと名詞を最終ペアリング
+    all = pairWearColors(all);       // 色タグと名詞を最終ペアリング
     all = stripMultiHints(all);
     all = forceSoloPos(all);
+
+    // ★ NSFWカテゴリ：各カテゴリから最大1つだけ残す
+    if (nsfwOn){
+      const poolExpr = getMany("nsfwP_expr") || [];
+      const poolExpo = getMany("nsfwP_expo") || [];
+      const poolSitu = getMany("nsfwP_situ") || [];
+      const poolLight= getMany("nsfwP_light")|| [];
+      all = keepOneFrom(all, poolExpr);
+      all = keepOneFrom(all, poolExpo);
+      all = keepOneFrom(all, poolSitu);
+      all = keepOneFrom(all, poolLight);
+    }
 
     // 排他整理 → 並び順整形 → 先頭固定
     if (typeof fixExclusives === 'function')     all = fixExclusives(all);
@@ -2664,7 +2692,6 @@ function buildBatchProduction(n){
 
   return out;
 }
-
 function getNegProd(){
   const base = isDefaultNegOn() ? DEFAULT_NEG : "";
   const custom = ($("#p_neg").value||"").split(",").map(s=>s.trim()).filter(Boolean);
