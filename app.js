@@ -907,75 +907,50 @@ function initWordMode() {
   };
 }
 
-function createWordModeItem(item, category) {
-  const label = item.label || item.tag || '';
-  const tag = item.tag || '';
-  
-  return `
-    <button class="wm-item" type="button" data-en="${tag}" data-jp="${label}" data-cat="${category}">
-      <span class="wm-jp">${label}</span>
-      <small class="wm-en">${tag}</small>
-      <span class="wm-actions">
-        <button class="wm-copy-en" type="button" title="英語のみコピー">EN</button>
-        <button class="wm-copy-both" type="button" title="日本語(英語)コピー">BOTH</button>
-      </span>
-    </button>
-  `;
-}
-
-function createWordModeColorItem(item) {
-  const label = item.label || item.tag || '';
-  const tag = item.tag || '';
-  
-  return `
-    <button class="wm-item wm-item-color" type="button" data-en="${tag}" data-jp="${label}" data-cat="color" data-color-only="1">
-      <span class="wm-jp">${label}</span>
-      <small class="wm-en">${tag}</small>
-      <span class="wm-actions">
-        <button class="wm-copy-en" type="button" title="英語のみコピー">EN</button>
-      </span>
-    </button>
-  `;
-}
-
 /* ===== 単語モードのイベントバインド ===== */
 function bindWordModeEvents() {
+  const root = document.getElementById('panelWordMode'); // ★スコープを単語モード内に限定
+  if (!root) return;
+
   // 選択中チップのクリア
-  const clearBtn = document.getElementById('wm-selected-clear');
+  const clearBtn = root.querySelector('#wm-selected-clear');
   if (clearBtn) {
     clearBtn.addEventListener('click', () => {
-      const chipsContainer = document.getElementById('wm-selected-chips');
-      if (chipsContainer) {
-        chipsContainer.innerHTML = '';
-      }
+      const chipsContainer = root.querySelector('#wm-selected-chips');
+      if (chipsContainer) chipsContainer.innerHTML = '';
       updateSelectedCount();
     });
   }
-  
-  // 各アイテムのクリックイベント（イベント委譲）
-  document.addEventListener('click', (e) => {
+
+  // クリック委譲（panelWordMode内のみ）
+  root.addEventListener('click', (e) => {
+    // <summary>（カテゴリ見出し）はここで素通りさせる
+    if (e.target.closest('summary')) return;
+
+    // EN/BOTH コピー（カード内アクション）
     if (e.target.classList.contains('wm-copy-en')) {
-      e.stopPropagation();
+      e.preventDefault(); e.stopPropagation();
       const item = e.target.closest('.wm-item');
       const en = item?.dataset.en || '';
-      if (en) {
-        navigator.clipboard?.writeText(en).then(() => toast('英語タグをコピーしました'));
-      }
-    } else if (e.target.classList.contains('wm-copy-both')) {
-      e.stopPropagation();
+      if (en) navigator.clipboard?.writeText(en).then(() => toast('英語タグをコピーしました'));
+      return;
+    }
+    if (e.target.classList.contains('wm-copy-both')) {
+      e.preventDefault(); e.stopPropagation();
       const item = e.target.closest('.wm-item');
       const jp = item?.dataset.jp || '';
       const en = item?.dataset.en || '';
       const text = jp && en ? `${jp}(${en})` : (en || jp);
-      if (text) {
-        navigator.clipboard?.writeText(text).then(() => toast('日英タグをコピーしました'));
-      }
-    } else if (e.target.classList.contains('wm-item')) {
-      // アイテム選択
-      const en = e.target.dataset.en || '';
-      const jp = e.target.dataset.jp || '';
-      const cat = e.target.dataset.cat || '';
-      
+      if (text) navigator.clipboard?.writeText(text).then(() => toast('日英タグをコピーしました'));
+      return;
+    }
+
+    // アイテム選択
+    const itemBtn = e.target.closest('.wm-item');
+    if (itemBtn) {
+      const en = itemBtn.dataset.en || '';
+      const jp = itemBtn.dataset.jp || '';
+      const cat = itemBtn.dataset.cat || '';
       if (en && jp) {
         addToSelectedChips(en, jp, cat);
         addToOutputTable(en, jp);
@@ -983,97 +958,38 @@ function bindWordModeEvents() {
       }
     }
   });
-  
+
   // テーブルの全コピーボタン
-  const copyAllEn = document.getElementById('wm-copy-en-all');
-  const copyAllBoth = document.getElementById('wm-copy-both-all');
-  const tableClear = document.getElementById('wm-table-clear');
-  
+  const copyAllEn   = root.querySelector('#wm-copy-en-all');
+  const copyAllBoth = root.querySelector('#wm-copy-both-all');
+  const tableClear  = root.querySelector('#wm-table-clear');
+
   if (copyAllEn) {
     copyAllEn.addEventListener('click', () => {
-      const rows = document.querySelectorAll('#wm-table-body tr');
+      const rows = root.querySelectorAll('#wm-table-body tr');
       const tags = Array.from(rows).map(row => row.dataset.en || '').filter(Boolean);
-      if (tags.length > 0) {
-        navigator.clipboard?.writeText(tags.join(', ')).then(() => toast('全英語タグをコピーしました'));
-      }
+      if (tags.length) navigator.clipboard?.writeText(tags.join(', ')).then(() => toast('全英語タグをコピーしました'));
     });
   }
-  
   if (copyAllBoth) {
     copyAllBoth.addEventListener('click', () => {
-      const rows = document.querySelectorAll('#wm-table-body tr');
+      const rows = root.querySelectorAll('#wm-table-body tr');
       const tags = Array.from(rows).map(row => {
         const en = row.dataset.en || '';
         const jp = row.querySelector('.wm-row-jp')?.textContent || '';
         return jp && en ? `${jp}(${en})` : (en || jp);
       }).filter(Boolean);
-      if (tags.length > 0) {
-        navigator.clipboard?.writeText(tags.join(', ')).then(() => toast('全タグをコピーしました'));
-      }
+      if (tags.length) navigator.clipboard?.writeText(tags.join(', ')).then(() => toast('全タグをコピーしました'));
     });
   }
-  
   if (tableClear) {
     tableClear.addEventListener('click', () => {
-      const tbody = document.getElementById('wm-table-body');
+      const tbody = root.querySelector('#wm-table-body');
       if (tbody) tbody.innerHTML = '';
     });
   }
 }
 
-function addToSelectedChips(en, jp, category) {
-  const container = document.getElementById('wm-selected-chips');
-  if (!container) return;
-  
-  // 既存チェック
-  if (container.querySelector(`[data-en="${en}"]`)) return;
-  
-  // 20件制限チェック
-  if (container.children.length >= 20) {
-    toast('選択は20件までです');
-    return;
-  }
-  
-  const chip = document.createElement('div');
-  chip.className = 'wm-selected-chip';
-  chip.dataset.en = en;
-  chip.innerHTML = `
-    <span>${jp}</span>
-    <button class="wm-chip-remove" onclick="this.parentElement.remove(); updateSelectedCount();">×</button>
-  `;
-  
-  container.appendChild(chip);
-}
-
-function addToOutputTable(en, jp) {
-  const tbody = document.getElementById('wm-table-body');
-  if (!tbody) return;
-  
-  // 既存チェック
-  if (tbody.querySelector(`tr[data-en="${en}"]`)) return;
-  
-  const row = document.createElement('tr');
-  row.dataset.en = en;
-  row.innerHTML = `
-    <td class="wm-row-jp">${jp}</td>
-    <td class="wm-row-en">${en}</td>
-    <td class="wm-row-actions">
-      <button class="wm-row-copy-en" onclick="navigator.clipboard?.writeText('${en}').then(()=>toast('コピーしました'))">EN</button>
-      <button class="wm-row-copy-both" onclick="navigator.clipboard?.writeText('${jp}(${en})').then(()=>toast('コピーしました'))">BOTH</button>
-      <button class="wm-row-remove" onclick="this.closest('tr').remove()">×</button>
-    </td>
-  `;
-  
-  tbody.appendChild(row);
-}
-
-function updateSelectedCount() {
-  const container = document.getElementById('wm-selected-chips');
-  const countEl = document.getElementById('wm-selected-count');
-  if (container && countEl) {
-    countEl.textContent = container.children.length;
-  }
-}
 
 /* ===== 撮影モードの初期化 ===== */
 function initPlannerMode() {
