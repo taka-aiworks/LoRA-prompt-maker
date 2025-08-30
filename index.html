@@ -1,378 +1,4 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AI プロンプトメーカー Pro – 基本情報 / 単語モード / 撮影モード /学習モード / 量産モード / 設定</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div class="header">
-    <div class="inner">
-      <div class="tabbar">
-        <div class="tab active" data-mode="basic">👤 基本情報</div>
-        <div class="tab" data-mode="word">📖 単語モード</div>
-        <div class="tab" data-mode="planner">📷 撮影モード</div>
-        <div class="tab" data-mode="learning">🧠 LoRA学習モード</div>
-        <div class="tab" data-mode="production">📦 量産モード</div>
-        <div class="tab" data-mode="settings">⚙️ 設定</div>
-      </div>
-      <div class="row mini">
-        <span id="status" class="status mini">状態: 内蔵辞書 / 18禁: <b id="nsfwState">OFF</b></span>
-      </div>
-    </div>
-  </div>
-
-    <main class="container">
-    <!-- 基本情報 -->
-    <section id="panelBasic" class="card">
-      <div class="header-row">
-        <h2 class="card-title">キャラの基本情報</h2>
-        <input type="file" id="importChar" accept="application/json" hidden>
-        <label for="importChar" class="btn small">キャラ設定を読み込む</label>
-      </div>
-
-      <div class="note mini">
-        髪/瞳/肌・髪型・目の形・服・<b>服カラー</b>はここで固定。学習や量産では基本的に変更しません。
-      </div>
-
-      <!-- テキスト属性（SFW基礎） -->
-      <div class="panel">
-        <h2 style="margin-top:18px">テキスト属性（SFW基礎）</h2>
-        <!-- 1段目：年齢・性別・体型・身長 -->
-        <div class="grid g4" style="margin-top:8px">
-          <div class="panel">
-            <h3>年齢</h3>
-            <div id="bf_age" class="scroller"></div>
-          </div>
-          <div class="panel">
-            <h3>性別</h3>
-            <div id="bf_gender" class="scroller"></div>
-          </div>
-          <div class="panel">
-            <h3>体型</h3>
-            <div id="bf_body" class="scroller"></div>
-          </div>
-          <div class="panel">
-            <h3>身長</h3>
-            <div id="bf_height" class="scroller"></div>
-          </div>
-          <div class="panel">
-            <h3>髪型</h3>
-            <div id="hairStyle" class="scroller"></div>
-          </div>
-          <div class="panel">
-            <h3>目の形</h3>
-            <div id="eyeShape" class="scroller"></div>
-          </div>
-        </div>
-
-      <!-- 色：髪/瞳/肌 -->
-      <div class="grid g3" style="margin-top:10px">
-        <div class="panel">
-          <h3>髪色</h3>
-          <div class="wheel-box">
-            <div id="wheelH" class="wheel"></div><div id="thumbH" class="thumb"></div>
-          </div>
-          <label class="row mini">S: <input id="satH" type="range" min="0" max="100" value="70">
-            L: <input id="litH" type="range" min="0" max="100" value="45"></label>
-          <div class="row mini"><div id="swH" class="swatch"></div>
-            <span>タグ: <code class="tag" id="tagH">brown hair</code></span></div>
-        </div>
-
-        <div class="panel">
-          <h3>瞳色</h3>
-          <div class="wheel-box">
-            <div id="wheelE" class="wheel"></div><div id="thumbE" class="thumb"></div>
-          </div>
-          <label class="row mini">S: <input id="satE" type="range" min="0" max="100" value="80">
-            L: <input id="litE" type="range" min="0" max="100" value="55"></label>
-          <div class="row mini"><div id="swE" class="swatch"></div>
-            <span>タグ: <code class="tag" id="tagE">blue eyes</code></span></div>
-        </div>
-
-        <div class="panel">
-          <h3>肌トーン</h3>
-          <input id="skinTone" type="range" min="0" max="100" value="30">
-          <div class="row mini"><div id="swSkin" class="swatch"></div>
-            <span>タグ: <code class="tag" id="tagSkin">fair skin</code></span></div>
-        </div>
-      </div>
-    
-    <fieldset id="fsSeparates">
-      <!-- g3 → g4 に修正して4列対応 -->
-      <!-- ▼ outfitMode ラジオ＋wrapper復活：ここで既存の fsSeparates を丸ごと置換 -->
-<div class="panel" id="panel_outfitFixed">
-  <h3>服（固定 / 上下 or ワンピース）</h3>
-
-  <div class="row mini" style="gap:10px;margin:6px 0 8px">
-    <label class="inline">
-      <input type="radio" name="outfitMode" value="separate" id="outfitModeSeparate" checked>
-      上下コーデ
-    </label>
-    <label class="inline">
-      <input type="radio" name="outfitMode" value="onepiece" id="outfitModeDress">
-      ワンピース
-    </label>
-    <span class="mini">※ ワンピース選択時は「下カラー」は自動で無効</span>
-  </div>
-
-  <fieldset id="fsSeparates">
-    <!-- g3 → g4 に修正して4列対応（現状維持） -->
-    <div class="grid g4">
-      <div class="panel">
-        <h4 style="margin:0 0 6px">トップス（1つ）</h4>
-        <div id="outfit_top" class="scroller"></div>
-      </div>
-
-      <div class="panel">
-        <h4 style="margin:0 0 6px">ワンピース（1つ）</h4>
-        <fieldset id="fsDress" disabled>
-          <div id="outfit_dress" class="scroller"></div>
-          <div class="mini">選択時は「下カラー」は自動で無効</div>
-        </fieldset>
-      </div>
-
-      <div class="panel">
-        <h4 style="margin:0 0 6px">下カテゴリ</h4>
-        <div class="row mini" id="bottomCategoryRadios" style="gap:10px">
-          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_pants" value="pants" checked> ボトムス（ズボン）</label>
-          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_skirt" value="skirt"> スカート</label>
-        </div>
-
-        <fieldset id="fsBottom_pants" class="swap-target" style="margin-top:8px">
-          <h4 class="mini" style="margin:0 0 6px">ボトムス（ズボン・1つ）</h4>
-          <div id="outfit_pants" class="scroller"></div>
-        </fieldset>
-
-        <fieldset id="fsBottom_skirt" class="swap-target" style="margin-top:8px">
-          <h4 class="mini" style="margin:0 0 6px">スカート（1つ）</h4>
-          <div id="outfit_skirt" class="scroller"></div>
-        </fieldset>
-      </div>
-
-      <!-- 靴（ラジオ選択＋注意書き）※IDはあなたの現状に合わせて維持 -->
-      <div class="panel">
-        <h4 style="margin:0 0 6px">靴（1つ選択）</h4>
-        <div id="outfit_shoes" class="scroller"></div>
-        <div class="mini">※ 学習時にはノイズになる可能性があります</div>
-      </div>
-    </div>
-  </fieldset>
-</div>
-<!-- ▲ outfitMode ラジオ＋wrapper復活：ここまで -->
-      <!-- カラー指定（固定） -->
-      <div class="card" style="margin-top:10px">
-        <h4 style="margin:0 0 6px">服カラー（固定）</h4>
-        <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
-
-        <div class="grid g3" id="grid_fixed_colors" style="margin-top:8px">
-          <div class="panel" id="panel_top">
-            <div class="row mini">
-              <label class="inline"><input type="checkbox" id="use_top" checked> トップス色を使う</label>
-            </div>
-            <div class="wheel-box">
-              <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_top" type="range" min="0" max="100" value="80">
-              L:<input id="lit_top" type="range" min="0" max="100" value="55">
-            </div>
-            <div class="row mini">
-              <div id="sw_top" class="swatch"></div>
-              <span>色タグ: <code class="tag" id="tag_top">—</code></span>
-            </div>
-          </div>
-
-          <div class="panel" id="panel_bottom">
-            <div class="row mini">
-              <label class="inline"><input type="checkbox" id="useBottomColor" checked> 下カラーを使う（ズボン/スカート共通）</label>
-            </div>
-            <div class="wheel-box">
-              <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_bottom" type="range" min="0" max="100" value="70">
-              L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
-            </div>
-            <div class="row mini">
-              <div id="sw_bottom" class="swatch"></div>
-              <span>色タグ: <code class="tag" id="tag_bottom">—</code></span>
-            </div>
-            <div class="mini">※ ワンピース選択時は自動で無効化されます</div>
-          </div>
-
-          <div class="panel" id="panel_shoes">
-            <div class="row mini">
-              <label class="inline"><input type="checkbox" id="use_shoes"> 靴色を使う</label>
-            </div>
-            <div class="wheel-box">
-              <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
-            </div>
-            <div class="row mini">
-              S:<input id="sat_shoes" type="range" min="0" max="100" value="0">
-              L:<input id="lit_shoes" type="range" min="0" max="100" value="30">
-            </div>
-            <div class="row mini">
-              <div id="sw_shoes" class="swatch"></div>
-              <span>色タグ: <code class="tag" id="tag_shoes">—</code></span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel">
-        <h3>キャラ識別</h3>
-        <label>キャラ名（seed固定）</label>
-        <input id="charName" type="text" placeholder="例: Akari_v1">
-        <label style="margin-top:8px">LoRAタグ（任意）</label>
-        <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
-      </div>
-
-      <!-- ▼ 基本情報：1枚テスト（統一版） -->
-      <div id="slotBasicOneTest">
-        <div class="card" id="learnTestCard">
-          <div class="row">
-            <div id="readyHint" class="mini muted" style="margin-top:.25rem;"></div>
-            <h3 style="margin:0">1枚テスト</h3><span style="flex:1"></span>
-            <label class="inline mini">出力フォーマット
-              <select id="fmtLearn">
-                <option value="a1111" selected>Web UI（汎用）</option>
-                <option value="invoke">InvokeAI（CLI）</option>
-                <option value="comfy">ComfyUI（テキスト）</option>
-                <option value="sdnext">SD.Next（dream.py）</option>
-                <option value="nai">NovelAI</option>
-              </select>
-            </label>
-            <button id="btnOneLearn" class="btn ok">テスト生成</button>
-            <button id="btnExportChar" class="btn ghost">キャラ設定エクスポート</button>
-          </div>
-      
-          <!-- ★ テキスト（All/Prompt/Neg）だけ表示。テーブルは削除 -->
-          <div class="grid g3" style="margin-top:10px">
-            <div>
-              <div class="mini" style="margin:0 0 .35rem">全部</div>
-              <div class="out" id="outLearnTestAll"></div>
-              <button id="btnCopyLearnTestAll" class="btn ghost small" style="margin-top:6px">全部をコピー</button>
-            </div>
-            <div>
-              <div class="mini" style="margin:0 0 .35rem">Promptのみ</div>
-              <div class="out" id="outLearnTestPrompt"></div>
-              <button id="btnCopyLearnTestPrompt" class="btn ghost small" style="margin-top:6px">Promptだけコピー</button>
-            </div>
-            <div>
-              <div class="mini" style="margin:0 0 .35rem">Negativeのみ</div>
-              <div class="out" id="outLearnTestNeg"></div>
-              <button id="btnCopyLearnTestNeg" class="btn ghost small" style="margin-top:6px">Negativeだけコピー</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- ▲ 基本情報：1枚テスト -->
-    </section>
-
-
-<!-- ======================= 単語モード：パネル本体 ======================= -->
-<section id="panelWordMode" class="card" hidden>
-  <header class="wm-header">
-    <!-- ここから先は、あなたが用意した単語モードの中身を置いてOK -->
-    <h2>単語モード</h2>
-    <p class="wm-note">
-      辞書からカテゴリ別に単語を選び、下部テーブルに最大20件まで蓄積・コピーできます。
-      表示は <strong>日本語（大）</strong>＋<small>英語（小）</small> で統一。
-    </p>
-  </header>
-
-  <!-- 選択中バー（選択チップを並べる） -->
-  <section class="wm-selected">
-    <div class="wm-selected-head">
-      <strong>選択中 <span id="wm-selected-count">0</span>/20</strong>
-      <div class="wm-selected-actions">
-        <button id="wm-selected-clear" type="button" aria-label="全クリア">Clear</button>
-      </div>
-    </div>
-    <div id="wm-selected-chips" class="wm-chip-area" aria-live="polite"></div>
-  </section>
-
-  <!-- ========== アコーディオン（SFW） ========== -->
-  <section class="wm-accordion" id="wm-accordion-sfw">
-    <h3 class="wm-acc-title">SFW</h3>
-
-    <details class="wm-acc" data-cat="background">
-      <summary>
-        背景 <span class="wm-count" id="wm-count-background">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-background"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="pose">
-      <summary>
-        ポーズ <span class="wm-count" id="wm-count-pose">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-pose"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="composition">
-      <summary>
-        構図 <span class="wm-count" id="wm-count-composition">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-composition"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="view">
-      <summary>
-        視点 <span class="wm-count" id="wm-count-view">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-view"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="expression-sfw">
-      <summary>
-        表情（SFW） <span class="wm-count" id="wm-count-expression-sfw">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-expression-sfw"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="lighting-sfw">
-      <summary>
-        ライティング（SFW） <span class="wm-count" id="wm-count-lighting-sfw">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-lighting-sfw"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="world">
-      <summary>
-        世界観 <span class="wm-count" id="wm-count-world">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-world"><!-- 動的挿入 --></div>
-    </details>
-
-    <details class="wm-acc" data-cat="accessories">
-      <summary>
-        アクセサリー <span class="wm-count" id="wm-count-accessories">0</span>
-      </summary>
-      <div class="wm-items" id="wm-items-accessories"><!-- 動的挿入 --></div>
-    </details>
-
-  </section>
-
-  <section class="wm-accordion" id="wm-accordion-nsfw">
-  <h3 class="wm-acc-title">NSFW</h3>
-  <!-- 先頭に：露出／下着／衣装 -->
-  <details class="wm-acc" data-cat="exposure">
-    <summary>露出 <span class="wm-count" id="wm-count-exposure">0</span></summary>
-    <div class="wm-items" id="wm-items-exposure"></div>
-    <p class="wm-tip">※ 露出系（bikini/lingerie/nude）は色込みタグの登録・コピーを推奨</p>
-  </details>
-
-  <details class="wm-acc" data-cat="underwear-nsfw">
-    <summary>下着（NSFW） <span class="wm-count" id="wm-count-underwear-nsfw">0</span></summary>
-    <div class="wm-items" id="wm-items-underwear-nsfw"></div>
-  </details>
-
-  <details class="wm-acc" data-cat="outfit-nsfw">
-    <summary>衣装（NSFW） <span class="wm-count" id="wm-count-outfit-nsfw">0</span></summary>
-    <div class="wm-items" id="wm-items-outfit-nsfw"></div>
+<div class="wm-items" id="wm-items-outfit-nsfw"></div>
   </details>
 
   <!-- 以降そのまま -->
@@ -449,25 +75,18 @@
 
   <!-- ========== テンプレート（JSからcloneして使う） ========== -->
   <template id="wm-item-tpl">
-    <!-- 単語カード：日本語大／英語小、右にコピー -->
+    <!-- 単語カード：日本語大／英語小 -->
     <button class="wm-item" type="button" data-en="" data-jp="" data-cat="">
       <span class="wm-jp">日本語</span>
       <small class="wm-en">english-tag</small>
-      <span class="wm-actions">
-        <button class="wm-copy-en" type="button" title="英語のみコピー">EN</button>
-        <button class="wm-copy-both" type="button" title="日本語(英語)コピー">BOTH</button>
-      </span>
     </button>
   </template>
 
   <template id="wm-item-tpl-color">
-    <!-- Colorは EN のみコピー（BOTHボタンなし） -->
+    <!-- Color -->
     <button class="wm-item wm-item-color" type="button" data-en="" data-jp="" data-cat="color" data-color-only="1">
       <span class="wm-jp">色名</span>
       <small class="wm-en">color-tag</small>
-      <span class="wm-actions">
-        <button class="wm-copy-en" type="button" title="英語のみコピー">EN</button>
-      </span>
     </button>
   </template>
 
@@ -493,22 +112,22 @@
   <h2>撮影モード</h2>
   <p class="note">1枚だけ確定出力。学習・量産のホワイトリストなし。</p>
 
-  <div class="row mini"><b>背景</b></div>
+  <div class="row mini"><b>背景（1つ選択）</b></div>
   <div id="pl_bg" class="scroller"></div>
 
-  <div class="row mini" style="margin-top:10px"><b>ポーズ</b></div>
+  <div class="row mini" style="margin-top:10px"><b>ポーズ（1つ選択）</b></div>
   <div id="pl_pose" class="scroller"></div>
 
-  <div class="row mini" style="margin-top:10px"><b>構図</b></div>
+  <div class="row mini" style="margin-top:10px"><b>構図（1つ選択）</b></div>
   <div id="pl_comp" class="scroller"></div>
 
-  <div class="row mini" style="margin-top:10px"><b>視点</b></div>
+  <div class="row mini" style="margin-top:10px"><b>視点（1つ選択）</b></div>
   <div id="pl_view" class="scroller"></div>
 
-  <div class="row mini" style="margin-top:10px"><b>表情</b></div>
+  <div class="row mini" style="margin-top:10px"><b>表情（1つ選択）</b></div>
   <div id="pl_expr" class="scroller"></div>
 
-  <div class="row mini" style="margin-top:10px"><b>ライティング</b></div>
+  <div class="row mini" style="margin-top:10px"><b>ライティング（1つ選択）</b></div>
   <div id="pl_light" class="scroller"></div>
 
   <!-- 18禁 -->
@@ -1123,7 +742,7 @@
 
   // スコープ内セレクタ
   const $  = (sel) => scope.querySelector(sel);
-  const $$ = (sel) => scope.querySelectorAll(sel);
+  const $ = (sel) => scope.querySelectorAll(sel);
 
   // outfit ラジオの状態
   const getIsOnepiece = () => {
@@ -1173,7 +792,7 @@
   };
 
   // ラジオにバインド（#panelBasic 内のみ）
-  $$('#panel_outfitFixed input[name="outfitMode"]').forEach(r => {
+  $('#panel_outfitFixed input[name="outfitMode"]').forEach(r => {
     r.addEventListener('change', applyOutfitMode);
     r.addEventListener('input',  applyOutfitMode);
   });
@@ -1188,14 +807,14 @@
 </script>
   <!-- タブ切替（planner 初回表示で pmInitPlannerOnce を呼ぶ） -->
   <script>
-  // 既存の $ / $$ が無い環境でも動くよう保険
+  // 既存の $ / $ が無い環境でも動くよう保険
   window.$  = window.$  || (s => document.querySelector(s));
-  window.$$ = window.$$ || (s => document.querySelectorAll(s));
+  window.$ = window.$ || (s => document.querySelectorAll(s));
 
   function initTabs(){
-    $$(".tab").forEach(tab => {
+    $(".tab").forEach(tab => {
       tab.addEventListener("click", () => {
-        $$(".tab").forEach(x => x.classList.remove("active"));
+        $(".tab").forEach(x => x.classList.remove("active"));
         tab.classList.add("active");
 
         const m = tab.dataset.mode;
@@ -1363,4 +982,378 @@ window.addEventListener('DOMContentLoaded', () => {
 
       
 </body>
-</html>
+</html><!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AI プロンプトメーカー Pro – 基本情報 / 単語モード / 撮影モード /学習モード / 量産モード / 設定</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="header">
+    <div class="inner">
+      <div class="tabbar">
+        <div class="tab active" data-mode="basic">👤 基本情報</div>
+        <div class="tab" data-mode="word">📖 単語モード</div>
+        <div class="tab" data-mode="planner">📷 撮影モード</div>
+        <div class="tab" data-mode="learning">🧠 LoRA学習モード</div>
+        <div class="tab" data-mode="production">📦 量産モード</div>
+        <div class="tab" data-mode="settings">⚙️ 設定</div>
+      </div>
+      <div class="row mini">
+        <span id="status" class="status mini">状態: 内蔵辞書 / 18禁: <b id="nsfwState">OFF</b></span>
+      </div>
+    </div>
+  </div>
+
+    <main class="container">
+    <!-- 基本情報 -->
+    <section id="panelBasic" class="card">
+      <div class="header-row">
+        <h2 class="card-title">キャラの基本情報</h2>
+        <input type="file" id="importChar" accept="application/json" hidden>
+        <label for="importChar" class="btn small">キャラ設定を読み込む</label>
+      </div>
+
+      <div class="note mini">
+        髪/瞳/肌・髪型・目の形・服・<b>服カラー</b>はここで固定。学習や量産では基本的に変更しません。
+      </div>
+
+      <!-- テキスト属性（SFW基礎） -->
+      <div class="panel">
+        <h2 style="margin-top:18px">テキスト属性（SFW基礎）</h2>
+        <!-- 1段目：年齢・性別・体型・身長 -->
+        <div class="grid g4" style="margin-top:8px">
+          <div class="panel">
+            <h3>年齢</h3>
+            <div id="bf_age" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>性別</h3>
+            <div id="bf_gender" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>体型</h3>
+            <div id="bf_body" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>身長</h3>
+            <div id="bf_height" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>髪型</h3>
+            <div id="hairStyle" class="scroller"></div>
+          </div>
+          <div class="panel">
+            <h3>目の形</h3>
+            <div id="eyeShape" class="scroller"></div>
+          </div>
+        </div>
+
+      <!-- 色：髪/瞳/肌 -->
+      <div class="grid g3" style="margin-top:10px">
+        <div class="panel">
+          <h3>髪色</h3>
+          <div class="wheel-box">
+            <div id="wheelH" class="wheel"></div><div id="thumbH" class="thumb"></div>
+          </div>
+          <label class="row mini">S: <input id="satH" type="range" min="0" max="100" value="70">
+            L: <input id="litH" type="range" min="0" max="100" value="45"></label>
+          <div class="row mini"><div id="swH" class="swatch"></div>
+            <span>タグ: <code class="tag" id="tagH">brown hair</code></span></div>
+        </div>
+
+        <div class="panel">
+          <h3>瞳色</h3>
+          <div class="wheel-box">
+            <div id="wheelE" class="wheel"></div><div id="thumbE" class="thumb"></div>
+          </div>
+          <label class="row mini">S: <input id="satE" type="range" min="0" max="100" value="80">
+            L: <input id="litE" type="range" min="0" max="100" value="55"></label>
+          <div class="row mini"><div id="swE" class="swatch"></div>
+            <span>タグ: <code class="tag" id="tagE">blue eyes</code></span></div>
+        </div>
+
+        <div class="panel">
+          <h3>肌トーン</h3>
+          <input id="skinTone" type="range" min="0" max="100" value="30">
+          <div class="row mini"><div id="swSkin" class="swatch"></div>
+            <span>タグ: <code class="tag" id="tagSkin">fair skin</code></span></div>
+        </div>
+      </div>
+    
+    <fieldset id="fsSeparates">
+      <!-- g3 → g4 に修正して4列対応 -->
+      <!-- ▼ outfitMode ラジオ＋wrapper復活：ここで既存の fsSeparates を丸ごと置換 -->
+<div class="panel" id="panel_outfitFixed">
+  <h3>服（固定 / 上下 or ワンピース）</h3>
+
+  <div class="row mini" style="gap:10px;margin:6px 0 8px">
+    <label class="inline">
+      <input type="radio" name="outfitMode" value="separate" id="outfitModeSeparate" checked>
+      上下コーデ
+    </label>
+    <label class="inline">
+      <input type="radio" name="outfitMode" value="onepiece" id="outfitModeDress">
+      ワンピース
+    </label>
+    <span class="mini">※ ワンピース選択時は「下カラー」は自動で無効</span>
+  </div>
+
+  <fieldset id="fsSeparates">
+    <!-- g3 → g4 に修正して4列対応（現状維持） -->
+    <div class="grid g4">
+      <div class="panel">
+        <h4 style="margin:0 0 6px">トップス（1つ）</h4>
+        <div id="outfit_top" class="scroller"></div>
+      </div>
+
+      <div class="panel">
+        <h4 style="margin:0 0 6px">ワンピース（1つ）</h4>
+        <fieldset id="fsDress" disabled>
+          <div id="outfit_dress" class="scroller"></div>
+          <div class="mini">選択時は「下カラー」は自動で無効</div>
+        </fieldset>
+      </div>
+
+      <div class="panel">
+        <h4 style="margin:0 0 6px">下カテゴリ</h4>
+        <div class="row mini" id="bottomCategoryRadios" style="gap:10px">
+          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_pants" value="pants" checked> ボトムス（ズボン）</label>
+          <label class="inline"><input type="radio" name="bottomCat" id="bottomCat_skirt" value="skirt"> スカート</label>
+        </div>
+
+        <fieldset id="fsBottom_pants" class="swap-target" style="margin-top:8px">
+          <h4 class="mini" style="margin:0 0 6px">ボトムス（ズボン・1つ）</h4>
+          <div id="outfit_pants" class="scroller"></div>
+        </fieldset>
+
+        <fieldset id="fsBottom_skirt" class="swap-target" style="margin-top:8px">
+          <h4 class="mini" style="margin:0 0 6px">スカート（1つ）</h4>
+          <div id="outfit_skirt" class="scroller"></div>
+        </fieldset>
+      </div>
+
+      <!-- 靴（ラジオ選択＋注意書き）※IDはあなたの現状に合わせて維持 -->
+      <div class="panel">
+        <h4 style="margin:0 0 6px">靴（1つ選択）</h4>
+        <div id="outfit_shoes" class="scroller"></div>
+        <div class="mini">※ 学習時にはノイズになる可能性があります</div>
+      </div>
+    </div>
+  </fieldset>
+</div>
+<!-- ▲ outfitMode ラジオ＋wrapper復活：ここまで -->
+      <!-- カラー指定（固定） -->
+      <div class="card" style="margin-top:10px">
+        <h4 style="margin:0 0 6px">服カラー（固定）</h4>
+        <div class="mini">トップス / ボトムス / 靴。未操作＝色タグなし。ワンピース選択時は下は無効。</div>
+
+        <div class="grid g3" id="grid_fixed_colors" style="margin-top:8px">
+          <div class="panel" id="panel_top">
+            <div class="row mini">
+              <label class="inline"><input type="checkbox" id="use_top" checked> トップス色を使う</label>
+            </div>
+            <div class="wheel-box">
+              <div id="wheel_top" class="wheel"></div><div id="thumb_top" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_top" type="range" min="0" max="100" value="80">
+              L:<input id="lit_top" type="range" min="0" max="100" value="55">
+            </div>
+            <div class="row mini">
+              <div id="sw_top" class="swatch"></div>
+              <span>色タグ: <code class="tag" id="tag_top">—</code></span>
+            </div>
+          </div>
+
+          <div class="panel" id="panel_bottom">
+            <div class="row mini">
+              <label class="inline"><input type="checkbox" id="useBottomColor" checked> 下カラーを使う（ズボン/スカート共通）</label>
+            </div>
+            <div class="wheel-box">
+              <div id="wheel_bottom" class="wheel"></div><div id="thumb_bottom" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_bottom" type="range" min="0" max="100" value="70">
+              L:<input id="lit_bottom" type="range" min="0" max="100" value="50">
+            </div>
+            <div class="row mini">
+              <div id="sw_bottom" class="swatch"></div>
+              <span>色タグ: <code class="tag" id="tag_bottom">—</code></span>
+            </div>
+            <div class="mini">※ ワンピース選択時は自動で無効化されます</div>
+          </div>
+
+          <div class="panel" id="panel_shoes">
+            <div class="row mini">
+              <label class="inline"><input type="checkbox" id="use_shoes"> 靴色を使う</label>
+            </div>
+            <div class="wheel-box">
+              <div id="wheel_shoes" class="wheel"></div><div id="thumb_shoes" class="thumb"></div>
+            </div>
+            <div class="row mini">
+              S:<input id="sat_shoes" type="range" min="0" max="100" value="0">
+              L:<input id="lit_shoes" type="range" min="0" max="100" value="30">
+            </div>
+            <div class="row mini">
+              <div id="sw_shoes" class="swatch"></div>
+              <span>色タグ: <code class="tag" id="tag_shoes">—</code></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h3>キャラ識別</h3>
+        <label>キャラ名（seed固定）</label>
+        <input id="charName" type="text" placeholder="例: Akari_v1">
+        <label style="margin-top:8px">LoRAタグ（任意）</label>
+        <input id="loraTag" type="text" placeholder="<lora:YourLoRA:0.8>">
+      </div>
+
+      <!-- ▼ 基本情報：1枚テスト（統一版） -->
+      <div id="slotBasicOneTest">
+        <div class="card" id="learnTestCard">
+          <div class="row">
+            <div id="readyHint" class="mini muted" style="margin-top:.25rem;"></div>
+            <h3 style="margin:0">1枚テスト</h3><span style="flex:1"></span>
+            <label class="inline mini">出力フォーマット
+              <select id="fmtLearn">
+                <option value="a1111" selected>Web UI（汎用）</option>
+                <option value="invoke">InvokeAI（CLI）</option>
+                <option value="comfy">ComfyUI（テキスト）</option>
+                <option value="sdnext">SD.Next（dream.py）</option>
+                <option value="nai">NovelAI</option>
+              </select>
+            </label>
+            <button id="btnOneLearn" class="btn ok">テスト生成</button>
+            <button id="btnExportChar" class="btn ghost">キャラ設定エクスポート</button>
+          </div>
+      
+          <!-- ★ テキスト（All/Prompt/Neg）だけ表示。テーブルは削除 -->
+          <div class="grid g3" style="margin-top:10px">
+            <div>
+              <div class="mini" style="margin:0 0 .35rem">全部</div>
+              <div class="out" id="outLearnTestAll"></div>
+              <button id="btnCopyLearnTestAll" class="btn ghost small" style="margin-top:6px">全部をコピー</button>
+            </div>
+            <div>
+              <div class="mini" style="margin:0 0 .35rem">Promptのみ</div>
+              <div class="out" id="outLearnTestPrompt"></div>
+              <button id="btnCopyLearnTestPrompt" class="btn ghost small" style="margin-top:6px">Promptだけコピー</button>
+            </div>
+            <div>
+              <div class="mini" style="margin:0 0 .35rem">Negativeのみ</div>
+              <div class="out" id="outLearnTestNeg"></div>
+              <button id="btnCopyLearnTestNeg" class="btn ghost small" style="margin-top:6px">Negativeだけコピー</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- ▲ 基本情報：1枚テスト -->
+    </section>
+
+
+<!-- ======================= 単語モード：パネル本体 ======================= -->
+<section id="panelWordMode" class="card" hidden>
+  <header class="wm-header">
+    <!-- ここから先は、あなたが用意した単語モードの中身を置いてOK -->
+    <h2>単語モード</h2>
+    <p class="wm-note">
+      辞書からカテゴリ別に単語を選び、下部テーブルに最大20件まで蓄積・コピーできます。
+      表示は <strong>日本語（大）</strong>＋<small>英語（小）</small> で統一。
+    </p>
+  </header>
+
+  <!-- 選択中バー（選択チップを並べる） -->
+  <section class="wm-selected">
+    <div class="wm-selected-head">
+      <strong>選択中 <span id="wm-selected-count">0</span>/20</strong>
+      <div class="wm-selected-actions">
+        <button id="wm-selected-clear" type="button" aria-label="全クリア">Clear</button>
+      </div>
+    </div>
+    <div id="wm-selected-chips" class="wm-chip-area" aria-live="polite"></div>
+  </section>
+
+  <!-- ========== アコーディオン（SFW） ========== -->
+  <section class="wm-accordion" id="wm-accordion-sfw">
+    <h3 class="wm-acc-title">SFW</h3>
+
+    <details class="wm-acc" data-cat="background">
+      <summary>
+        背景 <span class="wm-count" id="wm-count-background">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-background"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="pose">
+      <summary>
+        ポーズ <span class="wm-count" id="wm-count-pose">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-pose"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="composition">
+      <summary>
+        構図 <span class="wm-count" id="wm-count-composition">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-composition"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="view">
+      <summary>
+        視点 <span class="wm-count" id="wm-count-view">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-view"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="expression-sfw">
+      <summary>
+        表情（SFW） <span class="wm-count" id="wm-count-expression-sfw">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-expression-sfw"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="lighting-sfw">
+      <summary>
+        ライティング（SFW） <span class="wm-count" id="wm-count-lighting-sfw">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-lighting-sfw"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="world">
+      <summary>
+        世界観 <span class="wm-count" id="wm-count-world">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-world"><!-- 動的挿入 --></div>
+    </details>
+
+    <details class="wm-acc" data-cat="accessories">
+      <summary>
+        アクセサリー <span class="wm-count" id="wm-count-accessories">0</span>
+      </summary>
+      <div class="wm-items" id="wm-items-accessories"><!-- 動的挿入 --></div>
+    </details>
+
+  </section>
+
+  <section class="wm-accordion" id="wm-accordion-nsfw">
+  <h3 class="wm-acc-title">NSFW</h3>
+  <!-- 先頭に：露出／下着／衣装 -->
+  <details class="wm-acc" data-cat="exposure">
+    <summary>露出 <span class="wm-count" id="wm-count-exposure">0</span></summary>
+    <div class="wm-items" id="wm-items-exposure"></div>
+    <p class="wm-tip">※ 露出系（bikini/lingerie/nude）は色込みタグの登録・コピーを推奨</p>
+  </details>
+
+  <details class="wm-acc" data-cat="underwear-nsfw">
+    <summary>下着（NSFW） <span class="wm-count" id="wm-count-underwear-nsfw">0</span></summary>
+    <div class="wm-items" id="wm-items-underwear-nsfw"></div>
+  </details>
+
+  <details class="wm-acc" data-cat="outfit-nsfw">
+    <summary>衣装（NSFW） <span class="wm-count" id="wm-count-outfit-nsfw">0</span></summary>
+    <div class="wm-items" id="wm-items-outfit-nsfw
