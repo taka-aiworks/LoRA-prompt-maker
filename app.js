@@ -1696,16 +1696,25 @@ function bindGASTools(){
 }
 
 function initHairEyeAndAccWheels(){
+  // 髪・瞳
   window.getHairColorTag = initWheel("#wheelH", "#thumbH", "#satH", "#litH", "#swH", "#tagH", "hair");
-  window.getEyeColorTag = initWheel("#wheelE", "#thumbE", "#satE", "#litE", "#swE", "#tagE", "eyes");
-  window.getLearnAccColor = initColorWheel("learnAcc", 0, 75, 50);
-  window.getAccAColor = initColorWheel("accA", 0, 80, 50);
-  window.getAccBColor = initColorWheel("accB", 200, 80, 50);
-  window.getAccCColor = initColorWheel("accC", 120, 80, 50);
+  window.getEyeColorTag  = initWheel("#wheelE", "#thumbE", "#satE", "#litE", "#swE", "#tagE", "eyes");
 
-  window.getTopColor = initColorWheel("top", 35, 80, 55);
+  // アクセ（学習/固定）
+  window.getLearnAccColor = initColorWheel("learnAcc", 0,   75, 50);
+  window.getAccAColor     = initColorWheel("accA",     0,   80, 50);
+  window.getAccBColor     = initColorWheel("accB",     200, 80, 50);
+  window.getAccCColor     = initColorWheel("accC",     120, 80, 50);
+
+  // 服カラー（基本情報タブ）
+  window.getTopColor    = initColorWheel("top",    35,  80, 55);
   window.getBottomColor = initColorWheel("bottom", 210, 70, 50);
-  window.getShoesColor = initColorWheel("shoes", 0, 0, 30);
+  window.getShoesColor  = initColorWheel("shoes",  0,   0,  30);
+
+  // ★★★ 量産タブ（production）のピッカーを追加初期化 ★★★
+  window.getPTopColor    = initColorWheel("p_top",    35,  80, 55);
+  window.getPBottomColor = initColorWheel("p_bottom", 210, 70, 50);
+  window.getPShoesColor  = initColorWheel("p_shoes",  0,   0,  30);
 }
 
 function initSkinTone(){
@@ -1715,7 +1724,6 @@ function initSkinTone(){
     paintSkin();
   }
 }
-
 /* ===== 色ホイールの修正 ===== */
 function paintHairColor(hue) {
   if (typeof hue === 'number') {
