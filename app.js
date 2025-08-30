@@ -1569,6 +1569,8 @@ function updateSelectedCount() {
   }
 }
 
+document.addEventListener('DOMContentLoaded', initAll);
+
 /* ===== 撮影モードの初期化 ===== */
 function initPlannerMode() {
   let plannerInitialized = false;
