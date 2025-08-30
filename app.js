@@ -82,7 +82,8 @@ function buildOneLearning(extraSeed = 0){
   const seed = seedFromName((document.getElementById('charName')?.value || ''), extraSeed);
   const prompt = p.join(", ");
   const text = `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}`;
-  return { seed, pos:p, neg, prompt, text };/* =========================
+  return { seed, pos:p, neg, prompt, text };
+}/* =========================
    AI Prompt Maker – app.js (軽量化版)
    ========================= */
 
