@@ -620,11 +620,11 @@ function bindNSFWToggles(){
     $("#nsfwLearnPanel").style.display = e.target.checked ? "" : "none";
     if(e.target.checked) renderNSFWLearning();
   });
-  $('input[name="nsfwLevelLearn"]').forEach(x=> x.addEventListener('change', ()=>{
+  $$('input[name="nsfwLevelLearn"]').forEach(x=> x.addEventListener('change', ()=>{
     if ($("#nsfwLearn")?.checked) renderNSFWLearning();
   }));
 
-  $('input[name="nsfwLevelProd"]').forEach(x=> x.addEventListener('change', renderNSFWProduction));
+  $$('input[name="nsfwLevelProd"]').forEach(x=> x.addEventListener('change', renderNSFWProduction));
   $("#nsfwProd")?.addEventListener("change", e=>{
     $("#nsfwProdPanel").style.display = e.target.checked ? "" : "none";
     if (e.target.checked) renderNSFWProduction();
