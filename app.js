@@ -890,6 +890,9 @@ function initPlannerMode() {
   window.pmInitPlannerOnce = function() {
     if (plannerInitialized) return;
     plannerInitialized = true;
+
+   　// ★★★ 撮影モードの色ホイールを赤（0度）に設定 ★★★
+     window.getPlannerAccColor = initColorWheel("plAcc", 0, 75, 50);
     
     // 撮影モードのアクセサリーセレクト初期化
     const plAccSel = document.getElementById("pl_accSel");
@@ -2078,25 +2081,39 @@ function bindGASTools(){
 }
 
 function initHairEyeAndAccWheels(){
-  // 髪・瞳
+  // 基本情報タブ（常に表示）の色ピッカーのみ初期化
   window.getHairColorTag = initWheel("#wheelH", "#thumbH", "#satH", "#litH", "#swH", "#tagH", "hair");
   window.getEyeColorTag  = initWheel("#wheelE", "#thumbE", "#satE", "#litE", "#swE", "#tagE", "eyes");
-
-  // アクセ（学習/固定）
-  window.getLearnAccColor = initColorWheel("learnAcc", 0,   75, 50);
-  window.getAccAColor     = initColorWheel("accA",     0,   80, 50);
-  window.getAccBColor     = initColorWheel("accB",     200, 80, 50);
-  window.getAccCColor     = initColorWheel("accC",     120, 80, 50);
-
-  // 服カラー（基本情報タブ）
+  
+  // 基本情報タブ内の服カラー
   window.getTopColor    = initColorWheel("top",    35,  80, 55);
   window.getBottomColor = initColorWheel("bottom", 210, 70, 50);
   window.getShoesColor  = initColorWheel("shoes",  0,   0,  30);
+}
 
-  // 量産タブ（production）のピッカーを追加初期化
-  window.getPTopColor    = initColorWheel("p_top",    35,  80, 55);
-  window.getPBottomColor = initColorWheel("p_bottom", 210, 70, 50);
-  window.getPShoesColor  = initColorWheel("p_shoes",  0,   0,  30);
+// 学習モード専用の初期化関数を追加
+function initLearningColorWheels() {
+  if (window.learningColorsInitialized) return;
+  window.learningColorsInitialized = true;
+  
+  // ★★★ 学習モードの固定アクセを赤（0度）に設定 ★★★
+  window.getLearnAccColor = initColorWheel("learnAcc", 0, 75, 50);
+}
+
+// 量産モード専用の初期化関数を追加  
+function initProductionColorWheels() {
+  if (window.productionColorsInitialized) return;
+  window.productionColorsInitialized = true;
+  
+  // ★★★ 量産モードの色ピッカーをすべて赤（0度）に設定 ★★★
+  window.getPTopColor    = initColorWheel("p_top",    0, 80, 55);    // 赤に変更
+  window.getPBottomColor = initColorWheel("p_bottom", 0, 70, 50);    // 赤に変更
+  window.getPShoesColor  = initColorWheel("p_shoes",  0, 0,  30);    // 赤（元から0）
+  
+  // アクセサリー色ピッカー
+  window.getAccAColor = initColorWheel("accA", 0, 80, 50);    // 赤
+  window.getAccBColor = initColorWheel("accB", 200, 80, 50);  // 青（既存）
+  window.getAccCColor = initColorWheel("accC", 120, 80, 50);  // 緑（既存）
 }
 
 function initSkinTone(){
