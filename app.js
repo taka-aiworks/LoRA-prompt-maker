@@ -1274,6 +1274,40 @@ function getIsOnepiece() {
 
 /* ===== プロンプト生成関数群 ===== */
 
+// キャプション用プロンプトを生成する関数（solo, 1girl/1boy, 服関連を除外）
+function buildCaptionPrompt() {
+  const textOf = id => (document.getElementById(id)?.textContent || "").trim();
+  let p = [];
+  
+  // LoRAタグ
+  const loraTag = (document.getElementById('loraTag')?.value || '').trim();
+  if (loraTag) p.push(loraTag);
+  
+  // 基本情報（年齢・性別・体型・身長・髪型・目の形・髪色・目色・肌色のみ）
+  [
+    getBFValue('age'),
+    getBFValue('gender'), 
+    getBFValue('body'),
+    getBFValue('height'),
+    getOne('hairStyle'),
+    getOne('eyeShape'),
+    textOf('tagH'),  // 髪色
+    textOf('tagE'),  // 目色
+    textOf('tagSkin') // 肌色
+  ].filter(Boolean).forEach(v => p.push(v));
+  
+  // 固定タグ
+  const fixed = (document.getElementById('fixedLearn')?.value || "").trim();
+  if (fixed) {
+    const f = fixed.split(/\s*,\s*/).filter(Boolean);
+    p.push(...f);
+  }
+  
+  return p.join(", ");
+}
+
+
+
 // buildOnePlanner関数を修正（NSFW優先で重複を1つに統一）
 function buildOnePlanner() {
   const textOf = id => (document.getElementById(id)?.textContent || "").trim();
@@ -1650,15 +1684,22 @@ function buildBatchLearning(n) {
       p = [...f, ...p];
     }
 
-    const seed = seedFromName((document.getElementById('charName')?.value || ''), i);
-    const prompt = p.join(", ");
-    const text = `${prompt}${commonNeg?` --neg ${commonNeg}`:""} seed:${seed}`;
-    
-    rows.push({ seed, pos:p, neg: commonNeg, prompt, text });
-  }
-  
-  return rows;
-}
+     const seed = seedFromName((document.getElementById('charName')?.value || ''), extraSeed);
+     const prompt = p.join(", ");
+     const text = `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}`;
+     
+     // ★★★ 新規追加：キャプション用プロンプトを生成 ★★★
+     const caption = buildCaptionPrompt();
+     
+     return { 
+       seed, 
+       pos: p, 
+       neg, 
+       prompt, 
+       text,
+       caption  // ← 新規追加
+     };
+   }
 
 // ベースから微差を作る（+1ずつでもOK）
 function microJitterSeed(baseSeed, index) {
