@@ -2118,9 +2118,9 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
   };
 
 //  console.log('makeFinalOutfitTags called with:', {
-    selectedOutfits: sel,
-    colorTags: colors
-  });
+//    selectedOutfits: sel,
+//    colorTags: colors
+//  });
 
   const catMap = new Map();
   try {
