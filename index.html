@@ -268,7 +268,8 @@
           </div>
       
           <!-- ★ テキスト（All/Prompt/Neg）だけ表示。テーブルは削除 -->
-          <div class="grid g3" style="margin-top:10px">
+          <!-- 既存の g3 を g4 に変更 -->
+          <div class="grid g4" style="margin-top:10px">
             <div>
               <div class="mini" style="margin:0 0 .35rem">全部</div>
               <div class="out" id="outLearnTestAll"></div>
@@ -284,9 +285,13 @@
               <div class="out" id="outLearnTestNeg"></div>
               <button id="btnCopyLearnTestNeg" class="btn ghost small" style="margin-top:6px">Negativeだけコピー</button>
             </div>
+            <!-- ★★★ 新規追加：キャプション用の列 ★★★ -->
+            <div>
+              <div class="mini" style="margin:0 0 .35rem">キャプション用</div>
+              <div class="out" id="outLearnTestCaption"></div>
+              <button id="btnCopyLearnTestCaption" class="btn ghost small" style="margin-top:6px">キャプションをコピー</button>
+            </div>
           </div>
-        </div>
-      </div>
       <!-- ▲ 基本情報：1枚テスト -->
     </section>
 
