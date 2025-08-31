@@ -1287,8 +1287,8 @@ function buildOnePlanner() {
 
   // solo, 1girl/1boy は撮影モードでは追加しない
 
-  const g = getGenderCountTag() || "";
-  if (g) pushUnique(p, g);
+  // const g = getGenderCountTag() || "";
+  // if (g) pushUnique(p, g);
 
   // 基本情報（SFW基礎）
   [
@@ -1690,10 +1690,11 @@ function buildBatchProduction(n){
   
   const isNSFW = document.getElementById("nsfwProd")?.checked;
   if (isNSFW) p.push("NSFW");
-  
-  p.push("solo");
-    const g = getGenderCountTag() || "";
-    if (g) p.push(g);
+
+  // 量産モードではsoloは入れない  
+  // p.push("solo");
+  //    const g = getGenderCountTag() || "";
+  //  if (g) p.push(g);
 
     const basics = [
       document.getElementById('tagH')?.textContent,
