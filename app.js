@@ -1031,7 +1031,6 @@ function initWordMode() {
 } // ← initWordMode() 関数の終了（この括弧が不足していました）
 
 /* ===== 単語モードのイベントバインド ===== */
-/* ===== 単語モードのイベントバインド ===== */
 function bindWordModeEvents() {
   const root = document.getElementById('panelWordMode'); // ★スコープを単語モード内に限定
   if (!root) return;
@@ -1082,7 +1081,7 @@ function bindWordModeEvents() {
       }
     }
   });
-  
+   
   // テーブルの全コピーボタン
   const copyAllEn   = root.querySelector('#wm-copy-en-all');
   const copyAllBoth = root.querySelector('#wm-copy-both-all');
@@ -1112,7 +1111,7 @@ function bindWordModeEvents() {
       if (tbody) tbody.innerHTML = '';
     });
   }
-} // ← この閉じ括弧が不足していました
+} // ← この閉じ括弧が元のコードで抜けていました
 
 // 単語モード用のヘルパー関数を追加
 function createWordModeItem(item, category) {
