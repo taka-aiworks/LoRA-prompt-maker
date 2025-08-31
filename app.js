@@ -1437,10 +1437,18 @@ function renderPlannerNSFW() {
   });
 }
 
-/* ===== 生成機能 ===== */
+// buildOneLearning関数を修正
 function buildOneLearning(extraSeed = 0){
   const textOf = id => (document.getElementById(id)?.textContent || "").trim();
-  let p = ["solo"];
+  let p = [];
+  
+  // NSFWチェック
+  const isNSFW = document.getElementById("nsfwLearn")?.checked;
+  if (isNSFW) {
+    p.push("NSFW");
+  }
+  
+  p.push("solo");
   
   const g = getGenderCountTag() || "";
   if (g) p.push(g);
@@ -1451,14 +1459,20 @@ function buildOneLearning(extraSeed = 0){
     textOf('tagH'), textOf('tagE'), textOf('tagSkin')
   ].filter(Boolean));
 
-  // 服の処理（ワンピース対応）
-  const isOnepiece = document.querySelector('input[name="outfitMode"]:checked')?.value === 'onepiece';
-  
-  // 学習モードでの服の扱い
+  // 服の処理（ワンピース対応、NSFW優先）
+  const isOnepiece = getIsOnepiece();
   const wearMode = document.querySelector('input[name="learnWearMode"]:checked')?.value || 'basic';
   
-  if (wearMode === 'basic') {
-    // 基本情報の服を使用
+  let hasNSFWOutfit = false;
+  if (isNSFW) {
+    const nsfwOutfits = getMany("nsfwL_outfit");
+    if (nsfwOutfits.length > 0) {
+      p.push(...nsfwOutfits.slice(0, 1)); // 1つだけ
+      hasNSFWOutfit = true;
+    }
+  }
+  
+  if (!hasNSFWOutfit && wearMode === 'basic') {
     const outfits = [];
     const colorTags = {
       top: textOf('tag_top'),
@@ -1471,18 +1485,18 @@ function buildOneLearning(extraSeed = 0){
       if (dress) outfits.push(dress);
     } else {
       const top = getOne('outfit_top');
+      const bottomCat = getOne('bottomCat') || 'pants';
       const pants = getOne('outfit_pants');
       const skirt = getOne('outfit_skirt');
       const shoes = getOne('outfit_shoes');
       
       if (top) outfits.push(top);
-      // ボトムスは pants か skirt のどちらか
-      if (pants) outfits.push(pants);
-      else if (skirt) outfits.push(skirt);
+      if (bottomCat === 'pants' && pants) outfits.push(pants);
+      else if (bottomCat === 'skirt' && skirt) outfits.push(skirt);
       if (shoes) outfits.push(shoes);
     }
 
-    // 色付き服タグを生成
+    // buildOneLearning関数を修正（続き）
     const finalOutfits = makeFinalOutfitTags(outfits, colorTags);
     p.push(...finalOutfits);
   }
@@ -1496,17 +1510,40 @@ function buildOneLearning(extraSeed = 0){
     p.push(accSel.value);
   }
 
-  // NSFW要素（学習モード）
-  if (document.getElementById("nsfwLearn")?.checked) {
-    const nsfwOutfits = getMany("nsfwL_outfit");
+  // NSFW要素（学習モード）- 体型のみ
+  if (isNSFW) {
     const nsfwBody = getMany("nsfwL_body");
-    p.push(...nsfwOutfits);
-    p.push(...nsfwBody);
+    if (nsfwBody.length > 0) p.push(nsfwBody[0]); // 1つだけ
   }
 
-  p.push(...[
-    getOne('bg'), getOne('pose'), getOne('comp'), getOne('view'), getOne('expr')
-  ].filter(Boolean));
+  // 各カテゴリから1つずつ（SFWとNSFWで競合する場合はNSFW優先）
+  const categories = [
+    { sfw: 'bg', nsfw: null, key: 'bg' },
+    { sfw: 'pose', nsfw: null, key: 'pose' },
+    { sfw: 'comp', nsfw: null, key: 'comp' },
+    { sfw: 'view', nsfw: null, key: 'view' },
+    { sfw: 'expr', nsfw: 'nsfwL_expr', key: 'expr' }
+  ];
+
+  categories.forEach(({ sfw, nsfw, key }) => {
+    let selected = null;
+    
+    // NSFW優先
+    if (isNSFW && nsfw) {
+      const nsfwSelected = getMany(nsfw);
+      if (nsfwSelected.length > 0) {
+        selected = nsfwSelected[0];
+      }
+    }
+    
+    // NSFWで選択されなかった場合はSFW
+    if (!selected) {
+      const sfwSelected = getOne(sfw);
+      if (sfwSelected) selected = sfwSelected;
+    }
+    
+    if (selected) p.push(selected);
+  });
 
   const fixed = (document.getElementById('fixedLearn')?.value || "").trim();
   if (fixed){
@@ -1524,23 +1561,21 @@ function buildOneLearning(extraSeed = 0){
   return { seed, pos:p, neg, prompt, text };
 }
 
-function buildBatchLearning(n){
-  const rows = [];
-  const wantCount = Math.max(1, Number(n)||1);
-
-  for (let i=0;i<wantCount;i++){
-    const one = buildOneLearning(i+1);
-    rows.push(one);
-  }
-  return rows;
-}
-
+// buildBatchProduction関数を修正
 function buildBatchProduction(n){
   const want = Math.max(1, Number(n) || 1);
   const rows = [];
   
   for(let i=0; i<want; i++){
-    let p = ["solo"];
+    let p = [];
+    
+    // NSFWチェック
+    const isNSFW = document.getElementById("nsfwProd")?.checked;
+    if (isNSFW) {
+      p.push("NSFW");
+    }
+    
+    p.push("solo");
     const g = getGenderCountTag() || "";
     if (g) p.push(g);
 
@@ -1553,62 +1588,70 @@ function buildBatchProduction(n){
     ].filter(Boolean);
     p.push(...basics);
 
-    // 量産モードでの服の処理
-    const topOutfits = getMany("p_outfit_top");
-    const pantsOutfits = getMany("p_outfit_pants");
-    const skirtOutfits = getMany("p_outfit_skirt");
-    const dressOutfits = getMany("p_outfit_dress");
-    const shoesOutfits = getMany("p_outfit_shoes");
-    
-    const selectedOutfits = [];
-    
-    // ワンピースが選択されている場合はワンピースを優先
-    if (dressOutfits.length > 0) {
-      selectedOutfits.push(pick(dressOutfits));
-      // 靴があれば追加
-      if (shoesOutfits.length > 0) {
-        selectedOutfits.push(pick(shoesOutfits));
-      }
-    } else {
-      // 上下コーデの場合
-      if (topOutfits.length > 0) {
-        selectedOutfits.push(pick(topOutfits));
-      }
-      
-      // ボトムス（パンツ vs スカート）
-      const allowBottomSwap = document.getElementById("allowBottomSwap")?.checked;
-      let hasBottom = false;
-      
-      if (pantsOutfits.length > 0) {
-        selectedOutfits.push(pick(pantsOutfits));
-        hasBottom = true;
-      } else if (allowBottomSwap && skirtOutfits.length > 0) {
-        selectedOutfits.push(pick(skirtOutfits));
-        hasBottom = true;
-      }
-      
-      if (!hasBottom && skirtOutfits.length > 0) {
-        selectedOutfits.push(pick(skirtOutfits));
-      } else if (!hasBottom && allowBottomSwap && pantsOutfits.length > 0) {
-        selectedOutfits.push(pick(pantsOutfits));
-      }
-      
-      // 靴
-      if (shoesOutfits.length > 0) {
-        selectedOutfits.push(pick(shoesOutfits));
+    // 量産モードでの服の処理（NSFW優先）
+    let hasNSFWOutfit = false;
+    if (isNSFW) {
+      const nsfwOutfits = getMany("nsfwP_outfit");
+      if (nsfwOutfits.length > 0) {
+        p.push(pick(nsfwOutfits));
+        hasNSFWOutfit = true;
       }
     }
+    
+    if (!hasNSFWOutfit) {
+      const topOutfits = getMany("p_outfit_top");
+      const pantsOutfits = getMany("p_outfit_pants");
+      const skirtOutfits = getMany("p_outfit_skirt");
+      const dressOutfits = getMany("p_outfit_dress");
+      const shoesOutfits = getMany("p_outfit_shoes");
+      
+      const selectedOutfits = [];
+      
+      if (dressOutfits.length > 0) {
+        selectedOutfits.push(pick(dressOutfits));
+        if (shoesOutfits.length > 0) {
+          selectedOutfits.push(pick(shoesOutfits));
+        }
+      } else {
+        if (topOutfits.length > 0) {
+          selectedOutfits.push(pick(topOutfits));
+        }
+        
+        const allowBottomSwap = document.getElementById("allowBottomSwap")?.checked;
+        let hasBottom = false;
+        
+        if (pantsOutfits.length > 0) {
+          selectedOutfits.push(pick(pantsOutfits));
+          hasBottom = true;
+        } else if (allowBottomSwap && skirtOutfits.length > 0) {
+          selectedOutfits.push(pick(skirtOutfits));
+          hasBottom = true;
+        }
+        
+        if (!hasBottom && skirtOutfits.length > 0) {
+          selectedOutfits.push(pick(skirtOutfits));
+        } else if (!hasBottom && allowBottomSwap && pantsOutfits.length > 0) {
+          selectedOutfits.push(pick(pantsOutfits));
+        }
+        
+        if (shoesOutfits.length > 0) {
+          selectedOutfits.push(pick(shoesOutfits));
+        }
+      }
 
-    // 量産モードの色タグを取得
-    const prodColorTags = {
-      top: document.getElementById("p_use_top")?.checked ? (document.getElementById("tag_p_top")?.textContent || "") : "",
-      bottom: document.getElementById("p_use_bottom")?.checked ? (document.getElementById("tag_p_bottom")?.textContent || "") : "",
-      shoes: document.getElementById("p_use_shoes")?.checked ? (document.getElementById("tag_p_shoes")?.textContent || "") : ""
-    };
+      // 量産モードの色タグを取得（--を除外）
+      const prodColorTags = {
+        top: document.getElementById("p_use_top")?.checked ? 
+             (document.getElementById("tag_p_top")?.textContent || "").replace(/^—$/, "") : "",
+        bottom: document.getElementById("p_use_bottom")?.checked ? 
+                (document.getElementById("tag_p_bottom")?.textContent || "").replace(/^—$/, "") : "",
+        shoes: document.getElementById("p_use_shoes")?.checked ? 
+               (document.getElementById("tag_p_shoes")?.textContent || "").replace(/^—$/, "") : ""
+      };
 
-    // 色付き服タグを生成
-    const finalOutfits = makeFinalOutfitTags(selectedOutfits, prodColorTags);
-    p.push(...finalOutfits);
+      const finalOutfits = makeFinalOutfitTags(selectedOutfits, prodColorTags);
+      p.push(...finalOutfits);
+    }
 
     // アクセサリー（A/B/C）
     ['p_accA', 'p_accB', 'p_accC'].forEach(accId => {
@@ -1617,35 +1660,50 @@ function buildBatchProduction(n){
                                  accId === 'p_accB' ? 'getAccBColor' : 'getAccCColor'];
       const accColor = accColorFunc ? accColorFunc() : "";
       
-      if (accSel && accSel.value && accColor) {
+      if (accSel && accSel.value && accColor && accColor !== "—") {
         p.push(`${accColor} ${accSel.value}`);
       } else if (accSel && accSel.value) {
         p.push(accSel.value);
       }
     });
 
-    const bgs = getMany("p_bg");
-    const poses = getMany("p_pose");
-    const comps = getMany("p_comp");
-    const exprs = getMany("p_expr");
-    
-    if(bgs.length) p.push(bgs[Math.floor(Math.random()*bgs.length)]);
-    if(poses.length) p.push(poses[Math.floor(Math.random()*poses.length)]);
-    if(comps.length) p.push(comps[Math.floor(Math.random()*comps.length)]);
-    if(exprs.length) p.push(exprs[Math.floor(Math.random()*exprs.length)]);
+    // 各カテゴリから1つずつ（SFWとNSFWで競合する場合はNSFW優先）
+    const categories = [
+      { sfw: 'p_bg', nsfw: 'nsfwP_background', key: 'bg' },
+      { sfw: 'p_pose', nsfw: 'nsfwP_pose', key: 'pose' },
+      { sfw: 'p_comp', nsfw: null, key: 'comp' },
+      { sfw: 'p_expr', nsfw: 'nsfwP_expr', key: 'expr' }
+    ];
 
-    // NSFW要素（量産モード）
-    if (document.getElementById("nsfwProd")?.checked) {
-      p.push(...getMany("nsfwP_expo"));
-      p.push(...getMany("nsfwP_underwear"));
-      p.push(...getMany("nsfwP_outfit"));
-      p.push(...getMany("nsfwP_expr"));
-      p.push(...getMany("nsfwP_situ"));
-      p.push(...getMany("nsfwP_light"));
-      p.push(...getMany("nsfwP_pose"));
-      p.push(...getMany("nsfwP_acc"));
-      p.push(...getMany("nsfwP_body"));
-      p.push(...getMany("nsfwP_nipple"));
+    categories.forEach(({ sfw, nsfw, key }) => {
+      let selected = null;
+      
+      // NSFW優先
+      if (isNSFW && nsfw) {
+        const nsfwItems = getMany(nsfw);
+        if (nsfwItems.length > 0) {
+          selected = pick(nsfwItems);
+        }
+      }
+      
+      // NSFWで選択されなかった場合はSFW
+      if (!selected) {
+        const sfwItems = getMany(sfw);
+        if (sfwItems.length > 0) {
+          selected = pick(sfwItems);
+        }
+      }
+      
+      if (selected) p.push(selected);
+    });
+
+    // その他のNSFW要素（各カテゴリ1つまで）
+    if (isNSFW) {
+      const otherNSFWCats = ["nsfwP_expo", "nsfwP_underwear", "nsfwP_situ", "nsfwP_light", "nsfwP_acc", "nsfwP_body", "nsfwP_nipple"];
+      otherNSFWCats.forEach(cat => {
+        const items = getMany(cat);
+        if (items.length > 0) p.push(pick(items));
+      });
     }
 
     // 固定タグ
