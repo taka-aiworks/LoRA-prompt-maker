@@ -345,7 +345,6 @@ function mergeIntoNSFW(json) {
   };
 }
 
-/* ===== UI生成 ===== */
 function radioList(el, list, name, {checkFirst = true} = {}) {
   if (!el) return;
   const items = normList(list);
@@ -354,10 +353,11 @@ function radioList(el, list, name, {checkFirst = true} = {}) {
     const checked = (checkFirst && i === 0) ? 'checked' : '';
     return `<label class="chip">
       <input type="radio" name="${name}" value="${it.tag}" ${checked}>
-      <span>${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}</span>
+      ${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}
     </label>`;
   }).join("");
 }
+
 
 function checkList(el, list, name, { prechecked = [] } = {}) {
   if (!el) return;
@@ -536,10 +536,15 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
     const [r, g, b] = hslToRgb(hue, s, l);
     sw.style.background = `rgb(${r},${g},${b})`;
     
-    // 対応する使用チェックボックスがあるか確認（bottom対応強化）
-    const useCheckbox = document.getElementById("use_" + idBase) || 
-                       document.getElementById("p_use_" + idBase) ||
-                       (idBase === 'bottom' ? document.getElementById("useBottomColor") : null);
+    // ★★★ 修正：bottomカラー用チェックボックス特定を強化 ★★★
+    let useCheckbox = null;
+    if (idBase === 'bottom') {
+      useCheckbox = document.getElementById("useBottomColor");
+    } else if (idBase.startsWith('p_')) {
+      useCheckbox = document.getElementById("p_use_" + idBase.substring(2));
+    } else {
+      useCheckbox = document.getElementById("use_" + idBase);
+    }
     
     console.log(`Color wheel ${idBase}: useCheckbox found:`, !!useCheckbox, 'checked:', useCheckbox?.checked);
     
@@ -564,10 +569,16 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
   
-  // 使用チェックボックスの変更を監視（bottom対応強化）
-  const useCheckbox = document.getElementById("use_" + idBase) || 
-                     document.getElementById("p_use_" + idBase) ||
-                     (idBase === 'bottom' ? document.getElementById("useBottomColor") : null);
+  // ★★★ 修正：チェックボックスイベント監視の強化 ★★★
+  let useCheckbox = null;
+  if (idBase === 'bottom') {
+    useCheckbox = document.getElementById("useBottomColor");
+  } else if (idBase.startsWith('p_')) {
+    useCheckbox = document.getElementById("p_use_" + idBase.substring(2));
+  } else {
+    useCheckbox = document.getElementById("use_" + idBase);
+  }
+  
   if (useCheckbox) {
     useCheckbox.addEventListener("change", (e) => {
       console.log(`Checkbox ${idBase} changed to:`, e.target.checked);
@@ -589,6 +600,7 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   
   return () => tag.textContent.trim();
 }
+
 
 /* ===== 肌トーン ===== */
 function paintSkin(){
@@ -2012,19 +2024,18 @@ function initSkinTone(){
 /* ===== 服の完成タグをUIで直接生成 ===== */
 function makeFinalOutfitTags(selectedOutfits, colorTags) {
   const sel = Array.isArray(selectedOutfits) ? selectedOutfits.filter(Boolean) : [];
-  // 「—」を空文字に変換して色なしとして扱う
+  // 「—」を空文字に変換し、空文字は色なしとして扱う
   const colors = {
-    top: (colorTags?.top || "").replace(/^—$/, ""),
-    bottom: (colorTags?.bottom || "").replace(/^—$/, ""),
-    shoes: (colorTags?.shoes || "").replace(/^—$/, "")
+    top: (colorTags?.top || "").replace(/^—$/, "").trim(),
+    bottom: (colorTags?.bottom || "").replace(/^—$/, "").trim(),
+    shoes: (colorTags?.shoes || "").replace(/^—$/, "").trim()
   };
 
   console.log('makeFinalOutfitTags called with:', {
     selectedOutfits: sel,
-    colorTags: colors  // 修正後の色タグを表示
+    colorTags: colors
   });
 
-  // 以下既存のコード...
   const catMap = new Map();
   try {
     const dict = (window.SFW && Array.isArray(SFW.outfit)) ? SFW.outfit : [];
@@ -2059,10 +2070,11 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
     for (const t of sel) {
       const cat = getCat(t);
       if (cat === "dress") {
-        const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
+        // ★★★ 修正：色が空文字でない場合のみ色を前置 ★★★
+        const tagged = startsWithColor(t) ? t : (colors.top && colors.top.length > 0 ? `${colors.top} ${t}` : t);
         out.push(tagged);
       } else if (cat === "shoes") {
-        const tagged = startsWithColor(t) ? t : (colors.shoes ? `${colors.shoes} ${t}` : t);
+        const tagged = startsWithColor(t) ? t : (colors.shoes && colors.shoes.length > 0 ? `${colors.shoes} ${t}` : t);
         out.push(tagged);
       }
     }
@@ -2070,18 +2082,18 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
     for (const t of sel) {
       const cat = getCat(t);
       if (cat === "top") {
-        const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
+        const tagged = startsWithColor(t) ? t : (colors.top && colors.top.length > 0 ? `${colors.top} ${t}` : t);
         out.push(tagged);
       } else if (cat === "pants" || cat === "skirt") {
-        // bottomカラーが設定されている場合のみ色を追加
-        const tagged = startsWithColor(t) ? t : (colors.bottom ? `${colors.bottom} ${t}` : t);
+        // ★★★ 修正：色が空文字でない場合のみ色を前置 ★★★
+        const tagged = startsWithColor(t) ? t : (colors.bottom && colors.bottom.length > 0 ? `${colors.bottom} ${t}` : t);
         out.push(tagged);
         console.log('Added bottom item:', tagged, 'with color:', colors.bottom);
       } else if (cat === "shoes") {
-        const tagged = startsWithColor(t) ? t : (colors.shoes ? `${colors.shoes} ${t}` : t);
+        const tagged = startsWithColor(t) ? t : (colors.shoes && colors.shoes.length > 0 ? `${colors.shoes} ${t}` : t);
         out.push(tagged);
       } else if (cat === "dress") {
-        const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
+        const tagged = startsWithColor(t) ? t : (colors.top && colors.top.length > 0 ? `${colors.top} ${t}` : t);
         out.push(tagged);
       } else {
         out.push(t);
