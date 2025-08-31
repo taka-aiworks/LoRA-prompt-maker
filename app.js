@@ -1653,22 +1653,36 @@ function buildBatchLearning(n) {
   return rows;
 }
 
+// ベースから微差を作る（+1ずつでもOK）
+function microJitterSeed(baseSeed, index) {
+  // 32bit に収める
+  return (baseSeed + index) >>> 0;       // もっと散らしたければ index*9973 などに
+}
+
+function getSeedMode() {
+  const r = document.querySelector('input[name="seedMode"]:checked');
+  return r ? r.value : 'fixed'; // 'fixed' | 'vary'
+}
+
 // buildBatchProduction関数を修正
 function buildBatchProduction(n){
   const want = Math.max(1, Number(n) || 1);
   const rows = [];
   
-  // ★ 共通のネガティブプロンプトを1回だけ生成 ★
+  // ★ 共通のネガティブプロンプトを1回だけ生成（そのままでOK）
   const commonNeg = buildNegative((document.getElementById("p_neg")?.value || "").trim(), true);
-  
+
+  // ★ ベースseedを一度だけ作る
+  const name = (document.getElementById('charName')?.value || "");
+  const baseSeed = seedFromName(name, 0);
+  const seedMode = getSeedMode(); // 'fixed' or 'vary'
+
   for(let i=0; i<want; i++){
     let p = [];
     
     // NSFWチェック
     const isNSFW = document.getElementById("nsfwProd")?.checked;
-    if (isNSFW) {
-      p.push("NSFW");
-    }
+    if (isNSFW) p.push("NSFW");
     
     p.push("solo");
     const g = getGenderCountTag() || "";
@@ -1683,7 +1697,7 @@ function buildBatchProduction(n){
     ].filter(Boolean);
     p.push(...basics);
 
-    // 量産モードでの服の処理（NSFW優先）
+    // 量産モードでの服の処理（NSFW優先） —— ここは元のまま
     let hasNSFWOutfit = false;
     if (isNSFW) {
       const nsfwOutfits = getMany("nsfwP_outfit");
@@ -1694,23 +1708,19 @@ function buildBatchProduction(n){
     }
     
     if (!hasNSFWOutfit) {
-      const topOutfits = getMany("p_outfit_top");
-      const pantsOutfits = getMany("p_outfit_pants");
-      const skirtOutfits = getMany("p_outfit_skirt");
-      const dressOutfits = getMany("p_outfit_dress");
-      const shoesOutfits = getMany("p_outfit_shoes");
+      const topOutfits    = getMany("p_outfit_top");
+      const pantsOutfits  = getMany("p_outfit_pants");
+      const skirtOutfits  = getMany("p_outfit_skirt");
+      const dressOutfits  = getMany("p_outfit_dress");
+      const shoesOutfits  = getMany("p_outfit_shoes");
       
       const selectedOutfits = [];
       
       if (dressOutfits.length > 0) {
         selectedOutfits.push(pick(dressOutfits));
-        if (shoesOutfits.length > 0) {
-          selectedOutfits.push(pick(shoesOutfits));
-        }
+        if (shoesOutfits.length > 0) selectedOutfits.push(pick(shoesOutfits));
       } else {
-        if (topOutfits.length > 0) {
-          selectedOutfits.push(pick(topOutfits));
-        }
+        if (topOutfits.length > 0) selectedOutfits.push(pick(topOutfits));
         
         const allowBottomSwap = document.getElementById("allowBottomSwap")?.checked;
         let hasBottom = false;
@@ -1734,27 +1744,24 @@ function buildBatchProduction(n){
         }
       }
 
-      // 量産モードの色タグを取得（--を除外）
+      // 量産モードの色タグを取得（— を除外）
+      const norm = s => (s || "").replace(/^—$/, "");
       const prodColorTags = {
-        top: document.getElementById("p_use_top")?.checked ? 
-             (document.getElementById("tag_p_top")?.textContent || "").replace(/^—$/, "") : "",
-        bottom: document.getElementById("p_use_bottom")?.checked ? 
-                (document.getElementById("tag_p_bottom")?.textContent || "").replace(/^—$/, "") : "",
-        shoes: document.getElementById("p_use_shoes")?.checked ? 
-               (document.getElementById("tag_p_shoes")?.textContent || "").replace(/^—$/, "") : ""
+        top:    document.getElementById("p_use_top")?.checked    ? norm(document.getElementById("tag_p_top")?.textContent)    : "",
+        bottom: document.getElementById("p_use_bottom")?.checked ? norm(document.getElementById("tag_p_bottom")?.textContent) : "",
+        shoes:  document.getElementById("p_use_shoes")?.checked  ? norm(document.getElementById("tag_p_shoes")?.textContent)  : ""
       };
 
       const finalOutfits = makeFinalOutfitTags(selectedOutfits, prodColorTags);
       p.push(...finalOutfits);
     }
 
-    // アクセサリー（A/B/C）
+    // アクセサリー（A/B/C） —— 元のまま
     ['p_accA', 'p_accB', 'p_accC'].forEach(accId => {
       const accSel = document.getElementById(accId);
       const accColorFunc = window[accId === 'p_accA' ? 'getAccAColor' : 
                                  accId === 'p_accB' ? 'getAccBColor' : 'getAccCColor'];
       const accColor = accColorFunc ? accColorFunc() : "";
-      
       if (accSel && accSel.value && accColor && accColor !== "—") {
         p.push(`${accColor} ${accSel.value}`);
       } else if (accSel && accSel.value) {
@@ -1762,33 +1769,23 @@ function buildBatchProduction(n){
       }
     });
 
-    // 各カテゴリから1つずつ（SFWとNSFWで競合する場合はNSFW優先）
+    // 背景/ポーズ/構図/表情：NSFW優先の1つ取り —— 元のまま
     const categories = [
-      { sfw: 'p_bg', nsfw: 'nsfwP_background', key: 'bg' },
-      { sfw: 'p_pose', nsfw: 'nsfwP_pose', key: 'pose' },
-      { sfw: 'p_comp', nsfw: null, key: 'comp' },
-      { sfw: 'p_expr', nsfw: 'nsfwP_expr', key: 'expr' }
+      { sfw: 'p_bg',   nsfw: 'nsfwP_background' },
+      { sfw: 'p_pose', nsfw: 'nsfwP_pose' },
+      { sfw: 'p_comp', nsfw: null },
+      { sfw: 'p_expr', nsfw: 'nsfwP_expr' }
     ];
-
-    categories.forEach(({ sfw, nsfw, key }) => {
+    categories.forEach(({ sfw, nsfw }) => {
       let selected = null;
-      
-      // NSFW優先
       if (isNSFW && nsfw) {
         const nsfwItems = getMany(nsfw);
-        if (nsfwItems.length > 0) {
-          selected = pick(nsfwItems);
-        }
+        if (nsfwItems.length > 0) selected = pick(nsfwItems);
       }
-      
-      // NSFWで選択されなかった場合はSFW
       if (!selected) {
         const sfwItems = getMany(sfw);
-        if (sfwItems.length > 0) {
-          selected = pick(sfwItems);
-        }
+        if (sfwItems.length > 0) selected = pick(sfwItems);
       }
-      
       if (selected) p.push(selected);
     });
 
@@ -1801,17 +1798,26 @@ function buildBatchProduction(n){
       });
     }
 
-    // 固定タグ
+    // 固定タグを先頭に
     const fixedProd = (document.getElementById('fixedProd')?.value || "").trim();
     if (fixedProd) {
       const fixedTags = fixedProd.split(/\s*,\s*/).filter(Boolean);
       p = [...fixedTags, ...p];
     }
 
-    const seed = seedFromName((document.getElementById('charName')?.value || ""), i+1);
+    // ★ seed の決定（ここが肝）
+    const seed = (seedMode === 'fixed')
+      ? baseSeed
+      : microJitterSeed(baseSeed, i); // 行ごとに +i（微差）
+
     const prompt = p.join(", ");
-    
-    rows.push({ seed, pos:p, prompt, neg: commonNeg, text: `${prompt}${commonNeg?` --neg ${commonNeg}`:""} seed:${seed}` });
+    rows.push({
+      seed,
+      pos: p,
+      prompt,
+      neg: commonNeg,
+      text: `${prompt}${commonNeg ? ` --neg ${commonNeg}` : ""} seed:${seed}`
+    });
   }
   return rows;
 }
