@@ -587,14 +587,14 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
       useCheckbox = document.getElementById("use_" + idBase);
     }
     
-    console.log(`Color wheel ${idBase}: useCheckbox found:`, !!useCheckbox, 'checked:', useCheckbox?.checked);
+    // console.log(`Color wheel ${idBase}: useCheckbox found:`, !!useCheckbox, 'checked:', useCheckbox?.checked);
     
     if (useCheckbox && !useCheckbox.checked) {
       tag.textContent = "—";
     } else {
       const colorName = colorNameFromHSL(hue, s, l);
       tag.textContent = colorName;
-      console.log(`Color wheel ${idBase}: set color to`, colorName);
+     // console.log(`Color wheel ${idBase}: set color to`, colorName);
     }
   }
   
@@ -622,7 +622,7 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   
   if (useCheckbox) {
     useCheckbox.addEventListener("change", (e) => {
-      console.log(`Checkbox ${idBase} changed to:`, e.target.checked);
+      // console.log(`Checkbox ${idBase} changed to:`, e.target.checked);
       paint();
     });
   }
@@ -801,7 +801,7 @@ window.applyOutfitMode = function() {
   const mode = getOne('outfitMode');
   const isOnepiece = (mode === 'onepiece');
   
-  console.log('applyOutfitMode called, mode:', mode, 'isOnepiece:', isOnepiece);
+  // console.log('applyOutfitMode called, mode:', mode, 'isOnepiece:', isOnepiece);
   
   // ワンピース関連の表示切り替え
   const onepieceSection = document.getElementById('onepieceSection');
@@ -810,15 +810,15 @@ window.applyOutfitMode = function() {
   
   if (onepieceSection) {
     onepieceSection.style.display = isOnepiece ? 'block' : 'none';
-    console.log('onepieceSection display:', onepieceSection.style.display);
+  //  console.log('onepieceSection display:', onepieceSection.style.display);
   }
   if (separateSection) {
     separateSection.style.display = isOnepiece ? 'none' : 'block';
-    console.log('separateSection display:', separateSection.style.display);
+  //  console.log('separateSection display:', separateSection.style.display);
   }
   if (bottomCatSection) {
     bottomCatSection.style.display = isOnepiece ? 'none' : 'block';
-    console.log('bottomCatSection display:', bottomCatSection.style.display);
+  //  console.log('bottomCatSection display:', bottomCatSection.style.display);
   }
   
   // 色設定の表示切り替え
@@ -2117,7 +2117,7 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
     shoes: (colorTags?.shoes || "").replace(/^—$/, "").trim()
   };
 
-  console.log('makeFinalOutfitTags called with:', {
+//  console.log('makeFinalOutfitTags called with:', {
     selectedOutfits: sel,
     colorTags: colors
   });
@@ -2174,7 +2174,7 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
         // ★★★ 修正：色が空文字でない場合のみ色を前置 ★★★
         const tagged = startsWithColor(t) ? t : (colors.bottom && colors.bottom.length > 0 ? `${colors.bottom} ${t}` : t);
         out.push(tagged);
-        console.log('Added bottom item:', tagged, 'with color:', colors.bottom);
+       //  console.log('Added bottom item:', tagged, 'with color:', colors.bottom);
       } else if (cat === "shoes") {
         const tagged = startsWithColor(t) ? t : (colors.shoes && colors.shoes.length > 0 ? `${colors.shoes} ${t}` : t);
         out.push(tagged);
@@ -2187,7 +2187,7 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
     }
   }
   
-  console.log('Final outfit tags:', out);
+  // console.log('Final outfit tags:', out);
   return out;
 }
 
