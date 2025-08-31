@@ -1183,6 +1183,7 @@
     const isOnepiece = getIsOnepiece();
 
     const fsDress   = $('#fsDress');
+    const dressPanel = $('#fsDress')?.closest('.panel');
     const topPanel  = $('#outfit_top')?.closest('.panel');
     const fsPants   = $('#fsBottom_pants');
     const fsSkirt   = $('#fsBottom_skirt');
@@ -1191,7 +1192,9 @@
 
     if (isOnepiece) {
       // ワンピース側のみ操作可
-      setDisabledDeep(fsDress, false);
+      setDisabledDeep(fsDress, false);\
+      if (dressPanel) setDisabledDeep(dressPanel, false);   // 親パネルも復活
+
       if (shoesPanel) setDisabledDeep(shoesPanel, false); // 靴は有効
 
       // セパレート側は見た目も操作もオフ
@@ -1208,7 +1211,8 @@
       if (shoesPanel) setDisabledDeep(shoesPanel, false); // 靴は有効
 
       // ワンピースは無効化（誤操作防止）
-      setDisabledDeep(fsDress,   true);
+      setDisabledDeep(fsDress, true);
+      if (dressPanel) setDisabledDeep(dressPanel, true);
     }
     
     // 下カテゴリの表示更新
