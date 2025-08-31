@@ -1560,7 +1560,7 @@ function buildOneLearning(extraSeed = 0){
   const addNeg    = (document.getElementById('negLearn')?.value || "").trim();
   const neg = buildNegative(addNeg, useDefNeg);
 
-  const seed = seedFromName((document.getElementById('charName')?.value || ''), extraSeed);
+  const seed = seedFromName((document.getElementById('charName')?.value || ''), i);
   const prompt = p.join(", ");
   const text = `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}`;
   
