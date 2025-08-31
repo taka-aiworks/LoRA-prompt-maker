@@ -1223,8 +1223,7 @@ function bindBasicInfo() {
   bindCopyTripletExplicit([
     ["btnCopyLearnTestAll", "outLearnTestAll"],
     ["btnCopyLearnTestPrompt", "outLearnTestPrompt"],
-    ["btnCopyLearnTestNeg", "outLearnTestNeg"],
-    ["btnCopyLearnTestCaption", "outLearnTestCaption"]  // ← 新規追加
+    ["btnCopyLearnTestNeg", "outLearnTestNeg"]
   ]);
 }
 
@@ -1306,7 +1305,6 @@ function buildCaptionPrompt() {
   
   return p.join(", ");
 }
-
 
 
 // buildOnePlanner関数を修正（NSFW優先で重複を1つに統一）
@@ -1565,7 +1563,18 @@ function buildOneLearning(extraSeed = 0){
   const seed = seedFromName((document.getElementById('charName')?.value || ''), extraSeed);
   const prompt = p.join(", ");
   const text = `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}`;
-  return { seed, pos:p, neg, prompt, text };
+  
+  // ★★★ 新規追加：キャプション用プロンプトを生成 ★★★
+  const caption = buildCaptionPrompt();
+  
+  return { 
+    seed, 
+    pos: p, 
+    neg, 
+    prompt, 
+    text,
+    caption  // ← 新規追加
+  };
 }
 
 // 学習モードバッチ生成関数（配分ルール適用）
@@ -1685,21 +1694,11 @@ function buildBatchLearning(n) {
       p = [...f, ...p];
     }
 
-     const seed = seedFromName((document.getElementById('charName')?.value || ''), extraSeed);
-     const prompt = p.join(", ");
-     const text = `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}`;
-     
-     // ★★★ 新規追加：キャプション用プロンプトを生成 ★★★
-     const caption = buildCaptionPrompt();
-     
-    rows.push({
-      seed, 
-      pos: p, 
-      neg: commonNeg, 
-      prompt, 
-      text,
-      caption  // ← 新規追加
-    });
+    const seed = seedFromName((document.getElementById('charName')?.value || ''), i);
+    const prompt = p.join(", ");
+    const text = `${prompt}${commonNeg?` --neg ${commonNeg}`:""} seed:${seed}`;
+    
+    rows.push({ seed, pos:p, neg: commonNeg, prompt, text });
   }
   
   return rows;
@@ -2062,9 +2061,10 @@ function bindLearnBatch(){
   });
 
   bindCopyTripletExplicit([
-    ["btnCopyLearnAll", "outLearnAll"],
-    ["btnCopyLearnPrompt", "outLearnPrompt"],
-    ["btnCopyLearnNeg", "outLearnNeg"]
+    ["btnCopyLearnTestAll", "outLearnTestAll"],
+    ["btnCopyLearnTestPrompt", "outLearnTestPrompt"],
+    ["btnCopyLearnTestNeg", "outLearnTestNeg"],
+    ["btnCopyLearnTestCaption", "outLearnTestCaption"]  // ← 新規追加
   ]);
 
   document.getElementById("btnCsvLearn")?.addEventListener("click", ()=>{
