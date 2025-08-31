@@ -1155,7 +1155,6 @@ function createWordModeColorItem(item) {
   return clone.firstElementChild ? clone.firstElementChild.outerHTML : '';
 }
 
-let selectedCount = 0;
 
 function addToSelectedChips(en, jp, cat) {
   const container = document.getElementById('wm-selected-chips');
