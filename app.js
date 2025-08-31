@@ -1277,6 +1277,10 @@ function buildOnePlanner() {
   const pushUnique = (arr, v) => { if (v && !arr.includes(v)) arr.push(v); };
   let p = [];
 
+  // ★★★ 修正：LoRAタグを最優先で先頭に追加 ★★★
+  const loraTag = (document.getElementById('loraTag')?.value || '').trim();
+  if (loraTag) p.push(loraTag);
+
   // NSFWチェック
   const isNSFW = !!document.getElementById("pl_nsfw")?.checked;
   if (isNSFW) pushUnique(p, "NSFW");
@@ -1677,14 +1681,17 @@ function buildBatchProduction(n){
   const baseSeed = seedFromName(name, 0);
   const seedMode = getSeedMode(); // 'fixed' or 'vary'
 
-  for(let i=0; i<want; i++){
-    let p = [];
-    
-    // NSFWチェック
-    const isNSFW = document.getElementById("nsfwProd")?.checked;
-    if (isNSFW) p.push("NSFW");
-    
-    p.push("solo");
+ for(let i=0; i<want; i++){
+  let p = [];
+  
+  // ★★★ 修正：LoRAタグを最優先で先頭に追加 ★★★
+  const loraTag = (document.getElementById('loraTag')?.value || '').trim();
+  if (loraTag) p.push(loraTag);
+  
+  const isNSFW = document.getElementById("nsfwProd")?.checked;
+  if (isNSFW) p.push("NSFW");
+  
+  p.push("solo");
     const g = getGenderCountTag() || "";
     if (g) p.push(g);
 
