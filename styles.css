@@ -368,6 +368,8 @@ details[open] summary .caret { transform: rotate(90deg); }
 .panel.is-disabled {
   opacity: .5;
 }
+
+/* 修正前の問題のあるCSS */
 .panel.is-disabled .wheel-box,
 .panel.is-disabled input[type="range"],
 .panel.is-disabled select,
@@ -375,9 +377,23 @@ details[open] summary .caret { transform: rotate(90deg); }
   pointer-events: none;
   filter: grayscale(80%);
 }
-.panel.is-disabled input[type="checkbox"] {
-  pointer-events: auto;   /* ← チェックは常に戻せる */
+
+/* ★★★ 修正：radio も除外対象に追加 ★★★ */
+.panel.is-disabled .wheel-box,
+.panel.is-disabled input[type="range"],
+.panel.is-disabled select,
+.panel.is-disabled input[type="text"] {
+  pointer-events: none;
+  filter: grayscale(80%);
 }
+
+/* 重要：ラジオボタンとチェックボックスは常に操作可能にする */
+.panel.is-disabled input[type="checkbox"],
+.panel.is-disabled input[type="radio"],
+.panel.is-disabled label {
+  pointer-events: auto !important;
+}
+
 
 /* 機能としての無効化は fieldset[disabled] を使うが、見た目は変えない */
 fieldset { border: 0; margin: 0; padding: 0; }
@@ -555,7 +571,19 @@ legend { display: none; }
 
 /* fieldsetは機能的に無効化するが、見た目は変えない */
 fieldset { border: 0; margin: 0; padding: 0; }
-fieldset:disabled { pointer-events: none; opacity: 1; }
+
+fieldset:disabled { 
+  pointer-events: none; 
+  opacity: 1; 
+}
+
+/* ★★★ 追加：fieldset内のラジオボタンは常に操作可能 ★★★ */
+fieldset:disabled input[type="radio"],
+fieldset:disabled input[type="checkbox"],
+fieldset:disabled label {
+  pointer-events: auto !important;
+}
+
 legend { display: none; }
 
 /* 服カラー（固定・量産）どちらも同じ大きさに統一して枠内に収める */
@@ -835,4 +863,37 @@ legend { display: none; }
 /* iPad/横幅狭い時はさらに低め（任意） */
 @media (max-width: 1024px){
   :root{ --outfit-scroll-h: 180px; }
+}
+
+
+
+/* ====== ワンピース選択問題の根本修正 ====== */
+/* どんな状況でもラジオボタンとラベルは操作可能にする */
+input[type="radio"],
+input[type="checkbox"],
+label.chip {
+  pointer-events: auto !important;
+}
+
+/* 無効化されたパネル内でも服の選択は可能にする */
+.panel.is-disabled input[type="radio"],
+.panel.is-disabled input[type="checkbox"],
+.panel.is-disabled label.chip,
+fieldset:disabled input[type="radio"],
+fieldset:disabled input[type="checkbox"],
+fieldset:disabled label.chip {
+  pointer-events: auto !important;
+  opacity: 1 !important;
+}
+
+/* 無効化の見た目は色だけで表現 */
+.panel.is-disabled {
+  opacity: 0.6;
+}
+.panel.is-disabled .wheel-box,
+.panel.is-disabled input[type="range"],
+.panel.is-disabled select,
+.panel.is-disabled input[type="text"] {
+  pointer-events: none;
+  filter: grayscale(80%);
 }
