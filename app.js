@@ -1324,7 +1324,7 @@ function buildOnePlanner() {
   return { seed, pos: p, neg, prompt, text: `${prompt}${neg ? ` --neg ${neg}` : ""} seed:${seed}` };
 }
 
-// buildOneLearning関数を修正
+// buildOneLearning関数を修正（1枚テスト用 - 配分ルールなし）
 function buildOneLearning(extraSeed = 0){
   const textOf = id => (document.getElementById(id)?.textContent || "").trim();
   let p = [];
@@ -1406,39 +1406,30 @@ function buildOneLearning(extraSeed = 0){
     if (nsfwBody.length > 0) p.push(nsfwBody[0]); // 1つだけ
   }
 
-  // ★★★ 修正箇所：配分ルールに基づいた散らし処理を追加 ★★★
-  const categories = ['view', 'comp', 'expr', 'bg', 'light', 'pose'];
-  
-  categories.forEach(cat => {
+  // ★★★ 1枚テスト用：選択されたもののみ使用（配分ルールなし） ★★★
+  const categories = [
+    { sfw: 'bg', nsfw: null, key: 'bg' },
+    { sfw: 'pose', nsfw: null, key: 'pose' },
+    { sfw: 'comp', nsfw: null, key: 'comp' },
+    { sfw: 'view', nsfw: null, key: 'view' },
+    { sfw: 'expr', nsfw: 'nsfwL_expr', key: 'expr' }
+  ];
+
+  categories.forEach(({ sfw, nsfw, key }) => {
     let selected = null;
     
-    // NSFW優先チェック
-    if (isNSFW && cat === 'expr') {
-      const nsfwExpr = getMany('nsfwL_expr');
-      if (nsfwExpr.length > 0) {
-        selected = nsfwExpr[0];
+    // NSFW優先
+    if (isNSFW && nsfw) {
+      const nsfwSelected = getMany(nsfw);
+      if (nsfwSelected.length > 0) {
+        selected = nsfwSelected[0];
       }
     }
     
-    // 配分ルールから選択
+    // NSFWで選択されなかった場合はSFW
     if (!selected) {
-      selected = pickByDistribution(cat);
-    }
-    
-    // フォールバック: SFWからランダム選択
-    if (!selected) {
-      const sfwMap = {
-        'view': getMany('view'),
-        'comp': getMany('comp'), 
-        'expr': getMany('expr'),
-        'bg': getMany('bg'),
-        'light': getMany('lightLearn'),
-        'pose': getMany('pose')
-      };
-      const items = sfwMap[cat];
-      if (items && items.length > 0) {
-        selected = pick(items);
-      }
+      const sfwSelected = getOne(sfw);
+      if (sfwSelected) selected = sfwSelected;
     }
     
     if (selected) p.push(selected);
