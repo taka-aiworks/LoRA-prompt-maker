@@ -1031,6 +1031,7 @@ function initWordMode() {
 
 
 /* ===== 単語モードのイベントバインド ===== */
+/* ===== 単語モードのイベントバインド ===== */
 function bindWordModeEvents() {
   const root = document.getElementById('panelWordMode'); // ★スコープを単語モード内に限定
   if (!root) return;
@@ -1081,6 +1082,37 @@ function bindWordModeEvents() {
       }
     }
   });
+  
+  // テーブルの全コピーボタン
+  const copyAllEn   = root.querySelector('#wm-copy-en-all');
+  const copyAllBoth = root.querySelector('#wm-copy-both-all');
+  const tableClear  = root.querySelector('#wm-table-clear');
+
+  if (copyAllEn) {
+    copyAllEn.addEventListener('click', () => {
+      const rows = root.querySelectorAll('#wm-table-body tr');
+      const tags = Array.from(rows).map(row => row.dataset.en || '').filter(Boolean);
+      if (tags.length) navigator.clipboard?.writeText(tags.join(', ')).then(() => toast('全英語タグをコピーしました'));
+    });
+  }
+  if (copyAllBoth) {
+    copyAllBoth.addEventListener('click', () => {
+      const rows = root.querySelectorAll('#wm-table-body tr');
+      const tags = Array.from(rows).map(row => {
+        const en = row.dataset.en || '';
+        const jp = row.querySelector('.wm-row-jp')?.textContent || '';
+        return jp && en ? `${jp}(${en})` : (en || jp);
+      }).filter(Boolean);
+      if (tags.length) navigator.clipboard?.writeText(tags.join(', ')).then(() => toast('全タグをコピーしました'));
+    });
+  }
+  if (tableClear) {
+    tableClear.addEventListener('click', () => {
+      const tbody = root.querySelector('#wm-table-body');
+      if (tbody) tbody.innerHTML = '';
+    });
+  }
+} // ← この閉じ括弧が不足していました
 
 // 単語モード用のヘルパー関数を追加
 function createWordModeItem(item, category) {
@@ -1206,8 +1238,7 @@ function addToOutputTable(en, jp) {
     
     tbody.appendChild(row);
   }
-}  
-
+}
    
   // テーブルの全コピーボタン
   const copyAllEn   = root.querySelector('#wm-copy-en-all');
