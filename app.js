@@ -1692,15 +1692,16 @@ function buildBatchLearning(n) {
      // ★★★ 新規追加：キャプション用プロンプトを生成 ★★★
      const caption = buildCaptionPrompt();
      
-     return { 
-       seed, 
-       pos: p, 
-       neg, 
-       prompt, 
-       text,
-       caption  // ← 新規追加
-     });
+    rows.push({
+      seed, 
+      pos: p, 
+      neg: commonNeg, 
+      prompt, 
+      text,
+      caption  // ← 新規追加
+    });
   }
+  
   return rows;
 }
 
