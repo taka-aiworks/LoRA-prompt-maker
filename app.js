@@ -1223,7 +1223,8 @@ function bindBasicInfo() {
   bindCopyTripletExplicit([
     ["btnCopyLearnTestAll", "outLearnTestAll"],
     ["btnCopyLearnTestPrompt", "outLearnTestPrompt"],
-    ["btnCopyLearnTestNeg", "outLearnTestNeg"]
+    ["btnCopyLearnTestNeg", "outLearnTestNeg"],
+    ["btnCopyLearnTestCaption", "outLearnTestCaption"]  // ← 新規追加
   ]);
 }
 
@@ -1897,21 +1898,18 @@ function renderLearnTableTo(tbodySel, rows){
 }
 
 // まとめ出力（学習/量産）に使っているユーティリティ
+// renderTextTriplet関数を拡張してキャプション出力にも対応
 function renderTextTriplet(baseId, rows, fmtSelId){
   const fmt = getFmt(`#${fmtSelId}`);
 
   if (rows.length > 1) {
-    // 既存：allTexts / allPrompts はそのまま
+    // 既存の処理
     const allPrompts = rows.map(r => Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "")).join("\n\n");
-    const allSeeds   = rows.map(r => r.seed || 0);
     const allTexts   = rows.map((r,i) => {
       const p = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
       return fmt.line(p, r.neg || "", r.seed || 0);
     }).join("\n\n");
 
-    // ★修正ポイント：ネガティブは“一つだけ”表示
-    // 1) 全行が同一ならその文字列を出す
-    // 2) もし異なる行が混在しても、重複を除いたトークンの和集合で1本にまとめる
     const negUnion = (() => {
       const negList = rows.map(r => (r.neg || "").trim()).filter(Boolean);
       const allSame = negList.every(n => n === negList[0]);
@@ -1922,6 +1920,9 @@ function renderTextTriplet(baseId, rows, fmtSelId){
       return Array.from(tokens).join(", ");
     })();
 
+    // ★★★ 新規追加：キャプション処理 ★★★
+    const allCaptions = rows.map(r => r.caption || "").filter(Boolean).join("\n\n");
+
     const outAll = document.getElementById(`${baseId}All`);
     if (outAll) outAll.textContent = allTexts;
 
@@ -1929,15 +1930,19 @@ function renderTextTriplet(baseId, rows, fmtSelId){
     if (outPrompt) outPrompt.textContent = allPrompts;
 
     const outNeg = document.getElementById(`${baseId}Neg`);
-    if (outNeg) outNeg.textContent = negUnion;   // ←ここを一括1件に
+    if (outNeg) outNeg.textContent = negUnion;
+
+    const outCaption = document.getElementById(`${baseId}Caption`);
+    if (outCaption) outCaption.textContent = allCaptions;
+
   } else {
-    // 1件のみ（従来通り）
+    // 1件のみの場合
     const r = rows[0];
     const prompt = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
     const neg = r.neg || "";
-    const seed = r.seed || 0;
+    const caption = r.caption || "";
 
-    const allText = fmt.line(prompt, neg, seed);
+    const allText = fmt.line(prompt, neg, r.seed || 0);
 
     const outAll = document.getElementById(`${baseId}All`);
     if (outAll) outAll.textContent = allText;
@@ -1947,6 +1952,9 @@ function renderTextTriplet(baseId, rows, fmtSelId){
 
     const outNeg = document.getElementById(`${baseId}Neg`);
     if (outNeg) outNeg.textContent = neg;
+
+    const outCaption = document.getElementById(`${baseId}Caption`);
+    if (outCaption) outCaption.textContent = caption;
   }
 }
 
