@@ -900,3 +900,9 @@ fieldset:disabled label.chip {
 
 /* ラジオの色を常に青で */
 #panel_outfitFixed input[type="radio"] { accent-color: var(--brand); }
+/* 全フォームのラジオ・チェックをブランド色に統一 */
+input[type="radio"],
+input[type="checkbox"]{
+  accent-color: var(--brand);
+}
+
