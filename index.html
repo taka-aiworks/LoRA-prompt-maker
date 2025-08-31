@@ -1140,7 +1140,26 @@
     });
   };
 
-  // 上下/ワンピースの切替（#panelBasic 内の関連要素のみ）
+  // 下カテゴリ制御関数を追加
+  const updateBottomCategory = () => {
+    const selectedCat = scope.querySelector('input[name="bottomCat"]:checked')?.value || 'pants';
+    const fsPants = scope.querySelector('#fsBottom_pants');
+    const fsSkirt = scope.querySelector('#fsBottom_skirt');
+    
+    if (fsPants && fsSkirt) {
+      if (selectedCat === 'pants') {
+        fsPants.style.display = '';
+        fsSkirt.style.display = 'none';
+        fsSkirt.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      } else {
+        fsPants.style.display = 'none';
+        fsSkirt.style.display = '';
+        fsPants.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      }
+    }
+  };
+
+  // 上下/ワンピースの切替（修正版）
   const applyOutfitMode = () => {
     const isOnepiece = getIsOnepiece();
 
@@ -1149,11 +1168,12 @@
     const fsPants   = $('#fsBottom_pants');
     const fsSkirt   = $('#fsBottom_skirt');
     const bottomCat = $('#bottomCategoryRadios')?.closest('.panel');
+    const shoesPanel = $('#outfit_shoes')?.closest('.panel');
 
-    // ※ #fsSeparates は機能的に無効化しない（見た目は is-disabled に任せる）
     if (isOnepiece) {
       // ワンピース側のみ操作可
       setDisabledDeep(fsDress, false);
+      if (shoesPanel) setDisabledDeep(shoesPanel, false); // 靴は有効
 
       // セパレート側は見た目も操作もオフ
       setDisabledDeep(topPanel,  true);
@@ -1166,10 +1186,14 @@
       setDisabledDeep(fsPants,   false);
       setDisabledDeep(fsSkirt,   false);
       setDisabledDeep(bottomCat, false);
+      if (shoesPanel) setDisabledDeep(shoesPanel, false); // 靴は有効
 
       // ワンピースは無効化（誤操作防止）
       setDisabledDeep(fsDress,   true);
     }
+    
+    // 下カテゴリの表示更新
+    updateBottomCategory();
   };
 
   // ラジオにバインド（#panelBasic 内のみ）
@@ -1178,12 +1202,18 @@
     r.addEventListener('input',  applyOutfitMode);
   });
 
+  // 下カテゴリのラジオボタンにイベント追加
+  scope.querySelectorAll('input[name="bottomCat"]').forEach(radio => {
+    radio.addEventListener('change', updateBottomCategory);
+  });
+
   // 初期適用＋bfcache対策（※他タブには触れない）
   applyOutfitMode();
   window.addEventListener('pageshow', applyOutfitMode);
 
   // 必要なら外から再適用できるように（任意）
   window.applyOutfitMode = applyOutfitMode;
+  window.updateBottomCategory = updateBottomCategory;
 })();
 </script>
   <!-- タブ切替（planner 初回表示で pmInitPlannerOnce を呼ぶ） -->
