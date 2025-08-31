@@ -1052,6 +1052,205 @@ function bindWordModeEvents() {
     }
   });
 
+// 単語モード用のヘルパー関数を追加
+function createWordModeItem(item, category) {
+  const template = document.getElementById('wm-item-tpl');
+  if (!template) return '';
+  
+  const clone = template.content.cloneNode(true);
+  const button = clone.querySelector('.wm-item');
+  const jpSpan = clone.querySelector('.wm-jp');
+  const enSpan = clone.querySelector('.wm-en');
+  
+  if (button && jpSpan && enSpan) {
+    button.dataset.en = item.tag || '';
+    button.dataset.jp = item.label || item.tag || '';
+    button.dataset.cat = category;
+    
+    jpSpan.textContent = item.label || item.tag || '';
+    enSpan.textContent = item.tag || '';
+  }
+  
+  return clone.firstElementChild ? clone.firstElementChild.outerHTML : '';
+}
+
+function createWordModeColorItem(item) {
+  const template = document.getElementById('wm-item-tpl-color');
+  if (!template) return '';
+  
+  const clone = template.content.cloneNode(true);
+  const button = clone.querySelector('.wm-item');
+  const jpSpan = clone.querySelector('.wm-jp');
+  const enSpan = clone.querySelector('.wm-en');
+  
+  if (button && jpSpan && enSpan) {
+    button.dataset.en = item.tag || '';
+    button.dataset.jp = item.label || item.tag || '';
+    button.dataset.cat = 'color';
+    
+    jpSpan.textContent = item.label || item.tag || '';
+    enSpan.textContent = item.tag || '';
+  }
+  
+  return clone.firstElementChild ? clone.firstElementChild.outerHTML : '';
+}
+
+let selectedCount = 0;
+
+function addToSelectedChips(en, jp, cat) {
+  const container = document.getElementById('wm-selected-chips');
+  if (!container || selectedCount >= 20) return;
+  
+  // 重複チェック
+  if (container.querySelector(`[data-en="${en}"]`)) return;
+  
+  const chip = document.createElement('span');
+  chip.className = 'wm-selected-chip';
+  chip.dataset.en = en;
+  chip.dataset.jp = jp;
+  chip.innerHTML = `${jp}<small>(${en})</small><button type="button" onclick="removeSelectedChip(this)">×</button>`;
+  
+  container.appendChild(chip);
+  selectedCount++;
+  updateSelectedCount();
+}
+
+function removeSelectedChip(btn) {
+  const chip = btn.closest('.wm-selected-chip');
+  if (chip) {
+    chip.remove();
+    selectedCount--;
+    updateSelectedCount();
+  }
+}
+
+function updateSelectedCount() {
+  const countEl = document.getElementById('wm-selected-count');
+  if (countEl) countEl.textContent = selectedCount;
+}
+
+function addToOutputTable(en, jp) {
+  const tbody = document.getElementById('wm-table-body');
+  if (!tbody) return;
+  
+  // 最大20件制限
+  if (tbody.children.length >= 20) return;
+  
+  // 重複チェック
+  if (tbody.querySelector(`tr[data-en="${en}"]`)) return;
+  
+  const template = document.getElementById('wm-row-tpl');
+  if (!template) return;
+  
+  const clone = template.content.cloneNode(true);
+  const row = clone.querySelector('tr');
+  const jpCell = clone.querySelector('.wm-row-jp');
+  const enCell = clone.querySelector('.wm-row-en');
+  const copyEnBtn = clone.querySelector('.wm-row-copy-en');
+  const copyBothBtn = clone.querySelector('.wm-row-copy-both');
+  const removeBtn = clone.querySelector('.wm-row-remove');
+  
+  if (row && jpCell && enCell) {
+    row.dataset.en = en;
+    jpCell.textContent = jp;
+    enCell.textContent = en;
+    
+    if (copyEnBtn) {
+      copyEnBtn.addEventListener('click', () => {
+        navigator.clipboard?.writeText(en).then(() => toast('英語タグをコピーしました'));
+      });
+    }
+    
+    if (copyBothBtn) {
+      copyBothBtn.addEventListener('click', () => {
+        const text = jp && en ? `${jp}(${en})` : (en || jp);
+        navigator.clipboard?.writeText(text).then(() => toast('日英タグをコピーしました'));
+      });
+    }
+    
+    if (removeBtn) {
+      removeBtn.addEventListener('click', () => {
+        row.remove();
+      });
+    }
+    
+    tbody.appendChild(row);
+  }
+}
+
+// initWordModeItems関数を修正
+window.initWordModeItems = function() {
+  // SFW項目の初期化
+  const sfwCategories = {
+    'background': SFW.background || [],
+    'pose': SFW.pose || [],
+    'composition': SFW.composition || [],
+    'view': SFW.view || [],
+    'expression-sfw': SFW.expressions || [],
+    'lighting-sfw': SFW.lighting || [],
+    'accessories': SFW.accessories || []
+  };
+  
+  // NSFW項目の初期化
+  const nsfwCategories = {
+    'exposure': NSFW.exposure || [],
+    'underwear-nsfw': NSFW.underwear || [],
+    'outfit-nsfw': NSFW.outfit || [],
+    'expression-nsfw': NSFW.expression || [],
+    'situation': NSFW.situation || [],
+    'lighting-nsfw': NSFW.lighting || [],
+    'pose-nsfw': NSFW.pose || [],
+    'accessory-nsfw': NSFW.accessory || [],
+    'body-nsfw': NSFW.body || [],
+    'nipple-nsfw': NSFW.nipples || []
+  };
+  
+  // 色の初期化
+  const colors = SFW.colors || [
+    {tag: 'white', label: '白'},
+    {tag: 'black', label: '黒'},
+    {tag: 'red', label: '赤'},
+    {tag: 'blue', label: '青'},
+    {tag: 'green', label: '緑'},
+    {tag: 'yellow', label: '黄'},
+    {tag: 'pink', label: 'ピンク'},
+    {tag: 'purple', label: '紫'},
+    {tag: 'orange', label: 'オレンジ'},
+    {tag: 'brown', label: '茶'}
+  ];
+  
+  // 各カテゴリにアイテムを追加
+  Object.entries(sfwCategories).forEach(([cat, items]) => {
+    const container = document.getElementById(`wm-items-${cat}`);
+    const count = document.getElementById(`wm-count-${cat}`);
+    if (container && items.length > 0) {
+      container.innerHTML = items.map(item => createWordModeItem(item, cat)).join('');
+      if (count) count.textContent = items.length;
+    }
+  });
+  
+  Object.entries(nsfwCategories).forEach(([cat, items]) => {
+    const container = document.getElementById(`wm-items-${cat}`);
+    const count = document.getElementById(`wm-count-${cat}`);
+    if (container && items.length > 0) {
+      container.innerHTML = items.map(item => createWordModeItem(item, cat)).join('');
+      if (count) count.textContent = items.length;
+    }
+  });
+  
+  // 色の初期化
+  const colorContainer = document.getElementById('wm-items-color');
+  const colorCount = document.getElementById('wm-count-color');
+  if (colorContainer) {
+    colorContainer.innerHTML = colors.map(item => createWordModeColorItem(item)).join('');
+    if (colorCount) colorCount.textContent = colors.length;
+  }
+  
+  // イベントハンドラーを追加
+  bindWordModeEvents();
+};
+
+   
   // テーブルの全コピーボタン
   const copyAllEn   = root.querySelector('#wm-copy-en-all');
   const copyAllBoth = root.querySelector('#wm-copy-both-all');
