@@ -520,25 +520,42 @@ function resetSettings() {
 }
 
 /* ===== カテゴリ分配 ===== */
+// categorizeOutfit関数を修正（JSON辞書ベース）
 function categorizeOutfit(list){
   const L = normList(list || []);
   const C = { top:[], pants:[], skirt:[], dress:[], shoes:[] };
 
   for (const t of L) {
-    const cat = (t.cat || "").toLowerCase();
-    if (cat === "top")      { C.top.push(t);   continue; }
-    if (cat === "pants")    { C.pants.push(t); continue; }
-    if (cat === "skirt")    { C.skirt.push(t); continue; }
-    if (cat === "dress")    { C.dress.push(t); continue; }
-    if (cat === "shoes")    { C.shoes.push(t); continue; }
+    // 辞書の cat プロパティを最優先
+    const dictCat = (t.cat || "").toLowerCase();
+    if (dictCat) {
+      if (dictCat === "top")      { C.top.push(t);   continue; }
+      if (dictCat === "pants")    { C.pants.push(t); continue; }
+      if (dictCat === "skirt")    { C.skirt.push(t); continue; }
+      if (dictCat === "dress")    { C.dress.push(t); continue; }
+      if (dictCat === "shoes")    { C.shoes.push(t); continue; }
+    }
 
+    // 辞書にcat情報がない場合のみ正規表現フォールバック
     const tag = (t.tag || "").toLowerCase();
-    if (/(t-shirt|tank|blouse|shirt|hoodie|sweater|cardigan|jacket|coat)/.test(tag)) { C.top.push(t);   continue; }
-    if (/(jeans|pants|trousers|shorts|cargo|bermuda|leggings|overalls|hakama)/.test(tag)) { C.pants.push(t); continue; }
-    if (/(skirt)/.test(tag)) { C.skirt.push(t); continue; }
-    if (/(dress|gown|yukata|kimono|cheongsam|hanbok|sari|uniform)/.test(tag)) { C.dress.push(t); continue; }
-    if (/(boots|sneakers|loafers|mary janes)/.test(tag)) { C.shoes.push(t); continue; }
-    C.dress.push(t);
+    if (/(t-shirt|tank|blouse|shirt|hoodie|sweater|cardigan|jacket|coat|top)/.test(tag)) { 
+      C.top.push(t); continue; 
+    }
+    if (/(jeans|pants|trousers|shorts|cargo|bermuda|leggings|overalls|hakama)/.test(tag)) { 
+      C.pants.push(t); continue; 
+    }
+    if (/(skirt)/.test(tag)) { 
+      C.skirt.push(t); continue; 
+    }
+    if (/(dress|gown|yukata|kimono|cheongsam|hanbok|sari|uniform)/.test(tag)) { 
+      C.dress.push(t); continue; 
+    }
+    if (/(boots|sneakers|loafers|mary janes|heel|sandal|shoe)/.test(tag)) { 
+      C.shoes.push(t); continue; 
+    }
+    
+    // 分類不明な場合はtopに分類
+    C.top.push(t);
   }
   return C;
 }
@@ -1742,22 +1759,51 @@ function renderLearnTableTo(tbodySel, rows){
   tb.appendChild(frag);
 }
 
+// renderTextTriplet関数を修正
 function renderTextTriplet(baseId, rows, fmtId) {
   if (!rows || !rows.length) return;
-  const r = rows[0];
-  const prompt = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
-  const neg = r.neg || "";
-  const seed = r.seed || 0;
-
+  
   const fmt = getFmt(`#${fmtId||'fmtPlanner'}`);
-  const allText = `Prompt: ${prompt}\nNegative prompt: ${neg}\nSeed: ${seed}`;
+  
+  // 学習・量産モードの場合は全件を出力
+  const isLearningMode = baseId.includes('Learn');
+  const isProdMode = baseId.includes('Prod');
+  
+  if ((isLearningMode || isProdMode) && rows.length > 1) {
+    // 全件のプロンプト、ネガティブ、全体を作成
+    const allPrompts = rows.map(r => Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "")).join("\n");
+    const allNegs = rows.map(r => r.neg || "").join("\n");
+    const allTexts = rows.map(r => {
+      const prompt = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
+      return fmt.line(prompt, r.neg || "", r.seed || 0);
+    }).join("\n");
 
-  const outAll = document.getElementById(`${baseId}All`);
-  if (outAll) outAll.textContent = allText;
-  const outPrompt = document.getElementById(`${baseId}Prompt`);
-  if (outPrompt) outPrompt.textContent = prompt;
-  const outNeg = document.getElementById(`${baseId}Neg`);
-  if (outNeg) outNeg.textContent = neg;
+    const outAll = document.getElementById(`${baseId}All`);
+    if (outAll) outAll.textContent = allTexts;
+    
+    const outPrompt = document.getElementById(`${baseId}Prompt`);
+    if (outPrompt) outPrompt.textContent = allPrompts;
+    
+    const outNeg = document.getElementById(`${baseId}Neg`);
+    if (outNeg) outNeg.textContent = allNegs;
+  } else {
+    // 1件のみの場合（従来通り）
+    const r = rows[0];
+    const prompt = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
+    const neg = r.neg || "";
+    const seed = r.seed || 0;
+
+    const allText = fmt.line(prompt, neg, seed);
+
+    const outAll = document.getElementById(`${baseId}All`);
+    if (outAll) outAll.textContent = allText;
+    
+    const outPrompt = document.getElementById(`${baseId}Prompt`);
+    if (outPrompt) outPrompt.textContent = prompt;
+    
+    const outNeg = document.getElementById(`${baseId}Neg`);
+    if (outNeg) outNeg.textContent = neg;
+  }
 }
 
 function bindCopyTripletExplicit(pairs){
