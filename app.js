@@ -1805,12 +1805,14 @@ function buildBatchProduction(n){
       });
     }
 
-    // 固定タグを先頭に
-    const fixedProd = (document.getElementById('fixedProd')?.value || "").trim();
-    if (fixedProd) {
-      const fixedTags = fixedProd.split(/\s*,\s*/).filter(Boolean);
-      p = [...fixedTags, ...p];
-    }
+    // ★★★ 修正：固定タグをLoRAタグの次に配置 ★★★
+  const fixedProd = (document.getElementById('fixedProd')?.value || "").trim();
+  if (fixedProd) {
+    const fixedTags = fixedProd.split(/\s*,\s*/).filter(Boolean);
+    // LoRAタグがある場合はその後に、ない場合は先頭近くに挿入
+    const insertIndex = loraTag ? 1 : 0;
+    p.splice(insertIndex, 0, ...fixedTags);
+  }
 
     // ★ seed の決定（ここが肝）
     const seed = (seedMode === 'fixed')
