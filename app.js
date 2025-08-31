@@ -1699,8 +1699,10 @@ function buildBatchLearning(n) {
        prompt, 
        text,
        caption  // ← 新規追加
-     };
-   }
+     });
+  }
+  return rows;
+}
 
 // ベースから微差を作る（+1ずつでもOK）
 function microJitterSeed(baseSeed, index) {
