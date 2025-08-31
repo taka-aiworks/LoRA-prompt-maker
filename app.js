@@ -348,14 +348,55 @@ function mergeIntoNSFW(json) {
 function radioList(el, list, name, {checkFirst = true} = {}) {
   if (!el) return;
   const items = normList(list);
-  el.innerHTML = items.map((it, i) => {
+  
+  // 一旦クリア
+  el.innerHTML = '';
+  
+  items.forEach((it, i) => {
     const showMini = it.tag && it.label && it.tag !== it.label;
-    const checked = (checkFirst && i === 0) ? 'checked' : '';
-    return `<label class="chip">
-      <input type="radio" name="${name}" value="${it.tag}" ${checked}>
-      ${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}
-    </label>`;
-  }).join("");
+    const checked = (checkFirst && i === 0);
+    const radioId = `${name}_${i}_${Date.now()}`;
+    
+    // 個別に要素を作成
+    const label = document.createElement('label');
+    label.className = 'chip';
+    label.setAttribute('for', radioId);
+    
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.id = radioId;
+    input.name = name;
+    input.value = it.tag;
+    input.checked = checked;
+    
+    const span = document.createElement('span');
+    span.textContent = it.label;
+    
+    if (showMini) {
+      const miniSpan = document.createElement('span');
+      miniSpan.className = 'mini';
+      miniSpan.textContent = ` ${it.tag}`;
+      span.appendChild(miniSpan);
+    }
+    
+    label.appendChild(input);
+    label.appendChild(span);
+    el.appendChild(label);
+    
+    // ★★★ 確実なクリックハンドラ ★★★
+    label.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!input.checked) {
+        // 同じname の他のラジオボタンをクリア
+        const others = document.querySelectorAll(`input[name="${name}"]`);
+        others.forEach(other => other.checked = false);
+        
+        // 自分をチェック
+        input.checked = true;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
+  });
 }
 
 
