@@ -726,6 +726,46 @@ function renderSFW(){
   bindOutfitModeChange();
 }
 
+// ワンピース/セパレート切り替え処理（新規追加）
+function bindOutfitModeChange() {
+  const outfitModeRadios = document.querySelectorAll('input[name="outfitMode"]');
+  outfitModeRadios.forEach(radio => {
+    radio.addEventListener('change', applyOutfitMode);
+  });
+  
+  // 初回適用
+  applyOutfitMode();
+}
+
+window.applyOutfitMode = function() {
+  const mode = getOne('outfitMode');
+  const isOnepiece = (mode === 'onepiece');
+  
+  // ワンピース関連の表示切り替え
+  const onepieceSection = document.getElementById('onepieceSection');
+  const separateSection = document.getElementById('separateSection');
+  const bottomCatSection = document.getElementById('bottomCatSection');
+  
+  if (onepieceSection) onepieceSection.style.display = isOnepiece ? '' : 'none';
+  if (separateSection) separateSection.style.display = isOnepiece ? 'none' : '';
+  if (bottomCatSection) bottomCatSection.style.display = isOnepiece ? 'none' : '';
+  
+  // 色設定の表示切り替え
+  const topColorSection = document.getElementById('topColorSection');
+  const bottomColorSection = document.getElementById('bottomColorSection');
+  
+  if (topColorSection) {
+    const label = topColorSection.querySelector('label');
+    if (label) label.textContent = isOnepiece ? 'ワンピース色' : 'トップス色';
+  }
+  if (bottomColorSection) {
+    bottomColorSection.style.display = isOnepiece ? 'none' : '';
+  }
+};
+
+
+
+
 function renderNSFWLearning(){
   const cap = (document.querySelector('input[name="nsfwLevelLearn"]:checked')?.value) || "L1";
   const allow = (lv)=> (lv||"L1") !== "L3";
