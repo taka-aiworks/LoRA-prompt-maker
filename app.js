@@ -1836,35 +1836,42 @@ function renderLearnTableTo(tbodySel, rows){
   tb.appendChild(frag);
 }
 
-// renderTextTriplet関数を修正
-function renderTextTriplet(baseId, rows, fmtId) {
-  if (!rows || !rows.length) return;
-  
-  const fmt = getFmt(`#${fmtId||'fmtPlanner'}`);
-  
-  // 学習・量産モードの場合は全件を出力
-  const isLearningMode = baseId.includes('Learn');
-  const isProdMode = baseId.includes('Prod');
-  
-  if ((isLearningMode || isProdMode) && rows.length > 1) {
-    // 全件のプロンプト、ネガティブ、全体を作成
-    const allPrompts = rows.map(r => Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "")).join("\n");
-    const allNegs = rows.map(r => r.neg || "").join("\n");
-    const allTexts = rows.map(r => {
-      const prompt = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
-      return fmt.line(prompt, r.neg || "", r.seed || 0);
-    }).join("\n");
+// まとめ出力（学習/量産）に使っているユーティリティ
+function renderTextTriplet(baseId, rows, fmtSelId){
+  const fmt = getFmt(`#${fmtSelId}`);
+
+  if (rows.length > 1) {
+    // 既存：allTexts / allPrompts はそのまま
+    const allPrompts = rows.map(r => Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "")).join("\n\n");
+    const allSeeds   = rows.map(r => r.seed || 0);
+    const allTexts   = rows.map((r,i) => {
+      const p = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
+      return fmt.line(p, r.neg || "", r.seed || 0);
+    }).join("\n\n");
+
+    // ★修正ポイント：ネガティブは“一つだけ”表示
+    // 1) 全行が同一ならその文字列を出す
+    // 2) もし異なる行が混在しても、重複を除いたトークンの和集合で1本にまとめる
+    const negUnion = (() => {
+      const negList = rows.map(r => (r.neg || "").trim()).filter(Boolean);
+      const allSame = negList.every(n => n === negList[0]);
+      if (negList.length === 0) return "";
+      if (allSame) return negList[0];
+      const tokens = new Set();
+      negList.forEach(n => n.split(",").map(s=>s.trim()).filter(Boolean).forEach(t => tokens.add(t)));
+      return Array.from(tokens).join(", ");
+    })();
 
     const outAll = document.getElementById(`${baseId}All`);
     if (outAll) outAll.textContent = allTexts;
-    
+
     const outPrompt = document.getElementById(`${baseId}Prompt`);
     if (outPrompt) outPrompt.textContent = allPrompts;
-    
+
     const outNeg = document.getElementById(`${baseId}Neg`);
-    if (outNeg) outNeg.textContent = allNegs;
+    if (outNeg) outNeg.textContent = negUnion;   // ←ここを一括1件に
   } else {
-    // 1件のみの場合（従来通り）
+    // 1件のみ（従来通り）
     const r = rows[0];
     const prompt = Array.isArray(r.pos) ? r.pos.join(", ") : (r.prompt || "");
     const neg = r.neg || "";
@@ -1874,10 +1881,10 @@ function renderTextTriplet(baseId, rows, fmtId) {
 
     const outAll = document.getElementById(`${baseId}All`);
     if (outAll) outAll.textContent = allText;
-    
+
     const outPrompt = document.getElementById(`${baseId}Prompt`);
     if (outPrompt) outPrompt.textContent = prompt;
-    
+
     const outNeg = document.getElementById(`${baseId}Neg`);
     if (outNeg) outNeg.textContent = neg;
   }
