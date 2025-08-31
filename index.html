@@ -1246,28 +1246,37 @@
   window.$$ = window.$$ || (s => document.querySelectorAll(s));
 
   function initTabs(){
-    $$(".tab").forEach(tab => {
-      tab.addEventListener("click", () => {
-        $$(".tab").forEach(x => x.classList.remove("active"));
-        tab.classList.add("active");
+  $$(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      $$(".tab").forEach(x => x.classList.remove("active"));
+      tab.classList.add("active");
 
-        const m = tab.dataset.mode;
-        $("#panelBasic").hidden      = (m !== "basic");
-        $("#panelWordMode").hidden   = (m !== "word"); 
-        $("#panelPlanner").hidden    = (m !== "planner");
-        $("#panelLearning").hidden   = (m !== "learning");
-        $("#panelProduction").hidden = (m !== "production");
-        $("#panelSettings").hidden   = (m !== "settings");
+      const m = tab.dataset.mode;
+      $("#panelBasic").hidden      = (m !== "basic");
+      $("#panelWordMode").hidden   = (m !== "word"); 
+      $("#panelPlanner").hidden    = (m !== "planner");
+      $("#panelLearning").hidden   = (m !== "learning");
+      $("#panelProduction").hidden = (m !== "production");
+      $("#panelSettings").hidden   = (m !== "settings");
 
-        if (m === "planner" && typeof pmInitPlannerOnce === "function") {
-          pmInitPlannerOnce();
-        }
-      });
+      // ★★★ 各タブの初回表示時に色ピッカーを初期化 ★★★
+      if (m === "planner" && typeof pmInitPlannerOnce === "function") {
+        pmInitPlannerOnce();
+      }
+      
+      if (m === "learning" && typeof initLearningColorWheels === "function") {
+        setTimeout(initLearningColorWheels, 100);
+      }
+      
+      if (m === "production" && typeof initProductionColorWheels === "function") {
+        setTimeout(initProductionColorWheels, 100);
+      }
     });
+  });
 
-    const initial = document.querySelector(".tab.active") || document.querySelector(".tab");
-    if (initial) initial.click();
-  }
+  const initial = document.querySelector(".tab.active") || document.querySelector(".tab");
+  if (initial) initial.click();
+}
   document.addEventListener("DOMContentLoaded", initTabs);
   </script>
   <script>
