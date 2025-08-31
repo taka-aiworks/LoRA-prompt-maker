@@ -706,7 +706,7 @@ function fillAccessorySlots(){
   });
 }
 
-/* ===== 基本情報のバインド ===== */
+// bindBasicInfo関数の修正版
 function bindBasicInfo() {
   // キャラ設定インポート
   const importChar = document.getElementById("importChar");
@@ -728,6 +728,18 @@ function bindBasicInfo() {
         if (data.loraTag) {
           const loraTagEl = document.getElementById("loraTag");
           if (loraTagEl) loraTagEl.value = data.loraTag;
+        }
+        
+        // 服モード復元
+        if (data.outfitMode) {
+          const outfitModeRadio = document.querySelector(`input[name="outfitMode"][value="${data.outfitMode}"]`);
+          if (outfitModeRadio) outfitModeRadio.checked = true;
+        }
+        
+        // 下カテゴリ復元
+        if (data.bottomCat) {
+          const bottomCatRadio = document.querySelector(`input[name="bottomCat"][value="${data.bottomCat}"]`);
+          if (bottomCatRadio) bottomCatRadio.checked = true;
         }
         
         // ラジオボタンの復元
@@ -752,11 +764,67 @@ function bindBasicInfo() {
           const litH = document.getElementById("litH");
           if (satH && data.hairColor.s) satH.value = data.hairColor.s;
           if (litH && data.hairColor.l) litH.value = data.hairColor.l;
-          if (data.hairColor.h && window.getHairColorTag) {
-            // 色相を設定（ホイールの更新）
+          if (data.hairColor.h !== undefined && window.getHairColorTag) {
             setTimeout(() => paintHairColor(data.hairColor.h), 100);
           }
         }
+        
+        if (data.eyeColor) {
+          const satE = document.getElementById("satE");
+          const litE = document.getElementById("litE");
+          if (satE && data.eyeColor.s) satE.value = data.eyeColor.s;
+          if (litE && data.eyeColor.l) litE.value = data.eyeColor.l;
+          if (data.eyeColor.h !== undefined && window.getEyeColorTag) {
+            setTimeout(() => paintEyeColor(data.eyeColor.h), 100);
+          }
+        }
+        
+        if (data.skinTone !== undefined) {
+          const skinTone = document.getElementById("skinTone");
+          if (skinTone) skinTone.value = data.skinTone;
+        }
+        
+        // 服の色の復元
+        ['top', 'bottom', 'shoes'].forEach(type => {
+          if (data[`${type}Color`]) {
+            const useCheckbox = document.getElementById(`use_${type}`);
+            const sat = document.getElementById(`sat_${type}`);
+            const lit = document.getElementById(`lit_${type}`);
+            
+            if (useCheckbox) useCheckbox.checked = data[`${type}Color`].use !== false;
+            if (sat && data[`${type}Color`].s !== undefined) sat.value = data[`${type}Color`].s;
+            if (lit && data[`${type}Color`].l !== undefined) lit.value = data[`${type}Color`].l;
+            
+            if (data[`${type}Color`].h !== undefined) {
+              const colorFunc = window[`get${type.charAt(0).toUpperCase()}${type.slice(1)}Color`];
+              if (colorFunc) {
+                setTimeout(() => {
+                  const wheel = document.getElementById(`wheel_${type}`);
+                  const thumb = document.getElementById(`thumb_${type}`);
+                  if (wheel && thumb) {
+                    const rect = wheel.getBoundingClientRect();
+                    const radius = rect.width / 2 - 7;
+                    const radians = (data[`${type}Color`].h - 90) * Math.PI / 180;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    thumb.style.left = (centerX + radius * Math.cos(radians) - 7) + "px";
+                    thumb.style.top = (centerY + radius * Math.sin(radians) - 7) + "px";
+                    
+                    // 色相更新
+                    if (colorFunc.onHue) colorFunc.onHue(data[`${type}Color`].h);
+                  }
+                }, 150);
+              }
+            }
+          }
+        });
+        
+        // UI更新
+        setTimeout(() => {
+          if (window.applyOutfitMode) window.applyOutfitMode();
+          paintSkin();
+        }, 200);
         
         toast("キャラ設定を読み込みました");
       } catch (error) {
@@ -764,7 +832,7 @@ function bindBasicInfo() {
         toast("キャラ設定の読み込みに失敗しました");
       }
       
-      e.target.value = ""; // ファイル選択をリセット
+      e.target.value = "";
     });
   }
   
@@ -775,6 +843,9 @@ function bindBasicInfo() {
       const data = {
         charName: document.getElementById("charName")?.value || "",
         loraTag: document.getElementById("loraTag")?.value || "",
+        // 服モード
+        outfitMode: getOne('outfitMode'),
+        bottomCat: getOne('bottomCat'),
         // 基本情報
         bf_age: getOne('bf_age'),
         bf_gender: getOne('bf_gender'),
@@ -782,24 +853,46 @@ function bindBasicInfo() {
         bf_height: getOne('bf_height'),
         hairStyle: getOne('hairStyle'),
         eyeShape: getOne('eyeShape'),
+        face: getOne('face'),
+        skinBody: getOne('skinBody'),
+        artStyle: getOne('artStyle'),
         // 服
         outfit_top: getOne('outfit_top'),
         outfit_pants: getOne('outfit_pants'),
         outfit_skirt: getOne('outfit_skirt'),
         outfit_dress: getOne('outfit_dress'),
         outfit_shoes: getOne('outfit_shoes'),
-        // 色情報
+        // 色情報（髪・目・肌）
         hairColor: {
-          h: window.getHairColorTag?.hue || 35,
+          h: window.getHairColorTag?.onHue?.__lastHue || 35,
           s: document.getElementById("satH")?.value || 70,
           l: document.getElementById("litH")?.value || 45
         },
         eyeColor: {
-          h: window.getEyeColorTag?.hue || 240,
+          h: window.getEyeColorTag?.onHue?.__lastHue || 240,
           s: document.getElementById("satE")?.value || 80,
           l: document.getElementById("litE")?.value || 55
         },
-        skinTone: document.getElementById("skinTone")?.value || 30
+        skinTone: document.getElementById("skinTone")?.value || 30,
+        // 服の色情報
+        topColor: {
+          use: document.getElementById("use_top")?.checked || false,
+          h: window.getTopColor?.onHue?.__lastHue || 35,
+          s: document.getElementById("sat_top")?.value || 80,
+          l: document.getElementById("lit_top")?.value || 55
+        },
+        bottomColor: {
+          use: document.getElementById("useBottomColor")?.checked || false,
+          h: window.getBottomColor?.onHue?.__lastHue || 210,
+          s: document.getElementById("sat_bottom")?.value || 70,
+          l: document.getElementById("lit_bottom")?.value || 50
+        },
+        shoesColor: {
+          use: document.getElementById("use_shoes")?.checked || false,
+          h: window.getShoesColor?.onHue?.__lastHue || 0,
+          s: document.getElementById("sat_shoes")?.value || 0,
+          l: document.getElementById("lit_shoes")?.value || 30
+        }
       };
       
       const filename = `character_${data.charName || 'unnamed'}_${nowStamp()}.json`;
