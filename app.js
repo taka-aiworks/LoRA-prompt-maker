@@ -1361,10 +1361,14 @@ function buildOneLearning(extraSeed = 0){
   
   if (!hasNSFWOutfit && wearMode === 'basic') {
     const outfits = [];
+    // ★★★ 修正箇所：チェックボックス状態を確認して色タグを取得 ★★★
     const colorTags = {
-      top: textOf('tag_top'),
-      bottom: textOf('tag_bottom'), 
-      shoes: textOf('tag_shoes')
+      top: document.getElementById('use_top')?.checked ? 
+           textOf('tag_top').replace(/^—$/, "") : "",
+      bottom: document.getElementById('useBottomColor')?.checked ? 
+              textOf('tag_bottom').replace(/^—$/, "") : "",
+      shoes: document.getElementById('use_shoes')?.checked ? 
+             textOf('tag_shoes').replace(/^—$/, "") : ""
     };
 
     if (isOnepiece) {
@@ -1402,30 +1406,39 @@ function buildOneLearning(extraSeed = 0){
     if (nsfwBody.length > 0) p.push(nsfwBody[0]); // 1つだけ
   }
 
-  // 各カテゴリから1つずつ（SFWとNSFWで競合する場合はNSFW優先）
-  const categories = [
-    { sfw: 'bg', nsfw: null, key: 'bg' },
-    { sfw: 'pose', nsfw: null, key: 'pose' },
-    { sfw: 'comp', nsfw: null, key: 'comp' },
-    { sfw: 'view', nsfw: null, key: 'view' },
-    { sfw: 'expr', nsfw: 'nsfwL_expr', key: 'expr' }
-  ];
-
-  categories.forEach(({ sfw, nsfw, key }) => {
+  // ★★★ 修正箇所：配分ルールに基づいた散らし処理を追加 ★★★
+  const categories = ['view', 'comp', 'expr', 'bg', 'light', 'pose'];
+  
+  categories.forEach(cat => {
     let selected = null;
     
-    // NSFW優先
-    if (isNSFW && nsfw) {
-      const nsfwSelected = getMany(nsfw);
-      if (nsfwSelected.length > 0) {
-        selected = nsfwSelected[0];
+    // NSFW優先チェック
+    if (isNSFW && cat === 'expr') {
+      const nsfwExpr = getMany('nsfwL_expr');
+      if (nsfwExpr.length > 0) {
+        selected = nsfwExpr[0];
       }
     }
     
-    // NSFWで選択されなかった場合はSFW
+    // 配分ルールから選択
     if (!selected) {
-      const sfwSelected = getOne(sfw);
-      if (sfwSelected) selected = sfwSelected;
+      selected = pickByDistribution(cat);
+    }
+    
+    // フォールバック: SFWからランダム選択
+    if (!selected) {
+      const sfwMap = {
+        'view': getMany('view'),
+        'comp': getMany('comp'), 
+        'expr': getMany('expr'),
+        'bg': getMany('bg'),
+        'light': getMany('lightLearn'),
+        'pose': getMany('pose')
+      };
+      const items = sfwMap[cat];
+      if (items && items.length > 0) {
+        selected = pick(items);
+      }
     }
     
     if (selected) p.push(selected);
@@ -2008,15 +2021,19 @@ function initSkinTone(){
 /* ===== 服の完成タグをUIで直接生成 ===== */
 function makeFinalOutfitTags(selectedOutfits, colorTags) {
   const sel = Array.isArray(selectedOutfits) ? selectedOutfits.filter(Boolean) : [];
-  const colors = Object.assign({ top:"", bottom:"", shoes:"" }, (colorTags||{}));
+  // 「—」を空文字に変換して色なしとして扱う
+  const colors = {
+    top: (colorTags?.top || "").replace(/^—$/, ""),
+    bottom: (colorTags?.bottom || "").replace(/^—$/, ""),
+    shoes: (colorTags?.shoes || "").replace(/^—$/, "")
+  };
 
-  // デバッグ用ログ
   console.log('makeFinalOutfitTags called with:', {
     selectedOutfits: sel,
-    colorTags: colors
+    colorTags: colors  // 修正後の色タグを表示
   });
 
-  // 辞書があればカテゴリを引く（なければ推定）
+  // 以下既存のコード...
   const catMap = new Map();
   try {
     const dict = (window.SFW && Array.isArray(SFW.outfit)) ? SFW.outfit : [];
@@ -2026,24 +2043,21 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
   const getCat = (tag) => {
     const k = String(tag||"").toLowerCase();
     if (catMap.has(k)) return catMap.get(k);
-    // 簡易推定（辞書が無い/足りない場合の保険）
     if (/(dress|kimono|yukata|cheongsam|hanbok|sari|uniform|gown)$/i.test(k)) return "dress";
     if (/(skirt)$/i.test(k)) return "skirt";
     if (/(jeans|pants|trousers|shorts|overalls|hakama)$/i.test(k)) return "pants";
     if (/(boots|sneakers|loafers|mary janes|socks)$/i.test(k)) return "shoes";
-    return "top"; // 迷ったら top とみなす
+    return "top";
   };
 
   const hasDress = sel.some(t => getCat(t) === "dress");
 
-  // すでに色名で始まってたら二重付与しないための軽いチェック
-  const colorPool = new Set(
-    ((window.SFW && Array.isArray(SFW.colors) ? SFW.colors.map(c=>c.tag) : [])).concat([
-      "white","black","red","blue","green","yellow","pink","purple","orange","brown","gray","silver","gold","beige","navy",
-      "light blue","sky blue","teal","turquoise","lavender","violet","magenta","crimson","scarlet","emerald","olive",
-      "khaki","ivory","peach","mint"
-    ]).map(s=>String(s).toLowerCase())
-  );
+  const colorPool = new Set([
+    "white","black","red","blue","green","yellow","pink","purple","orange","brown","gray","silver","gold","beige","navy",
+    "light blue","sky blue","teal","turquoise","lavender","violet","magenta","crimson","scarlet","emerald","olive",
+    "khaki","ivory","peach","mint"
+  ].map(s=>String(s).toLowerCase()));
+  
   const startsWithColor = (s)=>{
     const t = String(s||"").toLowerCase();
     return Array.from(colorPool).some(c => t.startsWith(c+" "));
@@ -2051,10 +2065,8 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
 
   const out = [];
   if (hasDress) {
-    // ワンピは top の色を前置き。下の色は無効（下は出力しない）
     for (const t of sel) {
       const cat = getCat(t);
-      console.log('Processing dress item:', t, 'category:', cat);
       if (cat === "dress") {
         const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
         out.push(tagged);
@@ -2062,17 +2074,15 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
         const tagged = startsWithColor(t) ? t : (colors.shoes ? `${colors.shoes} ${t}` : t);
         out.push(tagged);
       }
-      // top/pants/skirt は無視
     }
   } else {
-    // 通常モード：top / bottom / shoes を色前置
     for (const t of sel) {
       const cat = getCat(t);
-      console.log('Processing separate item:', t, 'category:', cat);
       if (cat === "top") {
         const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
         out.push(tagged);
       } else if (cat === "pants" || cat === "skirt") {
+        // bottomカラーが設定されている場合のみ色を追加
         const tagged = startsWithColor(t) ? t : (colors.bottom ? `${colors.bottom} ${t}` : t);
         out.push(tagged);
         console.log('Added bottom item:', tagged, 'with color:', colors.bottom);
@@ -2080,11 +2090,10 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
         const tagged = startsWithColor(t) ? t : (colors.shoes ? `${colors.shoes} ${t}` : t);
         out.push(tagged);
       } else if (cat === "dress") {
-        // 念のため（hasDress=falseなので単独ワンピのとき）
         const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
         out.push(tagged);
       } else {
-        out.push(t); // 未分類はそのまま
+        out.push(t);
       }
     }
   }
