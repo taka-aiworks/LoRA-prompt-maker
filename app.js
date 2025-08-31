@@ -38,6 +38,116 @@ function seedFromName(nm, extra = 0) {
   return h >>> 0;
 }
 
+
+/* ===== 学習用配分ルール ===== */
+// === 顔安定版・配分ルール（希少枠を底上げ＆実用レンジに調整） =======================
+const MIX_RULES = {
+  view: {
+    group: ["front view","three-quarter view","side view","profile view","back view"],
+    targets: {
+      "three-quarter view":[0.50,0.58], // 顔が崩れにくい主軸
+      "front view":[0.30,0.35],
+      "side view":[0.04,0.06],          // ←底上げ
+      "profile view":[0.03,0.05],       // ←底上げ
+      "back view":[0.01,0.02]           // ←極少だけ残す
+    },
+    fallback: "three-quarter view"
+  },
+  comp: {
+    group: ["bust","waist up","portrait","upper body","close-up","full body","wide shot"],
+    targets: {
+      "bust":[0.32,0.38],
+      "waist up":[0.26,0.32],
+      "portrait":[0.08,0.12],
+      "upper body":[0.06,0.10],
+      "close-up":[0.03,0.05],
+      "full body":[0.10,0.15], // ←しっかり混ざる
+      "wide shot":[0.02,0.04]  // ←底上げ
+    },
+    fallback: "bust"
+  },
+  expr: {
+    group: [
+      "neutral expression","smiling","smiling open mouth",
+      "slight blush","serious","determined","pouting (slight)"
+    ],
+    targets: {
+      "neutral expression":[0.50,0.60],  // ちょい緩めに
+      "smiling":[0.22,0.28],
+      "smiling open mouth":[0.04,0.06],  // ←底上げ
+      "slight blush":[0.03,0.05],
+      "serious":[0.02,0.03],             // ←底上げ
+      "determined":[0.01,0.02],
+      "pouting (slight)":[0.01,0.02]
+    },
+    fallback: "neutral expression"
+  },
+  bg: {
+    group: ["plain background","white background","studio background","solid background","white seamless","gray seamless"],
+    targets: {
+      "plain background":[0.48,0.55],   // 主体
+      "white background":[0.18,0.24],
+      "studio background":[0.08,0.12],
+      "solid background":[0.05,0.08],
+      "white seamless":[0.02,0.03],     // ←底上げ
+      "gray seamless":[0.02,0.03]       // ←底上げ
+    },
+    fallback: "plain background"
+  },
+  light: {
+    group: ["even lighting","soft lighting","normal lighting","window light","overcast"],
+    targets: {
+      "even lighting":[0.35,0.45],
+      "soft lighting":[0.30,0.35],
+      "normal lighting":[0.15,0.20],
+      "window light":[0.05,0.08],
+      "overcast":[0.01,0.03] // ←わずかに増
+    },
+    fallback: "even lighting"
+  },
+  pose: {
+    group: ["standing","sitting","arms at sides","hand on hip","arms crossed","looking at viewer"],
+    targets: {
+      "standing":[0.40,0.50],
+      "sitting":[0.20,0.25],
+      "arms at sides":[0.15,0.20],
+      "hand on hip":[0.08,0.12],
+      "arms crossed":[0.03,0.05],
+      "looking at viewer":[0.02,0.04]
+    },
+    fallback: "standing"
+  }
+};
+
+window.MIX_RULES = MIX_RULES;
+const EXPR_ALL = new Set([...Object.keys(MIX_RULES.expr.targets), MIX_RULES.expr.fallback]);
+
+// === outfitの取り込み方針 =======================
+const TRAINING_POLICY = {
+  outfit: { mode: 'off', neutral_tag: 'casual outfit' }
+};
+
+// 配分ルールに基づいた選択関数
+function pickByDistribution(category) {
+  const rule = MIX_RULES[category];
+  if (!rule) return null;
+  
+  const rand = Math.random();
+  let cumulative = 0;
+  
+  for (const [item, range] of Object.entries(rule.targets)) {
+    const prob = range[0] + Math.random() * (range[1] - range[0]);
+    cumulative += prob;
+    if (rand <= cumulative) {
+      return item;
+    }
+  }
+  
+  return rule.fallback;
+}
+
+
+
 /* ===== Tag Dictionary Bootstrap ===== */
 window.TAGMAP = {
   en: new Map(),
@@ -611,6 +721,9 @@ function renderSFW(){
   radioList($("#bf_gender"),   SFW.gender,       "bf_gender");
   radioList($("#bf_body"),     SFW.body_type,    "bf_body");
   radioList($("#bf_height"),   SFW.height,       "bf_height");
+
+  // ワンピース/セパレートの切り替えイベントを追加
+  bindOutfitModeChange();
 }
 
 function renderNSFWLearning(){
@@ -1260,14 +1373,128 @@ function buildOneLearning(extraSeed = 0){
   return { seed, pos:p, neg, prompt, text };
 }
 
-// 学習モードバッチ生成関数
+// 学習モードバッチ生成関数（配分ルール適用）
 function buildBatchLearning(n) {
   const want = Math.max(1, Number(n) || 1);
   const rows = [];
   
+  // 共通のネガティブプロンプトを1回だけ生成
+  const useDefNeg = !!document.getElementById('useDefaultNeg')?.checked;
+  const addNeg = (document.getElementById('negLearn')?.value || "").trim();
+  const commonNeg = buildNegative(addNeg, useDefNeg);
+  
   for(let i = 0; i < want; i++) {
-    const result = buildOneLearning(i);
-    rows.push(result);
+    const textOf = id => (document.getElementById(id)?.textContent || "").trim();
+    let p = [];
+    
+    // NSFWチェック
+    const isNSFW = document.getElementById("nsfwLearn")?.checked;
+    if (isNSFW) {
+      p.push("NSFW");
+    }
+    
+    p.push("solo");
+    
+    const g = getGenderCountTag() || "";
+    if (g) p.push(g);
+
+    // 基本情報
+    p.push(...[
+      getBFValue('age'), getBFValue('gender'), getBFValue('body'), getBFValue('height'),
+      getOne('hairStyle'), getOne('eyeShape'),
+      textOf('tagH'), textOf('tagE'), textOf('tagSkin')
+    ].filter(Boolean));
+
+    // 服の処理（ワンピース対応、NSFW優先）
+    const isOnepiece = getIsOnepiece();
+    const wearMode = document.querySelector('input[name="learnWearMode"]:checked')?.value || 'basic';
+    
+    let hasNSFWOutfit = false;
+    if (isNSFW) {
+      const nsfwOutfits = getMany("nsfwL_outfit");
+      if (nsfwOutfits.length > 0) {
+        p.push(pick(nsfwOutfits));
+        hasNSFWOutfit = true;
+      }
+    }
+    
+    if (!hasNSFWOutfit && wearMode === 'basic') {
+      const outfits = [];
+      const colorTags = {
+        top: textOf('tag_top'),
+        bottom: textOf('tag_bottom'), 
+        shoes: textOf('tag_shoes')
+      };
+
+      if (isOnepiece) {
+        const dress = getOne('outfit_dress');
+        if (dress) outfits.push(dress);
+      } else {
+        const top = getOne('outfit_top');
+        const bottomCat = getOne('bottomCat') || 'pants';
+        const pants = getOne('outfit_pants');
+        const skirt = getOne('outfit_skirt');
+        const shoes = getOne('outfit_shoes');
+        
+        if (top) outfits.push(top);
+        if (bottomCat === 'pants' && pants) outfits.push(pants);
+        else if (bottomCat === 'skirt' && skirt) outfits.push(skirt);
+        if (shoes) outfits.push(shoes);
+      }
+
+      const finalOutfits = makeFinalOutfitTags(outfits, colorTags);
+      p.push(...finalOutfits);
+    }
+
+    // 固定アクセサリー
+    const accSel = document.getElementById("learn_acc");
+    const accColor = window.getLearnAccColor ? window.getLearnAccColor() : "";
+    if (accSel && accSel.value && accColor) {
+      p.push(`${accColor} ${accSel.value}`);
+    } else if (accSel && accSel.value) {
+      p.push(accSel.value);
+    }
+
+    // NSFW要素（学習モード）- 体型のみ
+    if (isNSFW) {
+      const nsfwBody = getMany("nsfwL_body");
+      if (nsfwBody.length > 0) p.push(pick(nsfwBody));
+    }
+
+    // ★★★ 配分ルールに基づいた散らし処理 ★★★
+    const categories = ['view', 'comp', 'expr', 'bg', 'light', 'pose'];
+    
+    categories.forEach(cat => {
+      let selected = null;
+      
+      // NSFW優先チェック
+      if (isNSFW && cat === 'expr') {
+        const nsfwExpr = getMany('nsfwL_expr');
+        if (nsfwExpr.length > 0) {
+          selected = pick(nsfwExpr);
+        }
+      }
+      
+      // 配分ルールから選択
+      if (!selected) {
+        selected = pickByDistribution(cat);
+      }
+      
+      if (selected) p.push(selected);
+    });
+
+    // 固定タグ
+    const fixed = (document.getElementById('fixedLearn')?.value || "").trim();
+    if (fixed){
+      const f = fixed.split(/\s*,\s*/).filter(Boolean);
+      p = [...f, ...p];
+    }
+
+    const seed = seedFromName((document.getElementById('charName')?.value || ''), i);
+    const prompt = p.join(", ");
+    const text = `${prompt}${commonNeg?` --neg ${commonNeg}`:""} seed:${seed}`;
+    
+    rows.push({ seed, pos:p, neg: commonNeg, prompt, text });
   }
   
   return rows;
@@ -1277,6 +1504,9 @@ function buildBatchLearning(n) {
 function buildBatchProduction(n){
   const want = Math.max(1, Number(n) || 1);
   const rows = [];
+  
+  // ★ 共通のネガティブプロンプトを1回だけ生成 ★
+  const commonNeg = buildNegative((document.getElementById("p_neg")?.value || "").trim(), true);
   
   for(let i=0; i<want; i++){
     let p = [];
@@ -1425,11 +1655,10 @@ function buildBatchProduction(n){
       p = [...fixedTags, ...p];
     }
 
-    const neg = buildNegative((document.getElementById("p_neg")?.value || "").trim(), true);
     const seed = seedFromName((document.getElementById('charName')?.value || ""), i+1);
     const prompt = p.join(", ");
     
-    rows.push({ seed, pos:p, prompt, neg, text: `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}` });
+    rows.push({ seed, pos:p, prompt, neg: commonNeg, text: `${prompt}${commonNeg?` --neg ${commonNeg}`:""} seed:${seed}` });
   }
   return rows;
 }
