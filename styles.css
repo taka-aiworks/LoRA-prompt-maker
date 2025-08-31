@@ -397,10 +397,10 @@ details[open] summary .caret { transform: rotate(90deg); }
 
 /* 機能としての無効化は fieldset[disabled] を使うが、見た目は変えない */
 fieldset { border: 0; margin: 0; padding: 0; }
-fieldset:disabled {
-  pointer-events: none;   /* 入力は止める */
-  opacity: inherit;             /* ← ここがキモ：見た目は .is-disabled に任せる */
-}
+/*fieldset:disabled {
+  pointer-events: none;   
+  opacity: inherit;             
+} */
 
 /* Safari 対策 */
 fieldset, fieldset:disabled {
