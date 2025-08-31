@@ -354,7 +354,7 @@ function radioList(el, list, name, {checkFirst = true} = {}) {
     const checked = (checkFirst && i === 0) ? 'checked' : '';
     return `<label class="chip">
       <input type="radio" name="${name}" value="${it.tag}" ${checked}>
-      ${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}
+      <span>${it.label}${showMini ? `<span class="mini"> ${it.tag}</span>` : ""}</span>
     </label>`;
   }).join("");
 }
@@ -536,15 +536,19 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
     const [r, g, b] = hslToRgb(hue, s, l);
     sw.style.background = `rgb(${r},${g},${b})`;
     
-    // 対応する使用チェックボックスがあるか確認
+    // 対応する使用チェックボックスがあるか確認（bottom対応強化）
     const useCheckbox = document.getElementById("use_" + idBase) || 
                        document.getElementById("p_use_" + idBase) ||
-                       document.getElementById("useBottomColor");
+                       (idBase === 'bottom' ? document.getElementById("useBottomColor") : null);
+    
+    console.log(`Color wheel ${idBase}: useCheckbox found:`, !!useCheckbox, 'checked:', useCheckbox?.checked);
     
     if (useCheckbox && !useCheckbox.checked) {
       tag.textContent = "—";
     } else {
-      tag.textContent = colorNameFromHSL(hue, s, l);
+      const colorName = colorNameFromHSL(hue, s, l);
+      tag.textContent = colorName;
+      console.log(`Color wheel ${idBase}: set color to`, colorName);
     }
   }
   
@@ -560,12 +564,15 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
   
-  // 使用チェックボックスの変更を監視
+  // 使用チェックボックスの変更を監視（bottom対応強化）
   const useCheckbox = document.getElementById("use_" + idBase) || 
                      document.getElementById("p_use_" + idBase) ||
-                     document.getElementById("useBottomColor");
+                     (idBase === 'bottom' ? document.getElementById("useBottomColor") : null);
   if (useCheckbox) {
-    useCheckbox.addEventListener("change", paint);
+    useCheckbox.addEventListener("change", (e) => {
+      console.log(`Checkbox ${idBase} changed to:`, e.target.checked);
+      paint();
+    });
   }
   
   requestAnimationFrame(() => {
@@ -741,14 +748,25 @@ window.applyOutfitMode = function() {
   const mode = getOne('outfitMode');
   const isOnepiece = (mode === 'onepiece');
   
+  console.log('applyOutfitMode called, mode:', mode, 'isOnepiece:', isOnepiece);
+  
   // ワンピース関連の表示切り替え
   const onepieceSection = document.getElementById('onepieceSection');
   const separateSection = document.getElementById('separateSection');
   const bottomCatSection = document.getElementById('bottomCatSection');
   
-  if (onepieceSection) onepieceSection.style.display = isOnepiece ? '' : 'none';
-  if (separateSection) separateSection.style.display = isOnepiece ? 'none' : '';
-  if (bottomCatSection) bottomCatSection.style.display = isOnepiece ? 'none' : '';
+  if (onepieceSection) {
+    onepieceSection.style.display = isOnepiece ? 'block' : 'none';
+    console.log('onepieceSection display:', onepieceSection.style.display);
+  }
+  if (separateSection) {
+    separateSection.style.display = isOnepiece ? 'none' : 'block';
+    console.log('separateSection display:', separateSection.style.display);
+  }
+  if (bottomCatSection) {
+    bottomCatSection.style.display = isOnepiece ? 'none' : 'block';
+    console.log('bottomCatSection display:', bottomCatSection.style.display);
+  }
   
   // 色設定の表示切り替え
   const topColorSection = document.getElementById('topColorSection');
@@ -759,7 +777,23 @@ window.applyOutfitMode = function() {
     if (label) label.textContent = isOnepiece ? 'ワンピース色' : 'トップス色';
   }
   if (bottomColorSection) {
-    bottomColorSection.style.display = isOnepiece ? 'none' : '';
+    bottomColorSection.style.display = isOnepiece ? 'none' : 'block';
+  }
+  
+  // 選択をリセット（モード切り替え時の不整合を防ぐ）
+  if (isOnepiece) {
+    // セパレート系の選択をクリア
+    const topRadios = document.querySelectorAll('input[name="outfit_top"]');
+    const pantsRadios = document.querySelectorAll('input[name="outfit_pants"]');
+    const skirtRadios = document.querySelectorAll('input[name="outfit_skirt"]');
+    
+    topRadios.forEach(radio => radio.checked = false);
+    pantsRadios.forEach(radio => radio.checked = false);
+    skirtRadios.forEach(radio => radio.checked = false);
+  } else {
+    // ワンピースの選択をクリア
+    const dressRadios = document.querySelectorAll('input[name="outfit_dress"]');
+    dressRadios.forEach(radio => radio.checked = false);
   }
 };
 
@@ -1976,6 +2010,12 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
   const sel = Array.isArray(selectedOutfits) ? selectedOutfits.filter(Boolean) : [];
   const colors = Object.assign({ top:"", bottom:"", shoes:"" }, (colorTags||{}));
 
+  // デバッグ用ログ
+  console.log('makeFinalOutfitTags called with:', {
+    selectedOutfits: sel,
+    colorTags: colors
+  });
+
   // 辞書があればカテゴリを引く（なければ推定）
   const catMap = new Map();
   try {
@@ -2014,6 +2054,7 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
     // ワンピは top の色を前置き。下の色は無効（下は出力しない）
     for (const t of sel) {
       const cat = getCat(t);
+      console.log('Processing dress item:', t, 'category:', cat);
       if (cat === "dress") {
         const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
         out.push(tagged);
@@ -2027,20 +2068,28 @@ function makeFinalOutfitTags(selectedOutfits, colorTags) {
     // 通常モード：top / bottom / shoes を色前置
     for (const t of sel) {
       const cat = getCat(t);
+      console.log('Processing separate item:', t, 'category:', cat);
       if (cat === "top") {
-        out.push(startsWithColor(t) ? t : (colors.top    ? `${colors.top} ${t}`    : t));
+        const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
+        out.push(tagged);
       } else if (cat === "pants" || cat === "skirt") {
-        out.push(startsWithColor(t) ? t : (colors.bottom ? `${colors.bottom} ${t}` : t));
+        const tagged = startsWithColor(t) ? t : (colors.bottom ? `${colors.bottom} ${t}` : t);
+        out.push(tagged);
+        console.log('Added bottom item:', tagged, 'with color:', colors.bottom);
       } else if (cat === "shoes") {
-        out.push(startsWithColor(t) ? t : (colors.shoes  ? `${colors.shoes} ${t}`  : t));
+        const tagged = startsWithColor(t) ? t : (colors.shoes ? `${colors.shoes} ${t}` : t);
+        out.push(tagged);
       } else if (cat === "dress") {
         // 念のため（hasDress=falseなので単独ワンピのとき）
-        out.push(startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t));
+        const tagged = startsWithColor(t) ? t : (colors.top ? `${colors.top} ${t}` : t);
+        out.push(tagged);
       } else {
         out.push(t); // 未分類はそのまま
       }
     }
   }
+  
+  console.log('Final outfit tags:', out);
   return out;
 }
 
