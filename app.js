@@ -957,78 +957,78 @@ function bindBasicInfo() {
 /* ===== 単語モードの初期化 ===== */
 function initWordMode() {
   // 単語モードの基本初期化はここで行う
-   window.initWordModeItems = function() {
-     // SFW項目の初期化
-     const sfwCategories = {
-       'background': SFW.background || [],
-       'pose': SFW.pose || [],
-       'composition': SFW.composition || [],
-       'view': SFW.view || [],
-       'expression-sfw': SFW.expressions || [],
-       'lighting-sfw': SFW.lighting || [],
-       'accessories': SFW.accessories || []
-     };
+  window.initWordModeItems = function() {
+    // SFW項目の初期化
+    const sfwCategories = {
+      'background': SFW.background || [],
+      'pose': SFW.pose || [],
+      'composition': SFW.composition || [],
+      'view': SFW.view || [],
+      'expression-sfw': SFW.expressions || [],
+      'lighting-sfw': SFW.lighting || [],
+      'accessories': SFW.accessories || []
+    };
 
+    // NSFW項目の初期化
+    const nsfwCategories = {
+      'exposure': NSFW.exposure || [],
+      'underwear-nsfw': NSFW.underwear || [],
+      'outfit-nsfw': NSFW.outfit || [],
+      'expression-nsfw': NSFW.expression || [],
+      'situation': NSFW.situation || [],
+      'lighting-nsfw': NSFW.lighting || [],
+      'pose-nsfw': NSFW.pose || [],
+      'accessory-nsfw': NSFW.accessory || [],
+      'body-nsfw': NSFW.body || [],
+      'nipple-nsfw': NSFW.nipples || []
+    };
     
-      // NSFW項目の初期化
-  const nsfwCategories = {
-    'exposure': NSFW.exposure || [],
-    'underwear-nsfw': NSFW.underwear || [],
-    'outfit-nsfw': NSFW.outfit || [],
-    'expression-nsfw': NSFW.expression || [],
-    'situation': NSFW.situation || [],
-    'lighting-nsfw': NSFW.lighting || [],
-    'pose-nsfw': NSFW.pose || [],
-    'accessory-nsfw': NSFW.accessory || [],
-    'body-nsfw': NSFW.body || [],
-    'nipple-nsfw': NSFW.nipples || []
-  };
-  
-  // 色の初期化
-  const colors = SFW.colors || [
-    {tag: 'white', label: '白'},
-    {tag: 'black', label: '黒'},
-    {tag: 'red', label: '赤'},
-    {tag: 'blue', label: '青'},
-    {tag: 'green', label: '緑'},
-    {tag: 'yellow', label: '黄'},
-    {tag: 'pink', label: 'ピンク'},
-    {tag: 'purple', label: '紫'},
-    {tag: 'orange', label: 'オレンジ'},
-    {tag: 'brown', label: '茶'}
-  ];
-  
-  // 各カテゴリにアイテムを追加
-  Object.entries(sfwCategories).forEach(([cat, items]) => {
-    const container = document.getElementById(`wm-items-${cat}`);
-    const count = document.getElementById(`wm-count-${cat}`);
-    if (container && items.length > 0) {
-      container.innerHTML = items.map(item => createWordModeItem(item, cat)).join('');
-      if (count) count.textContent = items.length;
+    // 色の初期化
+    const colors = SFW.colors || [
+      {tag: 'white', label: '白'},
+      {tag: 'black', label: '黒'},
+      {tag: 'red', label: '赤'},
+      {tag: 'blue', label: '青'},
+      {tag: 'green', label: '緑'},
+      {tag: 'yellow', label: '黄'},
+      {tag: 'pink', label: 'ピンク'},
+      {tag: 'purple', label: '紫'},
+      {tag: 'orange', label: 'オレンジ'},
+      {tag: 'brown', label: '茶'}
+    ];
+    
+    // 各カテゴリにアイテムを追加
+    Object.entries(sfwCategories).forEach(([cat, items]) => {
+      const container = document.getElementById(`wm-items-${cat}`);
+      const count = document.getElementById(`wm-count-${cat}`);
+      if (container && items.length > 0) {
+        container.innerHTML = items.map(item => createWordModeItem(item, cat)).join('');
+        if (count) count.textContent = items.length;
+      }
+    });
+    
+    Object.entries(nsfwCategories).forEach(([cat, items]) => {
+      const container = document.getElementById(`wm-items-${cat}`);
+      const count = document.getElementById(`wm-count-${cat}`);
+      if (container && items.length > 0) {
+        container.innerHTML = items.map(item => createWordModeItem(item, cat)).join('');
+        if (count) count.textContent = items.length;
+      }
+    });
+    
+    // 色の初期化
+    const colorContainer = document.getElementById('wm-items-color');
+    const colorCount = document.getElementById('wm-count-color');
+    if (colorContainer) {
+      colorContainer.innerHTML = colors.map(item => createWordModeColorItem(item)).join('');
+      if (colorCount) colorCount.textContent = colors.length;
     }
-  });
-  
-  Object.entries(nsfwCategories).forEach(([cat, items]) => {
-    const container = document.getElementById(`wm-items-${cat}`);
-    const count = document.getElementById(`wm-count-${cat}`);
-    if (container && items.length > 0) {
-      container.innerHTML = items.map(item => createWordModeItem(item, cat)).join('');
-      if (count) count.textContent = items.length;
-    }
-  });
-  
-  // 色の初期化
-  const colorContainer = document.getElementById('wm-items-color');
-  const colorCount = document.getElementById('wm-count-color');
-  if (colorContainer) {
-    colorContainer.innerHTML = colors.map(item => createWordModeColorItem(item)).join('');
-    if (colorCount) colorCount.textContent = colors.length;
-  }
-  
-  // イベントハンドラーを追加
-  bindWordModeEvents();
-};
+    
+    // イベントハンドラーを追加
+    bindWordModeEvents();
+  }; // ← window.initWordModeItems の終了
 
+} // ← initWordMode() 関数の終了（この括弧が不足していました）
 
 /* ===== 単語モードのイベントバインド ===== */
 /* ===== 単語モードのイベントバインド ===== */
