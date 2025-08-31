@@ -906,3 +906,30 @@ input[type="checkbox"]{
   accent-color: var(--brand);
 }
 
+/* ====== ワンピース・モード切替ラジオボタンの色を統一 ====== */
+/* すべてのラジオボタンとチェックボックスをブランド色に統一（詳細度を上げる） */
+input[type="radio"],
+input[type="checkbox"] {
+  accent-color: var(--brand) !important;
+}
+
+/* 特に基本情報タブ内のラジオボタン全体 */
+#panelBasic input[type="radio"],
+#panelBasic input[type="checkbox"] {
+  accent-color: var(--brand) !important;
+}
+
+/* outfitMode（ワンピース/セパレート）のラジオボタン */
+#panel_outfitFixed input[name="outfitMode"] {
+  accent-color: var(--brand) !important;
+}
+
+/* 無効状態でも色は青のまま維持 */
+.panel.is-disabled input[type="radio"],
+.panel.is-disabled input[type="checkbox"],
+fieldset:disabled input[type="radio"],
+fieldset:disabled input[type="checkbox"] {
+  accent-color: var(--brand) !important;
+  opacity: 1 !important;
+}
+
