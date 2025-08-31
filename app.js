@@ -403,6 +403,7 @@ function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
   return ()=> (($(tagId).textContent) || "").trim();
 }
 
+// initColorWheel関数内のpaint関数を修正
 function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   const wheel = document.getElementById("wheel_" + idBase);
   const thumb = document.getElementById("thumb_" + idBase);
@@ -417,7 +418,6 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   
   let hue = defaultHue;
   
-  // 初期値を設定
   sat.value = defaultS;
   lit.value = defaultL;
   
@@ -426,7 +426,17 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
     const l = +lit.value;
     const [r, g, b] = hslToRgb(hue, s, l);
     sw.style.background = `rgb(${r},${g},${b})`;
-    tag.textContent = colorNameFromHSL(hue, s, l);
+    
+    // 対応する使用チェックボックスがあるか確認
+    const useCheckbox = document.getElementById("use_" + idBase) || 
+                       document.getElementById("p_use_" + idBase) ||
+                       document.getElementById("useBottomColor");
+    
+    if (useCheckbox && !useCheckbox.checked) {
+      tag.textContent = "—";
+    } else {
+      tag.textContent = colorNameFromHSL(hue, s, l);
+    }
   }
   
   const onHue = (h) => {
@@ -436,17 +446,21 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   };
   onHue.__lastHue = hue;
   
-  // ホイールのドラッグ機能を追加
   addHueDrag(wheel, thumb, onHue);
   
-  // スライダーのイベント
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
   
-  // 初期描画と親指の位置設定
+  // 使用チェックボックスの変更を監視
+  const useCheckbox = document.getElementById("use_" + idBase) || 
+                     document.getElementById("p_use_" + idBase) ||
+                     document.getElementById("useBottomColor");
+  if (useCheckbox) {
+    useCheckbox.addEventListener("change", paint);
+  }
+  
   requestAnimationFrame(() => {
     paint();
-    // 親指の初期位置を正しく設定
     const rect = wheel.getBoundingClientRect();
     const radius = rect.width / 2 - 7;
     const radians = (hue - 90) * Math.PI / 180;
@@ -457,7 +471,6 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
     thumb.style.top = (centerY + radius * Math.sin(radians) - 7) + "px";
   });
   
-  // 色タグ取得関数を返す
   return () => tag.textContent.trim();
 }
 
@@ -1417,7 +1430,7 @@ function buildOnePlanner() {
   return { seed, pos: p, neg, prompt, text: `${prompt}${neg ? ` --neg ${neg}` : ""} seed:${seed}` };
 }
 
-/* ===== 撮影モードのNSFW描画 ===== */
+// renderPlannerNSFW関数を修正
 function renderPlannerNSFW() {
   const level = document.querySelector('input[name="pl_nsfwLevel"]:checked')?.value || "L1";
   const order = { L1: 1, L2: 2, L3: 3 };
@@ -1426,13 +1439,13 @@ function renderPlannerNSFW() {
   
   const filterByLevel = (arr) => normList(arr).filter(x => allowLevel(x.level));
   
-  const createChip = (item, name) => 
+  const createRadio = (item, name) => 
     `<label class="chip">
-      <input type="checkbox" name="${name}" value="${item.tag}">
+      <input type="radio" name="${name}" value="${item.tag}">
       ${item.label}<span class="mini"> ${levelLabel(item.level)}</span>
     </label>`;
 
-  // 各NSFW要素を描画
+  // 各NSFW要素を描画（ラジオボタン）
   const nsfwElements = [
     ['pl_nsfw_expo', 'exposure', NSFW.exposure],
     ['pl_nsfw_underwear', 'underwear', NSFW.underwear],
@@ -1449,7 +1462,7 @@ function renderPlannerNSFW() {
   nsfwElements.forEach(([elementId, category, items]) => {
     const element = document.getElementById(elementId);
     if (element && items) {
-      element.innerHTML = filterByLevel(items).map(item => createChip(item, elementId)).join('');
+      element.innerHTML = filterByLevel(items).map(item => createRadio(item, elementId)).join('');
     }
   });
 }
