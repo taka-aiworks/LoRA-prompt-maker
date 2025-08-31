@@ -897,3 +897,6 @@ fieldset:disabled label.chip {
   pointer-events: none;
   filter: grayscale(80%);
 }
+
+/* ラジオの色を常に青で */
+#panel_outfitFixed input[type="radio"] { accent-color: var(--brand); }
