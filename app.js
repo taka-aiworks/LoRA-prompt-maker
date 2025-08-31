@@ -1112,27 +1112,6 @@ function bindWordModeEvents() {
   }
 }
 
-// 単語モード用のヘルパー関数
-function createWordModeItem(item, category) {
-  const template = document.getElementById('wm-item-tpl');
-  if (!template) return '';
-  
-  const clone = template.content.cloneNode(true);
-  const button = clone.querySelector('.wm-item');
-  const jpSpan = clone.querySelector('.wm-jp');
-  const enSpan = clone.querySelector('.wm-en');
-  
-  if (button && jpSpan && enSpan) {
-    button.dataset.en = item.tag || '';
-    button.dataset.jp = item.label || item.tag || '';
-    button.dataset.cat = category;
-    
-    jpSpan.textContent = item.label || item.tag || '';
-    enSpan.textContent = item.tag || '';
-  }
-  
-  return clone.firstElementChild ? clone.firstElementChild.outerHTML : '';
-}
 
 function createWordModeColorItem(item) {
   const template = document.getElementById('wm-item-tpl-color');
