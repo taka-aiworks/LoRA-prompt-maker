@@ -360,9 +360,9 @@ details[open] summary .caret { transform: rotate(90deg); }
 
 /* 無効状態の見た目（下カテゴリのfieldsetや親パネルに付く想定） */
 .is-disabled {
-  opacity: .45;
-  pointer-events: none;   /* 操作も止める */
-}
+   opacity: .45;           /* 見た目だけ落とす。pointer-eventsは殺さない */
+ }
+
 
 /* パネルは見た目を落とす＋操作制御（チェックボックスだけは押せる） */
 .panel.is-disabled {
