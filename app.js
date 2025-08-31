@@ -1577,132 +1577,144 @@ function buildOneLearning(extraSeed = 0){
   };
 }
 
-// 学習モードバッチ生成関数（配分ルール適用）
-function buildBatchLearning(n) {
-  const want = Math.max(1, Number(n) || 1);
-  const rows = [];
+// buildOneLearning関数を修正（1枚テスト用）
+function buildOneLearning(extraSeed = 0){
+  const textOf = id => (document.getElementById(id)?.textContent || "").trim();
+  let p = [];
   
-  // 共通のネガティブプロンプトを1回だけ生成
-  const useDefNeg = !!document.getElementById('useDefaultNeg')?.checked;
-  const addNeg = (document.getElementById('negLearn')?.value || "").trim();
-  const commonNeg = buildNegative(addNeg, useDefNeg);
-  
-  for(let i = 0; i < want; i++) {
-    const textOf = id => (document.getElementById(id)?.textContent || "").trim();
-    let p = [];
-    
-    // NSFWチェック
-    const isNSFW = document.getElementById("nsfwLearn")?.checked;
-    if (isNSFW) {
-      p.push("NSFW");
-    }
-    
-    p.push("solo");
-    
-    const g = getGenderCountTag() || "";
-    if (g) p.push(g);
-
-    // 基本情報
-    p.push(...[
-      getBFValue('age'), getBFValue('gender'), getBFValue('body'), getBFValue('height'),
-      getOne('hairStyle'), getOne('eyeShape'),
-      textOf('tagH'), textOf('tagE'), textOf('tagSkin')
-    ].filter(Boolean));
-
-    // 服の処理（ワンピース対応、NSFW優先）
-    const isOnepiece = getIsOnepiece();
-    const wearMode = document.querySelector('input[name="learnWearMode"]:checked')?.value || 'basic';
-    
-    let hasNSFWOutfit = false;
-    if (isNSFW) {
-      const nsfwOutfits = getMany("nsfwL_outfit");
-      if (nsfwOutfits.length > 0) {
-        p.push(pick(nsfwOutfits));
-        hasNSFWOutfit = true;
-      }
-    }
-    
-    if (!hasNSFWOutfit && wearMode === 'basic') {
-      const outfits = [];
-      const colorTags = {
-        top: textOf('tag_top'),
-        bottom: textOf('tag_bottom'), 
-        shoes: textOf('tag_shoes')
-      };
-
-      if (isOnepiece) {
-        const dress = getOne('outfit_dress');
-        if (dress) outfits.push(dress);
-      } else {
-        const top = getOne('outfit_top');
-        const bottomCat = getOne('bottomCat') || 'pants';
-        const pants = getOne('outfit_pants');
-        const skirt = getOne('outfit_skirt');
-        const shoes = getOne('outfit_shoes');
-        
-        if (top) outfits.push(top);
-        if (bottomCat === 'pants' && pants) outfits.push(pants);
-        else if (bottomCat === 'skirt' && skirt) outfits.push(skirt);
-        if (shoes) outfits.push(shoes);
-      }
-
-      const finalOutfits = makeFinalOutfitTags(outfits, colorTags);
-      p.push(...finalOutfits);
-    }
-
-    // 固定アクセサリー
-    const accSel = document.getElementById("learn_acc");
-    const accColor = window.getLearnAccColor ? window.getLearnAccColor() : "";
-    if (accSel && accSel.value && accColor) {
-      p.push(`${accColor} ${accSel.value}`);
-    } else if (accSel && accSel.value) {
-      p.push(accSel.value);
-    }
-
-    // NSFW要素（学習モード）- 体型のみ
-    if (isNSFW) {
-      const nsfwBody = getMany("nsfwL_body");
-      if (nsfwBody.length > 0) p.push(pick(nsfwBody));
-    }
-
-    // ★★★ 配分ルールに基づいた散らし処理 ★★★
-    const categories = ['view', 'comp', 'expr', 'bg', 'light', 'pose'];
-    
-    categories.forEach(cat => {
-      let selected = null;
-      
-      // NSFW優先チェック
-      if (isNSFW && cat === 'expr') {
-        const nsfwExpr = getMany('nsfwL_expr');
-        if (nsfwExpr.length > 0) {
-          selected = pick(nsfwExpr);
-        }
-      }
-      
-      // 配分ルールから選択
-      if (!selected) {
-        selected = pickByDistribution(cat);
-      }
-      
-      if (selected) p.push(selected);
-    });
-
-    // 固定タグ
-    const fixed = (document.getElementById('fixedLearn')?.value || "").trim();
-    if (fixed){
-      const f = fixed.split(/\s*,\s*/).filter(Boolean);
-      p = [...f, ...p];
-    }
-
-    const seed = seedFromName((document.getElementById('charName')?.value || ''), i);
-    const prompt = p.join(", ");
-    const text = `${prompt}${commonNeg?` --neg ${commonNeg}`:""} seed:${seed}`;
-    
-    rows.push({ seed, pos:p, neg: commonNeg, prompt, text });
+  // NSFWチェック
+  const isNSFW = document.getElementById("nsfwLearn")?.checked;
+  if (isNSFW) {
+    p.push("NSFW");
   }
   
-  return rows;
+  p.push("solo");
+  
+  const g = getGenderCountTag() || "";
+  if (g) p.push(g);
+
+  p.push(...[
+    getBFValue('age'), getBFValue('gender'), getBFValue('body'), getBFValue('height'),
+    getOne('hairStyle'), getOne('eyeShape'),
+    textOf('tagH'), textOf('tagE'), textOf('tagSkin')
+  ].filter(Boolean));
+
+  // 服の処理（ワンピース対応、NSFW優先）
+  const isOnepiece = getIsOnepiece();
+  const wearMode = document.querySelector('input[name="learnWearMode"]:checked')?.value || 'basic';
+  
+  let hasNSFWOutfit = false;
+  if (isNSFW) {
+    const nsfwOutfits = getMany("nsfwL_outfit");
+    if (nsfwOutfits.length > 0) {
+      p.push(...nsfwOutfits.slice(0, 1)); // 1つだけ
+      hasNSFWOutfit = true;
+    }
+  }
+  
+  if (!hasNSFWOutfit && wearMode === 'basic') {
+    const outfits = [];
+    // ★★★ 修正箇所：チェックボックス状態を確認して色タグを取得 ★★★
+    const colorTags = {
+      top: document.getElementById('use_top')?.checked ? 
+           textOf('tag_top').replace(/^—$/, "") : "",
+      bottom: document.getElementById('useBottomColor')?.checked ? 
+              textOf('tag_bottom').replace(/^—$/, "") : "",
+      shoes: document.getElementById('use_shoes')?.checked ? 
+             textOf('tag_shoes').replace(/^—$/, "") : ""
+    };
+
+    if (isOnepiece) {
+      const dress = getOne('outfit_dress');
+      if (dress) outfits.push(dress);
+    } else {
+      const top = getOne('outfit_top');
+      const bottomCat = getOne('bottomCat') || 'pants';
+      const pants = getOne('outfit_pants');
+      const skirt = getOne('outfit_skirt');
+      const shoes = getOne('outfit_shoes');
+      
+      if (top) outfits.push(top);
+      if (bottomCat === 'pants' && pants) outfits.push(pants);
+      else if (bottomCat === 'skirt' && skirt) outfits.push(skirt);
+      if (shoes) outfits.push(shoes);
+    }
+
+    const finalOutfits = makeFinalOutfitTags(outfits, colorTags);
+    p.push(...finalOutfits);
+  }
+
+  // 固定アクセサリー
+  const accSel = document.getElementById("learn_acc");
+  const accColor = window.getLearnAccColor ? window.getLearnAccColor() : "";
+  if (accSel && accSel.value && accColor) {
+    p.push(`${accColor} ${accSel.value}`);
+  } else if (accSel && accSel.value) {
+    p.push(accSel.value);
+  }
+
+  // NSFW要素（学習モード）- 体型のみ
+  if (isNSFW) {
+    const nsfwBody = getMany("nsfwL_body");
+    if (nsfwBody.length > 0) p.push(nsfwBody[0]); // 1つだけ
+  }
+
+  // ★★★ 1枚テスト用：選択されたもののみ使用（配分ルールなし） ★★★
+  const categories = [
+    { sfw: 'bg', nsfw: null, key: 'bg' },
+    { sfw: 'pose', nsfw: null, key: 'pose' },
+    { sfw: 'comp', nsfw: null, key: 'comp' },
+    { sfw: 'view', nsfw: null, key: 'view' },
+    { sfw: 'expr', nsfw: 'nsfwL_expr', key: 'expr' }
+  ];
+
+  categories.forEach(({ sfw, nsfw, key }) => {
+    let selected = null;
+    
+    // NSFW優先
+    if (isNSFW && nsfw) {
+      const nsfwSelected = getMany(nsfw);
+      if (nsfwSelected.length > 0) {
+        selected = nsfwSelected[0];
+      }
+    }
+    
+    // NSFWで選択されなかった場合はSFW
+    if (!selected) {
+      const sfwSelected = getOne(sfw);
+      if (sfwSelected) selected = sfwSelected;
+    }
+    
+    if (selected) p.push(selected);
+  });
+
+  const fixed = (document.getElementById('fixedLearn')?.value || "").trim();
+  if (fixed){
+    const f = fixed.split(/\s*,\s*/).filter(Boolean);
+    p = [...f, ...p];
+  }
+
+  const useDefNeg = !!document.getElementById('useDefaultNeg')?.checked;
+  const addNeg    = (document.getElementById('negLearn')?.value || "").trim();
+  const neg = buildNegative(addNeg, useDefNeg);
+
+      const seed = seedFromName((document.getElementById('charName')?.value || ''), extraSeed);
+  const prompt = p.join(", ");
+  const text = `${prompt}${neg?` --neg ${neg}`:""} seed:${seed}`;
+  
+  // ★★★ キャプション用プロンプトを生成（1枚テスト用） ★★★
+  const caption = buildCaptionPrompt();
+  
+  return { 
+    seed, 
+    pos: p, 
+    neg, 
+    prompt, 
+    text,
+    caption  // ← 追加
+  };
 }
+
 
 // ベースから微差を作る（+1ずつでもOK）
 function microJitterSeed(baseSeed, index) {
