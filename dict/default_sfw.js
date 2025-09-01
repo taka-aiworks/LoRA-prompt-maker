@@ -1,3 +1,4 @@
+window.DEFAULT_SFW_DICT = {
 {
   "SFW": {
    "age": [
@@ -832,3 +833,4 @@
   ]
   }
 }
+};
