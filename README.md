@@ -71,6 +71,9 @@ GASのURL/トークン、辞書インポート/エクスポート、キャッシ
 ├─ index.html
 ├─ app.js
 ├─ styles.css
+├─ READMEL.md
+├─ MANUAL.md
+├─ apm_csv_to_sheet.gs
 ├─ dict/
 │   ├─ default_sfw.json
 │   └─ default_nsfw.json
