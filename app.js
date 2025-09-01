@@ -2270,19 +2270,76 @@ async function postCSVtoGAS(kind, csv, meta = {}) {
   toast("クラウド（GAS）へ保存しました");
 }
 
-/* ===== 初期化関数群 ===== */
-async function loadDefaultDicts(){
-  const tryFetch = async (path)=>{
-    try{
-      const r = await fetch(path, {cache:"no-store"});
-      if(!r.ok) throw new Error("bad status");
+/* ===== 初期化関数群（置き換え） ===== */
+async function loadDefaultDicts() {
+  // 一度だけレンダー・トーストを出すためのフラグ
+  let didSFW = false;
+  let didNSFW = false;
+
+  // 埋め込み（<script src="dict/default_*.js">）をまず試す
+  if (window.DEFAULT_SFW_DICT) {
+    mergeIntoSFW(window.DEFAULT_SFW_DICT);
+    didSFW = true;
+  }
+  if (window.DEFAULT_NSFW_DICT) {
+    mergeIntoNSFW(window.DEFAULT_NSFW_DICT);
+    didNSFW = true;
+  }
+
+  // 埋め込みが無いときだけ fetch（HTTPサーバやPagesで動く時の保険）
+  async function tryFetch(path) {
+    try {
+      const r = await fetch(path, { cache: "no-store" });
+      if (!r.ok) throw new Error(`bad status: ${r.status}`);
       return await r.json();
-    }catch(_){ return null; }
-  };
-  const sfw = await tryFetch("dict/default_sfw.json");
-  if(sfw){ mergeIntoSFW(sfw); renderSFW(); fillAccessorySlots(); toast("SFW辞書を読み込みました"); }
-  const nsfw = await tryFetch("dict/default_nsfw.json");
-  if(nsfw){ mergeIntoNSFW(nsfw); renderNSFWProduction(); renderNSFWLearning(); toast("NSFW辞書を読み込みました"); }
+    } catch (_) {
+      return null;
+    }
+  }
+
+  if (!didSFW) {
+    const sfw = await tryFetch("dict/default_sfw.json");
+    if (sfw) {
+      mergeIntoSFW(sfw);
+      didSFW = true;
+    }
+  }
+
+  if (!didNSFW) {
+    const nsfw = await tryFetch("dict/default_nsfw.json");
+    if (nsfw) {
+      mergeIntoNSFW(nsfw);
+      didNSFW = true;
+    }
+  }
+
+  // レンダリングは「読めた側だけ」実行（重複防止）
+  if (didSFW) {
+    // これらが存在しない環境でも落ちないようにガード
+    try { renderSFW && renderSFW(); } catch(_) {}
+    try { fillAccessorySlots && fillAccessorySlots(); } catch(_) {}
+    try { toast && toast("SFW辞書を読み込みました"); } catch(_) {}
+  }
+
+  if (didNSFW) {
+    try { renderNSFWProduction && renderNSFWProduction(); } catch(_) {}
+    try { renderNSFWLearning && renderNSFWLearning(); } catch(_) {}
+    try { toast && toast("NSFW辞書を読み込みました"); } catch(_) {}
+  }
+
+  // 何も読めなかった場合のフォールバック（任意）
+  if (!didSFW && typeof getFallbackSFW === "function") {
+    mergeIntoSFW(getFallbackSFW());
+    try { renderSFW && renderSFW(); } catch(_) {}
+    try { fillAccessorySlots && fillAccessorySlots(); } catch(_) {}
+    try { toast && toast("SFWフォールバック辞書を使用しました"); } catch(_) {}
+  }
+  if (!didNSFW && typeof getFallbackNSFW === "function") {
+    mergeIntoNSFW(getFallbackNSFW());
+    try { renderNSFWProduction && renderNSFWProduction(); } catch(_) {}
+    try { renderNSFWLearning && renderNSFWLearning(); } catch(_) {}
+    try { toast && toast("NSFWフォールバック辞書を使用しました"); } catch(_) {}
+  }
 }
 
 // ===== bindLearnBatch関数の修正 =====
