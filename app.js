@@ -1716,6 +1716,160 @@ function buildOneLearning(extraSeed = 0){
 }
 
 
+// ===== 学習用配分ルールに基づいたバッチ生成関数を追加 =====
+function buildBatchLearning(n) {
+  const want = Math.max(1, Number(n) || 1);
+  const rows = [];
+  
+  // 共通のネガティブプロンプト
+  const commonNeg = buildNegative((document.getElementById("negLearn")?.value || "").trim(), 
+                                  !!document.getElementById('useDefaultNeg')?.checked);
+  
+  // ベースseed
+  const name = (document.getElementById('charName')?.value || "");
+  const baseSeed = seedFromName(name, 0);
+  
+  for (let i = 0; i < want; i++) {
+    let p = [];
+    
+    // LoRAタグを最優先で先頭に追加
+    const loraTag = (document.getElementById('loraTag')?.value || '').trim();
+    if (loraTag) p.push(loraTag);
+    
+    // NSFWチェック
+    const isNSFW = document.getElementById("nsfwLearn")?.checked;
+    if (isNSFW) p.push("NSFW");
+    
+    // solo, 1girl/1boy
+    p.push("solo");
+    const g = getGenderCountTag() || "";
+    if (g) p.push(g);
+    
+    // 基本情報
+    const textOf = id => (document.getElementById(id)?.textContent || "").trim();
+    p.push(...[
+      getBFValue('age'), getBFValue('gender'), getBFValue('body'), getBFValue('height'),
+      getOne('hairStyle'), getOne('eyeShape'),
+      textOf('tagH'), textOf('tagE'), textOf('tagSkin')
+    ].filter(Boolean));
+    
+    // 服の処理（NSFW優先）
+    const wearMode = document.querySelector('input[name="learnWearMode"]:checked')?.value || 'basic';
+    let hasNSFWOutfit = false;
+    
+    if (isNSFW) {
+      const nsfwOutfits = getMany("nsfwL_outfit");
+      if (nsfwOutfits.length > 0) {
+        p.push(pick(nsfwOutfits));
+        hasNSFWOutfit = true;
+      }
+    }
+    
+    if (!hasNSFWOutfit && wearMode === 'basic') {
+      const isOnepiece = getIsOnepiece();
+      const outfits = [];
+      const colorTags = {
+        top: document.getElementById('use_top')?.checked ? 
+             textOf('tag_top').replace(/^—$/, "") : "",
+        bottom: document.getElementById('useBottomColor')?.checked ? 
+                textOf('tag_bottom').replace(/^—$/, "") : "",
+        shoes: document.getElementById('use_shoes')?.checked ? 
+               textOf('tag_shoes').replace(/^—$/, "") : ""
+      };
+      
+      if (isOnepiece) {
+        const dress = getOne('outfit_dress');
+        if (dress) outfits.push(dress);
+      } else {
+        const top = getOne('outfit_top');
+        const bottomCat = getOne('bottomCat') || 'pants';
+        const pants = getOne('outfit_pants');
+        const skirt = getOne('outfit_skirt');
+        const shoes = getOne('outfit_shoes');
+        
+        if (top) outfits.push(top);
+        if (bottomCat === 'pants' && pants) outfits.push(pants);
+        else if (bottomCat === 'skirt' && skirt) outfits.push(skirt);
+        if (shoes) outfits.push(shoes);
+      }
+      
+      const finalOutfits = makeFinalOutfitTags(outfits, colorTags);
+      p.push(...finalOutfits);
+    }
+    
+    // 固定アクセサリー
+    const accSel = document.getElementById("learn_acc");
+    const accColor = window.getLearnAccColor ? window.getLearnAccColor() : "";
+    if (accSel && accSel.value) {
+      if (accColor && accColor !== "—") {
+        p.push(`${accColor} ${accSel.value}`);
+      } else {
+        p.push(accSel.value);
+      }
+    }
+    
+    // NSFW体型
+    if (isNSFW) {
+      const nsfwBody = getMany("nsfwL_body");
+      if (nsfwBody.length > 0) p.push(pick(nsfwBody));
+    }
+    
+    // 配分ルールに基づく要素選択
+    const categories = [
+      { key: 'bg', sfw: null, nsfw: null },
+      { key: 'pose', sfw: null, nsfw: null },
+      { key: 'comp', sfw: null, nsfw: null },  
+      { key: 'view', sfw: null, nsfw: null },
+      { key: 'expr', sfw: null, nsfw: 'nsfwL_expr' },
+      { key: 'light', sfw: null, nsfw: null }
+    ];
+    
+    categories.forEach(({ key, sfw, nsfw }) => {
+      let selected = null;
+      
+      // NSFW優先
+      if (isNSFW && nsfw) {
+        const nsfwItems = getMany(nsfw);
+        if (nsfwItems.length > 0) {
+          selected = pick(nsfwItems);
+        }
+      }
+      
+      // NSFWで選択されなかった場合は配分ルールで選択
+      if (!selected) {
+        selected = pickByDistribution(key);
+      }
+      
+      if (selected) p.push(selected);
+    });
+    
+    // 固定タグを先頭付近に配置
+    const fixed = (document.getElementById('fixedLearn')?.value || "").trim();
+    if (fixed) {
+      const fixedTags = fixed.split(/\s*,\s*/).filter(Boolean);
+      const insertIndex = loraTag ? 1 : 0;
+      p.splice(insertIndex, 0, ...fixedTags);
+    }
+    
+    const seed = seedFromName(name, i);
+    const prompt = p.join(", ");
+    const caption = buildCaptionPrompt(); // キャプション生成
+    
+    rows.push({
+      seed,
+      pos: p,
+      prompt,
+      neg: commonNeg,
+      text: `${prompt}${commonNeg ? ` --neg ${commonNeg}` : ""} seed:${seed}`,
+      caption
+    });
+  }
+  
+  return rows;
+}
+
+
+
 // ベースから微差を作る（+1ずつでもOK）
 function microJitterSeed(baseSeed, index) {
   // 32bit に収める
@@ -2013,12 +2167,16 @@ function csvFromLearn(fmtSelId = "#fmtLearnBatch") {
   return [header.join(","), ...rows].join("\n");
 }
 
+// ===== CSV関数の修正 =====
 function csvFromProd(fmtSelId = "#fmtProd") {
   const fmt = getFmt(fmtSelId);
   const header = ['"no"','"seed"','"prompt"','"negative"','"merged"','"line"'];
-  const rows = Array.from($("#tblProd tbody")?.querySelectorAll("tr") || []).map((tr) => {
+  const rows = Array.from($("#tblProd tbody")?.querySelectorAll("tr") || []).map((tr, i) => {
     const tds = Array.from(tr.children).map(td => td.textContent || "");
-    const no = tds[0] || "", seed = tds[1] || "", p = tds[2] || "", n = tds[3] || "";
+    const no = tds[0] || (i+1);
+    const seed = tds[1] || "";
+    const p = tds[2] || "";
+    const n = tds[3] || "";
     const merged = `${p}\nNegative prompt: ${n}`;
     const line = fmt.line(p, n, seed);
     const esc = (s) => `"${String(s).replace(/"/g, '""')}"`;
@@ -2026,6 +2184,7 @@ function csvFromProd(fmtSelId = "#fmtProd") {
   });
   return [header.join(","), ...rows].join("\n");
 }
+
 
 /* ===== クラウド送信 ===== */
 async function postCSVtoGAS(kind, csv, meta = {}) {
@@ -2064,40 +2223,48 @@ async function loadDefaultDicts(){
   if(nsfw){ mergeIntoNSFW(nsfw); renderNSFWProduction(); renderNSFWLearning(); toast("NSFW辞書を読み込みました"); }
 }
 
+// ===== bindLearnBatch関数の修正 =====
 function bindLearnBatch(){
   document.getElementById("btnBatchLearn")?.addEventListener("click", ()=>{
     const cnt = parseInt(document.getElementById("countLearn")?.value, 10) || 24;
-    const rows = buildBatchLearning(cnt);
+    const rows = buildBatchLearning(cnt); // 修正された関数を使用
     renderLearnTableTo("#tblLearn tbody", rows);
     renderTextTriplet("outLearn", rows, "fmtLearnBatch");
+    toast("学習セット生成完了"); // トースト追加
   });
 
   bindCopyTripletExplicit([
+    ["btnCopyLearnAll", "outLearnAll"],
+    ["btnCopyLearnPrompt", "outLearnPrompt"], 
+    ["btnCopyLearnNeg", "outLearnNeg"],
     ["btnCopyLearnTestAll", "outLearnTestAll"],
     ["btnCopyLearnTestPrompt", "outLearnTestPrompt"],
     ["btnCopyLearnTestNeg", "outLearnTestNeg"],
-    ["btnCopyLearnTestCaption", "outLearnTestCaption"]  // ← 新規追加
+    ["btnCopyLearnTestCaption", "outLearnTestCaption"]
   ]);
 
   document.getElementById("btnCsvLearn")?.addEventListener("click", ()=>{
-    const csv = csvFromLearn();
+    const csv = csvFromLearn(); // 学習用のCSV生成関数を使用
     const char = (document.getElementById("charName")?.value || "noname").replace(/[^\w\-]/g,"_");
     dl(`learning_${char}_${nowStamp()}.csv`, csv);
     toast("学習CSVを保存しました");
   });
 
   document.getElementById("btnCloudLearn")?.addEventListener("click", async ()=>{
-    const csv = csvFromLearn();
+    const csv = csvFromLearn(); // 学習用のCSV生成関数を使用 
     await postCSVtoGAS("learning", csv);
   });
 }
 
+
+// ===== bindProduction関数の修正 =====
 function bindProduction(){
   document.getElementById("btnGenProd")?.addEventListener("click", ()=>{
     const cnt = parseInt(document.getElementById("countProd").value,10) || 50;
     const rows = buildBatchProduction(cnt);
     renderLearnTableTo("#tblProd tbody", rows);
     renderTextTriplet('outProd', rows, 'fmtProd');
+    toast("量産セット生成完了"); // トースト追加
   });
 
   bindCopyTripletExplicit([
@@ -2107,14 +2274,14 @@ function bindProduction(){
   ]);
 
   document.getElementById("btnCsvProd")?.addEventListener("click", ()=>{
-    const csv = csvFromProd();
+    const csv = csvFromProd(); // 量産用のCSV生成関数を使用
     const char = (document.getElementById("charName")?.value || "noname").replace(/[^\w\-]/g,"_");
     dl(`production_${char}_${nowStamp()}.csv`, csv);
-    toast("量産CSVを保存しました");
+    toast("量産CSVを保存しました"); // 量産用のメッセージ
   });
 
   document.getElementById("btnCloudProd")?.addEventListener("click", async ()=>{
-    const csv = csvFromProd();
+    const csv = csvFromProd(); // 量産用のCSV生成関数を使用
     await postCSVtoGAS("production", csv);
   });
 }
