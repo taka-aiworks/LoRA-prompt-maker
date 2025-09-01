@@ -86,6 +86,7 @@ NSFW は切替可能。成人モデルでのみ使用してください。
 
 4-1. GAS スクリプトを作成
 	1.	ブラウザで Google Apps Script を開く（Googleアカウントにログイン）。
+        [https://script.google.com/home?utm_source=chatgpt.com&pli=1](https://script.google.com/?utm_source=chatgpt.com)
 	2.	新しいプロジェクトを作成。
 	3.	エディタの Code.gs に、フォルダ内の「apm_csv_to_sheet.gs」コードを貼り付けて保存。
 	•	ファイル名：apm_csv_to_sheet.gs（推奨）
