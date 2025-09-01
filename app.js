@@ -526,59 +526,76 @@ function addHueDrag(wheelEl, thumbEl, onHueChange){
   return setThumb;
 }
 
-function initWheel(wId,tId,sId,lId,swId,tagId,baseTag){
-  const wheel=$(wId), thumb=$(tId), sat=$(sId), lit=$(lId), sw=$(swId), tagEl=$(tagId);
+// ===== 置き換え版：initWheel =====
+function initWheel(wId, tId, sId, lId, swId, tagId, baseTag) {
+  const wheel = $(wId), thumb = $(tId), sat = $(sId), lit = $(lId), sw = $(swId), tagEl = $(tagId);
+
+  // 要素が欠けている場合でも、同じAPI形状（getterに onHue を持たせる）で返す
   if (!wheel || !thumb || !sat || !lit || !sw || !tagEl) {
-    return () => (document.querySelector(tagId)?.textContent || "").trim();
+    const getter = () => (document.querySelector(tagId)?.textContent || "").trim();
+    getter.onHue = () => {};           // ダミー
+    getter.onHue.__lastHue = 0;
+    return getter;
   }
+
   let hue = 35;
-  function paint(){
+
+  function paint() {
     const s = +sat.value, l = +lit.value;
-    const [r,g,b] = hslToRgb(hue, s, l);
-    sw.style.background = `#${[r,g,b].map(v=>v.toString(16).padStart(2,"0")).join("")}`;
+    const [r, g, b] = hslToRgb(hue, s, l);
+    sw.style.background = `#${[r, g, b].map(v => v.toString(16).padStart(2, "0")).join("")}`;
     const cname = colorNameFromHSL(hue, s, l);
     tagEl.textContent = `${cname} ${baseTag}`;
   }
-  const onHue = (h)=>{ hue = h; onHue.__lastHue = h; paint(); };
+
+  const onHue = (h) => { hue = h; onHue.__lastHue = h; paint(); };
   onHue.__lastHue = hue;
+
   addHueDrag(wheel, thumb, onHue);
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
-  requestAnimationFrame(()=>{
+
+  requestAnimationFrame(() => {
     paint();
     const rect = wheel.getBoundingClientRect();
-    const r = rect.width/2 - 7;
-    const rad = (hue - 90) * Math.PI/180;
-    thumb.style.left = (rect.width/2  + r*Math.cos(rad) - 7) + "px";
-    thumb.style.top  = (rect.height/2 + r*Math.sin(rad) - 7) + "px";
+    const r = rect.width / 2 - 7;
+    const rad = (hue - 90) * Math.PI / 180;
+    thumb.style.left = (rect.width / 2 + r * Math.cos(rad) - 7) + "px";
+    thumb.style.top  = (rect.height / 2 + r * Math.sin(rad) - 7) + "px";
   });
-  return ()=> (($(tagId).textContent) || "").trim();
+
+  // ← ここ、$(tagId) ではなくキャプチャ済みの tagEl を使う
+  const getter = () => (tagEl.textContent || "").trim();
+  getter.onHue = onHue;                // ★ 外部から色相をセットできるようにする
+  return getter;
 }
 
+// ===== 置き換え版：initColorWheel =====
 function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   const wheel = document.getElementById("wheel_" + idBase);
   const thumb = document.getElementById("thumb_" + idBase);
-  const sat = document.getElementById("sat_" + idBase);
-  const lit = document.getElementById("lit_" + idBase);
-  const sw = document.getElementById("sw_" + idBase);
-  const tag = document.getElementById("tag_" + idBase);
-  
+  const sat   = document.getElementById("sat_" + idBase);
+  const lit   = document.getElementById("lit_" + idBase);
+  const sw    = document.getElementById("sw_" + idBase);
+  const tag   = document.getElementById("tag_" + idBase);
+
+  // 要素が欠けている場合でも同じAPIを返す
   if (!wheel || !thumb || !sat || !lit || !sw || !tag) {
-    return () => (document.getElementById("tag_" + idBase)?.textContent || "").trim();
+    const getter = () => (document.getElementById("tag_" + idBase)?.textContent || "").trim();
+    getter.onHue = () => {};
+    getter.onHue.__lastHue = defaultHue;
+    return getter;
   }
-  
+
   let hue = defaultHue;
-  
   sat.value = defaultS;
   lit.value = defaultL;
-  
+
   function paint() {
-    const s = +sat.value;
-    const l = +lit.value;
+    const s = +sat.value, l = +lit.value;
     const [r, g, b] = hslToRgb(hue, s, l);
     sw.style.background = `rgb(${r},${g},${b})`;
-    
-    // ★★★ 修正：bottomカラー用チェックボックス特定を強化 ★★★
+
     let useCheckbox = null;
     if (idBase === 'bottom') {
       useCheckbox = document.getElementById("useBottomColor");
@@ -587,31 +604,21 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
     } else {
       useCheckbox = document.getElementById("use_" + idBase);
     }
-    
-    // console.log(`Color wheel ${idBase}: useCheckbox found:`, !!useCheckbox, 'checked:', useCheckbox?.checked);
-    
+
     if (useCheckbox && !useCheckbox.checked) {
       tag.textContent = "—";
     } else {
-      const colorName = colorNameFromHSL(hue, s, l);
-      tag.textContent = colorName;
-     // console.log(`Color wheel ${idBase}: set color to`, colorName);
+      tag.textContent = colorNameFromHSL(hue, s, l);
     }
   }
-  
-  const onHue = (h) => {
-    hue = h;
-    onHue.__lastHue = h;
-    paint();
-  };
+
+  const onHue = (h) => { hue = h; onHue.__lastHue = h; paint(); };
   onHue.__lastHue = hue;
-  
+
   addHueDrag(wheel, thumb, onHue);
-  
   sat.addEventListener("input", paint);
   lit.addEventListener("input", paint);
-  
-  // ★★★ 修正：チェックボックスイベント監視の強化 ★★★
+
   let useCheckbox = null;
   if (idBase === 'bottom') {
     useCheckbox = document.getElementById("useBottomColor");
@@ -620,27 +627,21 @@ function initColorWheel(idBase, defaultHue = 0, defaultS = 80, defaultL = 50) {
   } else {
     useCheckbox = document.getElementById("use_" + idBase);
   }
-  
-  if (useCheckbox) {
-    useCheckbox.addEventListener("change", (e) => {
-      // console.log(`Checkbox ${idBase} changed to:`, e.target.checked);
-      paint();
-    });
-  }
-  
+  if (useCheckbox) useCheckbox.addEventListener("change", paint);
+
   requestAnimationFrame(() => {
     paint();
     const rect = wheel.getBoundingClientRect();
-    const radius = rect.width / 2 - 7;
+    const radius  = rect.width / 2 - 7;
     const radians = (hue - 90) * Math.PI / 180;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    thumb.style.left = (centerX + radius * Math.cos(radians) - 7) + "px";
-    thumb.style.top = (centerY + radius * Math.sin(radians) - 7) + "px";
+    const cx = rect.width / 2, cy = rect.height / 2;
+    thumb.style.left = (cx + radius * Math.cos(radians) - 7) + "px";
+    thumb.style.top  = (cy + radius * Math.sin(radians) - 7) + "px";
   });
-  
-  return () => tag.textContent.trim();
+
+  const getter = () => tag.textContent.trim();
+  getter.onHue = onHue;                // ★ 外部から色相をセットできるようにする
+  return getter;
 }
 
 
