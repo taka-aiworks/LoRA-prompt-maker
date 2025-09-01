@@ -1,4 +1,4 @@
-
+window.DEFAULT_NSFW_DICT = {
 {
   "NSFW": {
     "expression": [
@@ -578,3 +578,4 @@
     ]
   }
 }
+};
