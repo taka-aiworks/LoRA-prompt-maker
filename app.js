@@ -2864,3 +2864,43 @@ function initWordMode() {
     }
   }
 }
+
+async function loadDictionaries() {
+  // ① まず埋め込みを優先
+  if (window.DEFAULT_SFW_DICT) {
+    mergeIntoSFW(window.DEFAULT_SFW_DICT); // ← 既存のマージ関数を使用
+  }
+  if (window.DEFAULT_NSFW_DICT) {
+    mergeIntoNSFW(window.DEFAULT_NSFW_DICT);
+  }
+
+  // ② すでに埋め込み済みなら fetch はスキップ
+  const needFetchSFW  = !window.DEFAULT_SFW_DICT;
+  const needFetchNSFW = !window.DEFAULT_NSFW_DICT;
+
+  if (!needFetchSFW && !needFetchNSFW) return;
+
+  // ③ 埋め込みが無い場合だけ fetch（ローカルサーバやPages用）
+  try {
+    if (needFetchSFW) {
+      const resS = await fetch("dict/default_sfw.json");
+      if (resS.ok) mergeIntoSFW(await resS.json());
+    }
+    if (needFetchNSFW) {
+      const resN = await fetch("dict/default_nsfw.json");
+      if (resN.ok) mergeIntoNSFW(await resN.json());
+    }
+  } catch (e) {
+    console.warn("外部辞書の fetch に失敗:", e);
+    // 手元にフォールバックがあればここで使う
+    if (!window.DEFAULT_SFW_DICT && typeof getFallbackSFW === 'function') {
+      mergeIntoSFW(getFallbackSFW());
+    }
+    if (!window.DEFAULT_NSFW_DICT && typeof getFallbackNSFW === 'function') {
+      mergeIntoNSFW(getFallbackNSFW());
+    }
+  }
+}
+
+
+
