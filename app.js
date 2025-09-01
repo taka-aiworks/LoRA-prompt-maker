@@ -157,40 +157,100 @@ window.TAGMAP = {
   id2tag: new Map()
 };
 
-async function initTagDictionaries(){
-  async function safeLoad(url){
-    try { const r = await fetch(url); if (!r.ok) throw 0; return await r.json(); }
-    catch(_){ return null; }
+// 置き換え版：辞書初期化（埋め込みJS → なければ fetch JSON）
+async function initTagDictionaries() {
+  // Map入れ物が無ければ初期化
+  if (!window.TAGMAP) {
+    window.TAGMAP = {
+      en: new Map(),         // "red hair" -> "red hair"（小文字正規化）
+      ja2tag: new Map(),     // "赤髪" -> "red hair"
+      label2tag: new Map(),  // "ラベル文字列" -> "tag"
+      id2tag: new Map(),     // 任意の id/key -> "tag"
+    };
   }
+
+  // 埋め込み（<script src="dict/default_*.js">）があればそれを使う
+  const embeddedSFW  = window.DEFAULT_SFW_DICT  || null;
+  const embeddedNSFW = window.DEFAULT_NSFW_DICT || null;
+
+  // 無ければ fetch（HTTPサーバやPagesで動く時用）
+  async function safeLoad(url) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.json();
+    } catch (_) {
+      return null;
+    }
+  }
+
   const [sfw, nsfw] = await Promise.all([
-    safeLoad('dict/default_sfw.json'), safeLoad('dict/default_nsfw.json')
+    embeddedSFW  ?? safeLoad('dict/default_sfw.json'),
+    embeddedNSFW ?? safeLoad('dict/default_nsfw.json'),
   ]);
 
-  function addAll(obj, nsKey){
-    if (!obj) return;
-    const root = obj[nsKey]?.categories || obj.categories || {};
+  // --- 重要：辞書の「ルート」をうまく拾う（categoriesが無いケース対応）---
+  function normalizeRoot(obj, nsKey) {
+    if (!obj || typeof obj !== 'object') return null;
+
+    // 1) まず namespaced 直下
+    if (nsKey && obj[nsKey]) {
+      const n = obj[nsKey];
+      if (n && typeof n === 'object') {
+        if (n.categories && typeof n.categories === 'object') return n.categories;
+        return n; // ← あなたのSFWのように直下に配列群がある構造
+      }
+    }
+
+    // 2) 直下に categories
+    if (obj.categories && typeof obj.categories === 'object') return obj.categories;
+
+    // 3) それも無ければオブジェクト全体を走査対象にする
+    return obj;
+  }
+
+  function addAll(obj, nsKey) {
+    const root = normalizeRoot(obj, nsKey);
+    if (!root) return;
+
+    // 再帰的に配列を捜して item 追加
     const walk = (v) => {
-      if (Array.isArray(v)) v.forEach(addItem);
-      else if (v && typeof v==='object') Object.values(v).forEach(walk);
+      if (!v) return;
+      if (Array.isArray(v)) {
+        v.forEach(addItem);
+        return;
+      }
+      if (typeof v === 'object') {
+        // オブジェクトがそのまま {tag,label,...} の形なら addItem も試す
+        if ('tag' in v || 'label' in v || 'ja' in v || 'id' in v || 'key' in v) addItem(v);
+        // さらに子要素も探索
+        Object.values(v).forEach(walk);
+      }
     };
-    function addItem(it){
-      if (!it || typeof it!=='object') return;
-      const tag = String(it.tag||"").trim();
+
+    function addItem(it) {
+      if (!it || typeof it !== 'object') return;
+      const tagRaw   = it.tag ?? '';
+      const tag      = String(tagRaw).trim();
       if (!tag) return;
-      const ja = String(it.ja || it.label || "").trim();
-      const id = String(it.id || it.key || "").trim();
-      const label = String(it.label || "").trim();
+
+      const ja       = String(it.ja ?? it.label ?? '').trim();
+      const id       = String(it.id ?? it.key ?? '').trim();
+      const label    = String(it.label ?? '').trim();
 
       window.TAGMAP.en.set(tag.toLowerCase(), tag);
       if (ja)    window.TAGMAP.ja2tag.set(ja, tag);
       if (label) window.TAGMAP.label2tag.set(label, tag);
       if (id)    window.TAGMAP.id2tag.set(id, tag);
     }
+
     walk(root);
   }
-  addAll(sfw, 'SFW');
+
+  addAll(sfw,  'SFW');
   addAll(nsfw, 'NSFW');
 }
+
 
 /* ===== 基本値取得 ===== */
 function getBFValue(name){
