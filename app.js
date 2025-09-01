@@ -40,15 +40,15 @@ function seedFromName(nm, extra = 0) {
 
 
 /* ===== 学習用配分ルール ===== */
-// === 顔安定版・配分ルール（希少枠を底上げ＆実用レンジに調整） =======================
+// === LoRA学習最適化版・配分ルール（バランス調整・多様性向上） =======================
 const MIX_RULES = {
   view: {
     group: ["front view","three-quarter view","side view","profile view","back view"],
     targets: {
-      "three-quarter view":[0.50,0.58], // 顔が崩れにくい主軸
-      "front view":[0.30,0.35],
-      "side view":[0.04,0.06],          // ←底上げ
-      "profile view":[0.03,0.05],       // ←底上げ
+      "three-quarter view":[0.45,0.50], // 顔が崩れにくい主軸（微減）
+      "front view":[0.30,0.35],         // 維持
+      "side view":[0.06,0.10],          // ←大幅底上げ（1-2回確保）
+      "profile view":[0.08,0.12],       // ←大幅底上げ（2-3回確保）
       "back view":[0.01,0.02]           // ←極少だけ残す
     },
     fallback: "three-quarter view"
@@ -56,13 +56,13 @@ const MIX_RULES = {
   comp: {
     group: ["bust","waist up","portrait","upper body","close-up","full body","wide shot"],
     targets: {
-      "bust":[0.32,0.38],
-      "waist up":[0.26,0.32],
-      "portrait":[0.08,0.12],
-      "upper body":[0.06,0.10],
-      "close-up":[0.03,0.05],
-      "full body":[0.10,0.15], // ←しっかり混ざる
-      "wide shot":[0.02,0.04]  // ←底上げ
+      "bust":[0.30,0.36],               // 微減してバランス改善
+      "waist up":[0.24,0.30],           // 微減
+      "portrait":[0.10,0.14],           // 底上げ
+      "upper body":[0.08,0.12],         // 底上げ  
+      "close-up":[0.04,0.06],           // 底上げ
+      "full body":[0.12,0.16],          // ←しっかり混ざる（増加）
+      "wide shot":[0.02,0.04]           // ←底上げ維持
     },
     fallback: "bust"
   },
@@ -72,48 +72,48 @@ const MIX_RULES = {
       "slight blush","serious","determined","pouting (slight)"
     ],
     targets: {
-      "neutral expression":[0.50,0.60],  // ちょい緩めに
-      "smiling":[0.22,0.28],
-      "smiling open mouth":[0.04,0.06],  // ←底上げ
-      "slight blush":[0.03,0.05],
-      "serious":[0.02,0.03],             // ←底上げ
-      "determined":[0.01,0.02],
-      "pouting (slight)":[0.01,0.02]
+      "neutral expression":[0.50,0.58], // 大幅削減（バランス改善）
+      "smiling":[0.25,0.30],            // ←大幅増加
+      "smiling open mouth":[0.04,0.06], // ←底上げ維持
+      "slight blush":[0.03,0.05],       // 底上げ維持
+      "serious":[0.03,0.05],            // ←底上げ強化
+      "determined":[0.02,0.04],         // ←底上げ強化  
+      "pouting (slight)":[0.01,0.02]    // 維持
     },
     fallback: "neutral expression"
   },
   bg: {
     group: ["plain background","white background","studio background","solid background","white seamless","gray seamless"],
     targets: {
-      "plain background":[0.48,0.55],   // 主体
-      "white background":[0.18,0.24],
-      "studio background":[0.08,0.12],
-      "solid background":[0.05,0.08],
-      "white seamless":[0.02,0.03],     // ←底上げ
-      "gray seamless":[0.02,0.03]       // ←底上げ
+      "plain background":[0.35,0.42],   // ←大幅削減（偏り解消）
+      "white background":[0.20,0.25],   // 微減
+      "studio background":[0.15,0.20],  // ←大幅増加
+      "solid background":[0.08,0.12],   // ←大幅増加
+      "white seamless":[0.03,0.05],     // ←底上げ強化
+      "gray seamless":[0.03,0.05]       // ←底上げ強化
     },
     fallback: "plain background"
   },
   light: {
     group: ["even lighting","soft lighting","normal lighting","window light","overcast"],
     targets: {
-      "even lighting":[0.35,0.45],
-      "soft lighting":[0.30,0.35],
-      "normal lighting":[0.15,0.20],
-      "window light":[0.05,0.08],
-      "overcast":[0.01,0.03] // ←わずかに増
+      "even lighting":[0.32,0.40],      // 微減（バランス改善）
+      "soft lighting":[0.28,0.33],      // 微減
+      "normal lighting":[0.18,0.23],    // ←増加
+      "window light":[0.06,0.09],       // ←底上げ
+      "overcast":[0.02,0.04]            // ←底上げ強化
     },
     fallback: "even lighting"
   },
   pose: {
     group: ["standing","sitting","arms at sides","hand on hip","arms crossed","looking at viewer"],
     targets: {
-      "standing":[0.40,0.50],
-      "sitting":[0.20,0.25],
-      "arms at sides":[0.15,0.20],
-      "hand on hip":[0.08,0.12],
-      "arms crossed":[0.03,0.05],
-      "looking at viewer":[0.02,0.04]
+      "standing":[0.38,0.45],           // 微減（バランス改善）
+      "sitting":[0.20,0.25],            // 維持
+      "arms at sides":[0.15,0.20],      // 維持
+      "hand on hip":[0.08,0.12],        // 維持
+      "arms crossed":[0.04,0.06],       // ←底上げ
+      "looking at viewer":[0.03,0.05]   // ←底上げ
     },
     fallback: "standing"
   }
@@ -121,6 +121,7 @@ const MIX_RULES = {
 
 window.MIX_RULES = MIX_RULES;
 const EXPR_ALL = new Set([...Object.keys(MIX_RULES.expr.targets), MIX_RULES.expr.fallback]);
+
 
 // === outfitの取り込み方針 =======================
 const TRAINING_POLICY = {
